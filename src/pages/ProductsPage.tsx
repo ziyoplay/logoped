@@ -73,7 +73,7 @@ export function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Tovarlar</h1>
           <p className="text-gray-500">{state.products.length} ta mahsulot</p>
@@ -170,7 +170,8 @@ export function ProductsPage() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Nomi</th>
@@ -232,6 +233,7 @@ export function ProductsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {filteredProducts.length === 0 && (
@@ -266,7 +268,7 @@ export function ProductsPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Kategoriya</label>
               <input
@@ -293,7 +295,7 @@ export function ProductsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Miqdori</label>
               <input
@@ -318,7 +320,7 @@ export function ProductsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Narxi (so'm)</label>
               <input

@@ -41,7 +41,7 @@ export function DailyPlanPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Kunlik Reja</h1>
           <p className="text-gray-500">Bugungi kun rejalari va vazifalari</p>
@@ -104,7 +104,7 @@ export function DailyPlanPage() {
                     return (
                       <div
                         key={appointment.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between flex-wrap gap-2 p-3 bg-gray-50 rounded-lg"
                       >
                         <div className="flex items-center gap-3">
                           <div className="text-center">
@@ -156,7 +156,7 @@ export function DailyPlanPage() {
                       key={assignment.id}
                       className="p-3 bg-gray-50 rounded-lg"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <div>
                           <p className="font-medium text-gray-800">{assignment.title}</p>
                           <p className="text-sm text-gray-500">

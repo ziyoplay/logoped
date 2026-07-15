@@ -193,11 +193,11 @@ export function AppointmentsPage() {
       {/* Kalendar jadvali */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
-          <div style={{ minWidth: `${200 + daysInMonth * 92}px` }}>
+          <div style={{ minWidth: `${150 + daysInMonth * 78}px` }}>
             {/* Sarlavha qatori */}
             <div
               className="grid border-b border-gray-200 bg-gray-50"
-              style={{ gridTemplateColumns: `200px repeat(${daysInMonth}, minmax(92px, 1fr))` }}
+              style={{ gridTemplateColumns: `150px repeat(${daysInMonth}, minmax(78px, 1fr))` }}
             >
               <div className="sticky left-0 z-20 bg-gray-50 px-4 py-3 text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-r border-gray-200 flex items-center">
                 Mijozlar
@@ -232,10 +232,10 @@ export function AppointmentsPage() {
               <div
                 key={client.id}
                 className="grid border-b border-gray-100 last:border-b-0"
-                style={{ gridTemplateColumns: `200px repeat(${daysInMonth}, minmax(92px, 1fr))` }}
+                style={{ gridTemplateColumns: `150px repeat(${daysInMonth}, minmax(78px, 1fr))` }}
               >
-                <div className="sticky left-0 z-10 bg-white px-4 py-3 border-r border-gray-200">
-                  <p className="font-bold text-gray-900 text-sm">
+                <div className="sticky left-0 z-10 bg-white px-3 py-3 border-r border-gray-200">
+                  <p className="font-bold text-gray-900 text-sm truncate">
                     {client.firstName} {client.lastName}
                   </p>
                   <p className="text-xs text-blue-600 mt-0.5">{client.phone}</p>
@@ -319,7 +319,7 @@ export function AppointmentsPage() {
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Sana</label>
               <input
@@ -342,7 +342,7 @@ export function AppointmentsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Davomiylik (daqiqa)</label>
               <input
