@@ -43,7 +43,7 @@ export function DailyPlanPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Kunlik Reja</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Kunlik Reja</h1>
           <p className="text-gray-500">Bugungi kun rejalari va vazifalari</p>
         </div>
         <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl shadow-sm px-3 py-1.5">

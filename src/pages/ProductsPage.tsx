@@ -75,7 +75,7 @@ export function ProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Tovarlar</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tovarlar</h1>
           <p className="text-gray-500">{state.products.length} ta mahsulot</p>
         </div>
         <button

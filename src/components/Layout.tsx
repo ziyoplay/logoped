@@ -43,7 +43,7 @@ const navGroups: { title: string; items: NavItem[] }[] = [
       { id: 'appointments', label: 'Qabul qilish', icon: <Clock size={19} /> },
       { id: 'assignments', label: 'Topshiriqlar', icon: <FileText size={19} /> },
       { id: 'exercises', label: 'Mashq turlari', icon: <Dumbbell size={19} /> },
-      { id: 'monitoring', label: 'Avtо nazorat', icon: <BarChart3 size={19} /> },
+      { id: 'monitoring', label: 'Avto nazorat', icon: <BarChart3 size={19} /> },
     ],
   },
   {
@@ -61,7 +61,7 @@ const pageTitles: Record<Page, string> = {
   clients: 'Mijozlar',
   appointments: 'Qabul qilish',
   assignments: 'Topshiriqlar',
-  monitoring: 'Avtо nazorat',
+  monitoring: 'Avto nazorat',
   exercises: 'Mashq turlari',
   progress: 'Before / After',
   products: 'Tovarlar',

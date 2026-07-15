@@ -124,7 +124,7 @@ export function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Hisobot</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Hisobot</h1>
           <p className="text-gray-500">Tizim bo'yicha batafsil hisobotlar</p>
         </div>
         <button

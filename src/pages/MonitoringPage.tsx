@@ -37,7 +37,7 @@ export function MonitoringPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Avtomatik monitoring</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Avtomatik monitoring</h1>
         <p className="text-gray-500">Tizimning umumiy holati va statistikasi</p>
       </div>
 

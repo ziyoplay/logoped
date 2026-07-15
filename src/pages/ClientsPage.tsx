@@ -95,7 +95,7 @@ export function ClientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Mijozlar Ro'yxati</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Mijozlar Ro'yxati</h1>
           <p className="text-gray-500">{state.clients.length} ta ro'yxatdan o'tgan mijoz</p>
         </div>
         <button
