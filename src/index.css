@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import '@fontsource-variable/inter';
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* Yon panel — to'q ko'k (navy) */
   --color-navy-700: #1e2a44;
