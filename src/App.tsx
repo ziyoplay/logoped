@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StoreProvider } from './store/StoreContext';
 import { Layout } from './components/Layout';
+import { LoginPage } from './components/LoginPage';
 import { DailyPlanPage } from './pages/DailyPlanPage';
 import { ClientsPage } from './pages/ClientsPage';
 import { AppointmentsPage } from './pages/AppointmentsPage';
@@ -14,6 +15,19 @@ import type { Page } from './types';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('daily-plan');
+  const [isAuthed, setIsAuthed] = useState(
+    () => localStorage.getItem('logoped_auth') === 'true'
+  );
+
+  const handleLogin = () => {
+    localStorage.setItem('logoped_auth', 'true');
+    setIsAuthed(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('logoped_auth');
+    setIsAuthed(false);
+  };
 
   const renderPage = () => {
     switch (currentPage) {
@@ -40,9 +54,13 @@ function App() {
     }
   };
 
+  if (!isAuthed) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <StoreProvider>
-      <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
+      <Layout currentPage={currentPage} onNavigate={setCurrentPage} onLogout={handleLogout}>
         {renderPage()}
       </Layout>
     </StoreProvider>

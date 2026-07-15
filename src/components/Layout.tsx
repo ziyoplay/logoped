@@ -14,6 +14,7 @@ import {
   X,
   Bell,
   Stethoscope,
+  LogOut,
 } from 'lucide-react';
 import type { Page } from '../types';
 
@@ -21,6 +22,7 @@ interface LayoutProps {
   children: ReactNode;
   currentPage: Page;
   onNavigate: (page: Page) => void;
+  onLogout: () => void;
 }
 
 interface NavItem {
@@ -68,7 +70,7 @@ const pageTitles: Record<Page, string> = {
   reports: 'Hisobot',
 };
 
-export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
+export function Layout({ children, currentPage, onNavigate, onLogout }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -143,12 +145,20 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
         {/* Profil */}
         <div className="flex items-center gap-3 px-5 py-4 border-t border-white/10">
           <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0">
-            LG
+            IR
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-white truncate">Logoped</p>
+            <p className="text-sm font-semibold text-white truncate">Iroda</p>
             <p className="text-xs text-gray-500">admin</p>
           </div>
+          <button
+            onClick={onLogout}
+            className="ml-auto p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="Chiqish"
+            aria-label="Tizimdan chiqish"
+          >
+            <LogOut size={17} />
+          </button>
         </div>
       </aside>
 
@@ -181,9 +191,17 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
             </button>
             <div className="flex items-center gap-2 pl-4 border-l border-gray-200">
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                LG
+                IR
               </div>
-              <span className="hidden sm:block text-sm font-medium text-gray-700">Logoped</span>
+              <span className="hidden sm:block text-sm font-medium text-gray-700">Iroda</span>
+              <button
+                onClick={onLogout}
+                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Chiqish"
+                aria-label="Tizimdan chiqish"
+              >
+                <LogOut size={17} />
+              </button>
             </div>
           </div>
         </header>
