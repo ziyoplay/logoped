@@ -140,18 +140,113 @@ a.btn{text-decoration:none;display:inline-block}
 .cred-box .grid2{gap:10px}
 .cred-box input{background:#fff}
 
-/* ---------- mijoz kabineti ---------- */
-.portal{max-width:760px;margin:0 auto;padding:18px 14px 40px}
-.portal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.portal-hi{font-size:20px;font-weight:800}
-.portal-sub{color:var(--muted);font-size:13.5px}
-.portal-tabs{display:flex;gap:8px;background:#fff;padding:6px;border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px}
-.portal-tabs button{flex:1;background:none;border:none;padding:10px 6px;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
-.portal-tabs button.active{background:var(--primary);color:#fff}
-.portal-tabs .badge{background:var(--danger);color:#fff;font-size:10.5px;font-weight:700;padding:0 6px;border-radius:99px}
-@media(max-width:480px){
-  .portal-tabs button{flex-direction:column;gap:2px;font-size:11.5px}
-  .portal-tabs .badge{position:absolute;top:4px;right:8px}
+/* ============================================================
+   MIJOZ KABINETI — ota-onalar ko'radigan sahifa
+   Imzo: nutq pufakchasi + suzuvchi tovushlar (R, S, Sh, L)
+   ============================================================ */
+.pt-page{--pt-deep:#173B33;--pt-leaf:#2E7D6B;--pt-mint:#EAF4EF;--pt-sun:#FFC94A;--pt-coral:#E2694F;
+  min-height:100vh;background:var(--pt-mint)}
+
+/* ---- imzo: hero ---- */
+.pt-hero{position:relative;background:linear-gradient(150deg,var(--pt-deep) 20%,var(--pt-leaf) 100%);
+  padding:56px 18px 74px;overflow:hidden}
+.pt-bubble{position:relative;max-width:600px;margin:0 auto;background:#fff;border-radius:26px;
+  padding:24px 26px;box-shadow:0 14px 44px rgba(9,28,23,.35);animation:pt-pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.pt-bubble::after{content:"";position:absolute;left:44px;bottom:-16px;border:18px solid transparent;
+  border-top-color:#fff;border-bottom:none;border-left:none}
+.pt-hi{font-size:clamp(19px,4.5vw,26px);font-weight:800;line-height:1.25;color:var(--ink)}
+.pt-next{margin-top:8px;font-size:15px;color:var(--muted)}
+.pt-next b{color:var(--pt-leaf)}
+@keyframes pt-pop{from{opacity:0;transform:scale(.92) translateY(14px)}to{opacity:1;transform:none}}
+
+/* suzuvchi tovush doirachalari */
+.pt-sound{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:50%;
+  font-weight:800;color:#fff;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);
+  animation:pt-drift 7s ease-in-out infinite;user-select:none}
+.pt-sound-0{width:58px;height:58px;font-size:22px;top:14%;left:6%;animation-delay:0s}
+.pt-sound-1{width:40px;height:40px;font-size:16px;top:58%;left:16%;animation-delay:-2.4s}
+.pt-sound-2{width:48px;height:48px;font-size:17px;top:18%;right:9%;animation-delay:-4.2s}
+.pt-sound-3{width:34px;height:34px;font-size:14px;top:62%;right:18%;animation-delay:-1.2s}
+@keyframes pt-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+
+.pt-exit{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);color:#fff;
+  border:1.5px solid rgba(255,255,255,.35);border-radius:99px;padding:6px 14px;font-size:13px;font-weight:600;z-index:2}
+.pt-exit:hover{background:rgba(255,255,255,.22)}
+
+/* ---- yulduzchali progress ---- */
+.pt-strip{max-width:640px;margin:-38px auto 0;position:relative;z-index:2;background:#fff;border-radius:18px;
+  box-shadow:var(--shadow);padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-left:auto;margin-right:auto}
+.pt-stars{display:flex;align-items:center;gap:3px;font-size:22px;color:#DCD8CE}
+.pt-stars .on{color:var(--pt-sun);text-shadow:0 1px 0 rgba(0,0,0,.06)}
+.pt-stars-label{font-size:13.5px;font-weight:600;color:var(--muted);margin-left:8px}
+.pt-chip{margin-left:auto;background:var(--pt-mint);color:var(--pt-leaf);font-size:13px;font-weight:700;
+  padding:7px 13px;border-radius:99px}
+
+/* ---- bo'lim tugmalari ---- */
+.pt-tabs{max-width:640px;margin:16px auto 0;display:flex;gap:8px;padding:0 14px}
+.pt-tabs button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;position:relative;
+  background:#fff;border:none;border-radius:99px;padding:12px 8px;font-size:14px;font-weight:700;
+  color:var(--muted);box-shadow:var(--shadow)}
+.pt-tabs button.active{background:var(--pt-deep);color:#fff}
+.pt-dot{position:absolute;top:6px;right:12px;background:var(--pt-coral);color:#fff;font-style:normal;
+  font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
+
+/* ---- kontent ---- */
+.pt-body{max-width:640px;margin:14px auto 60px;padding:0 14px;display:flex;flex-direction:column;gap:14px}
+.pt-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px}
+.pt-card h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:12px}
+.pt-card img{max-width:100%;border-radius:12px;margin:8px 0}
+.pt-card p{margin-top:4px}
+.pt-empty{text-align:center;color:var(--muted);padding:22px 8px;font-size:14.5px;line-height:1.6}
+
+/* mashg'ulot qatori */
+.pt-appt{display:flex;align-items:center;gap:13px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pt-appt:last-child{border-bottom:none}
+.pt-date{width:48px;height:52px;border-radius:13px;background:var(--pt-mint);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;flex-shrink:0}
+.pt-date .d{font-size:19px;font-weight:800;color:var(--pt-leaf);line-height:1}
+.pt-date .m{font-size:10.5px;font-weight:700;color:var(--pt-leaf);text-transform:uppercase;margin-top:2px}
+.pt-appt-main{flex:1;min-width:0}
+.pt-appt-title{font-weight:700;font-size:14.5px}
+.pt-appt-sub{font-size:12.5px;color:var(--muted)}
+.pt-state{font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:99px;background:#EEECE6;color:var(--muted);white-space:nowrap}
+.pt-state.ok{background:var(--primary-soft);color:var(--pt-leaf)}
+.pt-state.miss{background:var(--danger-soft);color:var(--pt-coral)}
+.pt-state.off{background:var(--accent-soft);color:#9A6A16}
+
+/* topshiriq kartasi */
+.pt-task{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+.pt-task:last-child{border-bottom:none}
+.pt-task.old{opacity:.85}
+.pt-task-main{flex:1;min-width:0}
+.pt-task-title{font-weight:700;font-size:15px}
+.pt-task-desc{font-size:13px;color:var(--muted);margin-top:2px}
+.pt-task-due{font-size:12px;font-weight:600;color:var(--pt-leaf);margin-top:4px}
+.pt-task-due.late{color:var(--pt-coral)}
+.pt-done{background:var(--pt-sun);color:#5C4708;border:none;border-radius:99px;padding:10px 18px;
+  font-size:14px;font-weight:800;box-shadow:0 3px 0 #DBA92B;white-space:nowrap}
+.pt-done:active{transform:translateY(2px);box-shadow:0 1px 0 #DBA92B}
+
+/* oldin / keyin */
+.pt-ba{display:flex;gap:14px}
+.pt-ba-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.pt-ba-head{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);
+  background:#fff;border-radius:99px;padding:8px;text-align:center;box-shadow:var(--shadow)}
+.pt-ba-head.after{background:var(--pt-deep);color:#fff}
+
+@media(max-width:560px){
+  .pt-hero{padding:52px 14px 66px}
+  .pt-strip{margin-left:14px;margin-right:14px}
+  .pt-chip{margin-left:0}
+  .pt-tabs button{font-size:12.5px;padding:11px 4px}
+  .pt-ba{flex-direction:column}
+  .pt-task{flex-wrap:wrap}
+  .pt-done{flex:1;min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){
+  .pt-sound{animation:none}
+  .pt-bubble{animation:none}
 }
 
 /* ---------- responsive ---------- */
