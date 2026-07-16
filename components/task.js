@@ -41,11 +41,11 @@ export function TaskRow({ task: k }) {
   );
 }
 
-export function TaskForm({ onClose }) {
+export function TaskForm({ onClose, defaultClientId }) {
   const { db, patch, toast, activeClients } = useApp();
   const clients = activeClients();
   const defDue = () => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); };
-  const [f, setF] = useState({ clientId: clients[0]?.id || "", exId: "", title: "", desc: "", due: defDue() });
+  const [f, setF] = useState({ clientId: defaultClientId || clients[0]?.id || "", exId: "", title: "", desc: "", due: defDue() });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   const pickExercise = (e) => {
