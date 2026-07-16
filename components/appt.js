@@ -30,7 +30,7 @@ export function ApptRow({ appt: a, onEdit }) {
       <div className="li-main">
         <div className="li-title">{cname(a.clientId)}</div>
         <div className="li-sub">
-          {a.dur || 30} daqiqa · {fmtMoney(a.price)} {a.paid ? "· ✅ to'landi" : "· ⏳ to'lanmagan"}
+          {a.service ? a.service + " · " : ""}{a.dur || 30} daqiqa · {fmtMoney(a.price)} {a.paid ? "· ✅ to'landi" : "· ⏳ to'lanmagan"}
           {a.note ? " · " + a.note : ""}
         </div>
       </div>
@@ -58,10 +58,20 @@ export function ApptForm({ initial, defaultDate, onClose }) {
     date: a.date || defaultDate || today(),
     time: a.time || "10:00",
     dur: a.dur || 30,
+    service: a.service || db.appts[db.appts.length - 1]?.service || "",
     price: a.price ?? (db.appts[db.appts.length - 1]?.price || ""),
     note: a.note || "",
   });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+
+  // avval ishlatilgan xizmat nomlari — tez tanlash uchun
+  const knownServices = [...new Set(db.appts.map((x) => x.service).filter(Boolean))];
+  // xizmat tanlanganda oxirgi narxini avtomatik qo'yamiz
+  const pickService = (e) => {
+    const v = e.target.value;
+    const lastPrice = [...db.appts].reverse().find((x) => x.service === v && +x.price)?.price;
+    setF({ ...f, service: v, ...(lastPrice && !a.id ? { price: lastPrice } : {}) });
+  };
 
   const saveAppt = () => {
     if (!f.date || !f.time) return toast("Sana va vaqtni kiriting");
@@ -96,6 +106,13 @@ export function ApptForm({ initial, defaultDate, onClose }) {
         <Field label="Sana *"><input type="date" value={f.date} onChange={set("date")} /></Field>
         <Field label="Vaqt *"><input type="time" value={f.time} onChange={set("time")} /></Field>
       </div>
+      <Field label="Xizmat turi">
+        <input value={f.service} onChange={pickService} list="services"
+          placeholder="masalan: Logopedik mashg'ulot, Diagnostika, Massaj..." />
+        <datalist id="services">
+          {knownServices.map((s) => <option key={s} value={s} />)}
+        </datalist>
+      </Field>
       <div className="grid2">
         <Field label="Davomiylik (daq.)"><input type="number" value={f.dur} onChange={set("dur")} /></Field>
         <Field label="Narx (so'm)"><input type="number" value={f.price} onChange={set("price")} /></Field>

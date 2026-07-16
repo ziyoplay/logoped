@@ -1,6 +1,6 @@
 "use client";
 import { useApp } from "@/lib/store";
-import { fmtD, fmtMoney, initials, nazorat } from "@/lib/helpers";
+import { fmtD, fmtMoney, initials, nazorat, phoneOf } from "@/lib/helpers";
 import { TaskRow } from "../task";
 
 function Section({ title, count, children }) {
@@ -67,9 +67,9 @@ export default function Nazorat() {
             <div className="avatar">{initials(c.name)}</div>
             <div className="li-main">
               <div className="li-title">{c.name}</div>
-              <div className="li-sub">📞 {c.phone || "—"} — qo'ng'iroq qilib eslatish tavsiya etiladi</div>
+              <div className="li-sub">📞 {phoneOf(c) || "—"} — qo'ng'iroq qilib eslatish tavsiya etiladi</div>
             </div>
-            {c.phone && <a href={"tel:" + c.phone} className="btn sm ghost">📞 Qo'ng'iroq</a>}
+            {phoneOf(c) && <a href={"tel:" + phoneOf(c)} className="btn sm ghost">📞 Qo'ng'iroq</a>}
           </div>
         ))}
       </Section>

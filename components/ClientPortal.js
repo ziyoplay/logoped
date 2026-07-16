@@ -42,7 +42,7 @@ export default function ClientPortal() {
         <div className="avatar">{a.time?.slice(0, 5)}</div>
         <div className="li-main">
           <div className="li-title">{fmtD(a.date)}</div>
-          <div className="li-sub">{a.dur || 30} daqiqa · {fmtMoney(a.price)}{a.status === "keldi" ? (a.paid ? " · to'langan ✅" : " · to'lanmagan ⏳") : ""}</div>
+          <div className="li-sub">{a.service ? a.service + " · " : ""}{a.dur || 30} daqiqa · {fmtMoney(a.price)}{a.status === "keldi" ? (a.paid ? " · to'langan ✅" : " · to'lanmagan ⏳") : ""}</div>
         </div>
         <span className={"tag " + st[0]}>{st[1]}</span>
       </div>

@@ -114,6 +114,10 @@ a.btn{text-decoration:none;display:inline-block}
 .login-tabs button{flex:1;background:none;border:none;padding:9px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
 .login-tabs button.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
 
+/* murojaat yozuvi (mijoz kartasida) */
+.ref-item{background:var(--bg);border-radius:10px;padding:9px 12px;margin-bottom:8px}
+.ref-item .li-sub{margin-top:2px}
+
 /* mijoz login-parol bo'limi (mijoz formasida) */
 .cred-box{background:var(--primary-soft);border-radius:12px;padding:12px 14px;margin-top:14px}
 .cred-title{font-size:14px;font-weight:700;color:var(--primary)}
