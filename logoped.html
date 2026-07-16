@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logoped — ish kabineti</title>
+<style>
+:root{
+  --bg:#F6F4EF; --surface:#FFFFFF; --ink:#1E2A28; --muted:#6B7A76;
+  --primary:#2E7D6B; --primary-soft:#E3F0EC; --accent:#E8A23B; --accent-soft:#FBF0DC;
+  --danger:#C94F3D; --danger-soft:#F9E7E3; --ok:#3C8C5A; --line:#E4E0D8;
+  --radius:14px; --shadow:0 1px 3px rgba(30,42,40,.08),0 4px 16px rgba(30,42,40,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:15px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;width:100%;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+.app{display:flex;min-height:100vh}
+
+/* ---------- sidebar ---------- */
+.sidebar{width:230px;background:#20342F;color:#DCE8E4;padding:20px 12px;position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;z-index:50}
+.logo{font-size:19px;font-weight:800;color:#fff;padding:4px 12px 18px;letter-spacing:.3px}
+.logo span{color:#8FD4C1}
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+.nav button{display:flex;align-items:center;gap:10px;background:none;border:none;color:#B9CCC6;padding:10px 12px;border-radius:10px;font-size:14.5px;text-align:left;width:100%}
+.nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav button.active{background:var(--primary);color:#fff;font-weight:600}
+.nav .ic{width:22px;text-align:center;font-size:16px}
+.nav .badge{margin-left:auto;background:var(--danger);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px}
+.side-foot{padding:10px 12px;font-size:12px;color:#7E948E}
+.side-foot button{background:none;border:1px solid #3B524C;color:#B9CCC6;border-radius:8px;padding:6px 10px;font-size:12.5px;margin:3px 3px 0 0}
+
+/* ---------- main ---------- */
+.main{flex:1;margin-left:230px;padding:24px 28px 90px;max-width:1200px}
+.page-title{font-size:24px;font-weight:800;margin-bottom:2px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card h3{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+.stat{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px}
+.stat .n{font-size:24px;font-weight:800;color:var(--primary)}
+.stat .l{font-size:12.5px;color:var(--muted)}
+.stat.warn .n{color:var(--accent)}
+.stat.bad .n{color:var(--danger)}
+
+.btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--primary-soft);color:var(--primary)}
+.btn.warn{background:var(--accent-soft);color:#9A6A16}
+.btn.bad{background:var(--danger-soft);color:var(--danger)}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:99px}
+.tag.green{background:var(--primary-soft);color:var(--primary)}
+.tag.amber{background:var(--accent-soft);color:#9A6A16}
+.tag.red{background:var(--danger-soft);color:var(--danger)}
+.tag.gray{background:#EEECE6;color:var(--muted)}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.t-wrap{overflow-x:auto}
+
+.list-item{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--line)}
+.list-item:last-child{border-bottom:none}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.li-main{flex:1;min-width:0}
+.li-title{font-weight:600}
+.li-sub{font-size:12.5px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:28px 10px;font-size:14px}
+.empty .big{font-size:30px;display:block;margin-bottom:6px}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(20,30,28,.45);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:30px 14px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:520px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal h3{font-size:18px;margin-bottom:6px}
+.modal .actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#20342F;color:#fff;padding:10px 20px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .25s;z-index:200;pointer-events:none}
+.toast.show{opacity:1}
+
+.photo-cmp{display:flex;gap:10px;flex-wrap:wrap}
+.photo-cmp img{max-width:180px;border-radius:10px;border:1px solid var(--line)}
+.ba-col{flex:1;min-width:160px}
+.ba-col .h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+
+.search{max-width:280px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.mt{margin-top:12px}
+.muted{color:var(--muted);font-size:13px}
+.money{font-weight:700;color:var(--primary)}
+progress{width:100%;height:8px;accent-color:var(--primary)}
+
+/* ---------- mobile ---------- */
+.bottomnav{display:none}
+@media(max-width:820px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:16px 14px 90px}
+  .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#20342F;z-index:60;overflow-x:auto}
+  .bottomnav button{flex:1;min-width:64px;background:none;border:none;color:#B9CCC6;padding:9px 4px 7px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .bottomnav button.active{color:#8FD4C1}
+  .bottomnav .ic{font-size:18px}
+}
+@media print{.sidebar,.bottomnav,.no-print{display:none!important}.main{margin:0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Logoped<span>.uz</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      Ma'lumotlar shu qurilmada saqlanadi.<br>
+      <button onclick="exportData()">⬇ Zaxira</button><button onclick="document.getElementById('importFile').click()">⬆ Yuklash</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+    </div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="bottomnav" id="bottomnav"></nav>
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA ================= */
+const DEFAULT_EXERCISES = [
+ {name:"Artikulyatsion gimnastika", cat:"Artikulyatsiya", desc:"Til va lablar uchun mashqlar: 'Otcha', 'Soatcha', 'Baraban'. Oyna oldida 5-7 daqiqa."},
+ {name:"Nafas mashqlari", cat:"Nafas", desc:"Sham puflash, paxta uchirish, sovun pufakchalari. Burun orqali nafas olib, og'iz orqali chiqarish."},
+ {name:"'R' tovushini qo'yish", cat:"Tovush qo'yish", desc:"Til uchini tebratish mashqlari, 'dddd' dan 'drrr' ga o'tish."},
+ {name:"'S' tovushini avtomatlashtirish", cat:"Avtomatlashtirish", desc:"Bo'g'inlarda: sa-so-su. So'zlarda: soat, sut, sumka. Gaplarda takrorlash."},
+ {name:"Fonematik eshitish", cat:"Fonematik", desc:"Tovushni topish o'yinlari: 'Qaysi so'zda S bor?', qarsak chalish o'yini."},
+ {name:"Mayda motorika", cat:"Motorika", desc:"Plastilin, mozaika, boncuk terish, barmoq o'yinlari."},
+ {name:"Lug'at boyitish", cat:"Leksika", desc:"Mavzu bo'yicha rasmlar: hayvonlar, mevalar, transport. Kim ko'p so'z aytadi o'yini."},
+ {name:"Bog'lanishli nutq", cat:"Nutq", desc:"Rasm bo'yicha hikoya tuzish, ertakni qayta aytib berish."},
+];
+let db = load();
+function load(){
+  try{ const d = JSON.parse(localStorage.getItem("logoped_db")); if(d) return d; }catch(e){}
+  return { clients:[], appts:[], tasks:[], exercises:DEFAULT_EXERCISES.map((e,i)=>({id:"ex"+i,...e})), progress:[], products:[], sales:[], seq:1 };
+}
+function save(){ localStorage.setItem("logoped_db", JSON.stringify(db)); }
+function uid(){ return "id"+(db.seq++)+"_"+Date.now().toString(36); }
+function client(id){ return db.clients.find(c=>c.id===id); }
+function cname(id){ const c=client(id); return c?c.name:"(o'chirilgan)"; }
+
+/* ================= HELPERS ================= */
+const M = ["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"];
+const WD = ["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
+function today(){ return new Date().toISOString().slice(0,10); }
+function fmtD(s){ if(!s) return "—"; const d=new Date(s+"T00:00"); return d.getDate()+"-"+M[d.getMonth()]+" "+d.getFullYear(); }
+function fmtMoney(n){ return (n||0).toLocaleString("uz").replace(/,/g," ")+" so'm"; }
+function esc(s){ return (s||"").replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+function initials(n){ return n.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase(); }
+function daysAgo(dateStr){ return Math.floor((new Date(today())-new Date(dateStr))/86400000); }
+
+/* ================= AVTO NAZORAT ================= */
+function nazorat(){
+  const t = today();
+  const missedAppts = db.appts.filter(a=>a.status==="rejalashtirilgan" && a.date<t);
+  const unpaid = db.appts.filter(a=>a.status==="keldi" && !a.paid);
+  const overdueTasks = db.tasks.filter(k=>k.status==="berildi" && k.due && k.due<t);
+  const lowStock = db.products.filter(p=>p.stock<=2);
+  const inactive = db.clients.filter(c=>{
+    if(c.archived) return false;
+    const last = db.appts.filter(a=>a.clientId===c.id && a.status==="keldi").map(a=>a.date).sort().pop();
+    if(!last) return daysAgo(c.created||t)>=14;
+    return daysAgo(last)>=14;
+  });
+  return {missedAppts, unpaid, overdueTasks, lowStock, inactive,
+    total: missedAppts.length+unpaid.length+overdueTasks.length+lowStock.length+inactive.length};
+}
+
+/* ================= NAV ================= */
+const PAGES = [
+ {id:"home", ic:"📅", t:"Kunlik reja"},
+ {id:"clients", ic:"👥", t:"Mijozlar"},
+ {id:"appts", ic:"🗓️", t:"Qabul qilish"},
+ {id:"tasks", ic:"📝", t:"Topshiriqlar"},
+ {id:"nazorat", ic:"🔔", t:"Avto nazorat"},
+ {id:"exercises", ic:"🧩", t:"Mashq turlari"},
+ {id:"progress", ic:"📈", t:"Oldin / Keyin"},
+ {id:"products", ic:"🛍️", t:"Tovarlar"},
+ {id:"report", ic:"📊", t:"Hisobot"},
+];
+let page = "home";
+function renderNav(){
+  const n = nazorat().total;
+  const html = PAGES.map(p=>`<button class="${p.id===page?'active':''}" onclick="go('${p.id}')">
+     <span class="ic">${p.ic}</span>${p.t}${p.id==="nazorat"&&n?`<span class="badge">${n}</span>`:""}</button>`).join("");
+  document.getElementById("nav").innerHTML = html;
+  document.getElementById("bottomnav").innerHTML = PAGES.map(p=>
+    `<button class="${p.id===page?'active':''}" onclick="go('${p.id}')"><span class="ic">${p.ic}</span>${p.t.split(" ")[0]}</button>`).join("");
+}
+function go(p){ page=p; render(); window.scrollTo(0,0); }
+function render(){ renderNav(); VIEWS[page](); }
+
+/* ================= MODAL ================= */
+function openModal(html){ document.getElementById("modalBox").innerHTML=html; document.getElementById("modalBg").classList.add("open"); }
+function closeModal(){ document.getElementById("modalBg").classList.remove("open"); }
+function val(id){ return document.getElementById(id)?.value?.trim()||""; }
+
+/* ================= VIEWS ================= */
+const VIEWS = {};
+
+/* ---- 1. Kunlik reja (avto) ---- */
+VIEWS.home = function(){
+  const t = today(); const d = new Date();
+  const todays = db.appts.filter(a=>a.date===t).sort((a,b)=>a.time.localeCompare(b.time));
+  const dueTasks = db.tasks.filter(k=>k.status==="berildi" && k.due===t);
+  const nz = nazorat();
+  const income = db.appts.filter(a=>a.date===t&&a.paid).reduce((s,a)=>s+(+a.price||0),0)
+              + db.sales.filter(s=>s.date===t).reduce((s,x)=>s+x.total,0);
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Bugungi reja</div>
+    <div class="page-sub">${WD[d.getDay()]}, ${fmtD(t)} — reja avtomatik tuzildi</div>
+  </div><button class="btn no-print" onclick="apptForm()">＋ Qabul qo'shish</button></div>
+
+  <div class="grid4">
+    <div class="stat"><div class="n">${todays.length}</div><div class="l">Bugungi qabullar</div></div>
+    <div class="stat"><div class="n">${todays.filter(a=>a.status==="keldi").length}</div><div class="l">Qabul qilindi</div></div>
+    <div class="stat ${nz.total?'bad':''}"><div class="n">${nz.total}</div><div class="l">Nazorat ogohlantirishi</div></div>
+    <div class="stat"><div class="n" style="font-size:18px">${fmtMoney(income)}</div><div class="l">Bugungi tushum</div></div>
+  </div>
+
+  <div class="card mt"><h3>🗓️ Bugungi qabullar</h3>
+  ${todays.length? todays.map(a=>apptRow(a)).join("") :
+    `<div class="empty"><span class="big">🌿</span>Bugunga qabul yo'q. «Qabul qo'shish» tugmasini bosing.</div>`}
+  </div>
+
+  <div class="card"><h3>📝 Bugun tekshiriladigan topshiriqlar</h3>
+  ${dueTasks.length? dueTasks.map(k=>taskRow(k)).join(""):`<div class="empty">Bugunga muddatli topshiriq yo'q.</div>`}
+  </div>
+
+  ${nz.total?`<div class="card"><h3>🔔 Avto nazorat</h3>
+    <div class="muted">E'tibor talab qiladigan ${nz.total} ta holat bor. <button class="btn sm warn" onclick="go('nazorat')">Ko'rish</button></div></div>`:""}`;
+};
+
+function apptRow(a){
+  const st = {rejalashtirilgan:['gray','Kutilmoqda'], keldi:['green','Keldi'], kelmadi:['red','Kelmadi'], bekor:['amber','Bekor']}[a.status];
+  return `<div class="list-item">
+    <div class="avatar">${a.time.slice(0,5)}</div>
+    <div class="li-main"><div class="li-title">${esc(cname(a.clientId))}</div>
+      <div class="li-sub">${a.dur||30} daqiqa · ${fmtMoney(a.price)} ${a.paid?'· ✅ to’landi':'· ⏳ to’lanmagan'} ${a.note?'· '+esc(a.note):''}</div></div>
+    <span class="tag ${st[0]}">${st[1]}</span>
+    ${a.status==="rejalashtirilgan"?`<button class="btn sm" onclick="setAppt('${a.id}','keldi')">Keldi</button>
+      <button class="btn sm bad" onclick="setAppt('${a.id}','kelmadi')">Kelmadi</button>`:
+      a.status==="keldi"&&!a.paid?`<button class="btn sm ghost" onclick="togglePaid('${a.id}')">To'landi ✓</button>`:""}
+    <button class="btn sm ghost no-print" onclick="apptForm('${a.id}')">✎</button>
+  </div>`;
+}
+function taskRow(k){
+  const st = {berildi:['amber','Bajarilmoqda'], bajarildi:['green','Bajarildi'], bajarilmadi:['red','Bajarilmadi']}[k.status];
+  return `<div class="list-item">
+    <div class="avatar">📝</div>
+    <div class="li-main"><div class="li-title">${esc(k.title)}</div>
+      <div class="li-sub">${esc(cname(k.clientId))} · muddat: ${fmtD(k.due)} ${k.desc?'· '+esc(k.desc):''}</div></div>
+    <span class="tag ${st[0]}">${st[1]}</span>
+    ${k.status==="berildi"?`<button class="btn sm" onclick="setTask('${k.id}','bajarildi')">✓</button>
+      <button class="btn sm bad" onclick="setTask('${k.id}','bajarilmadi')">✗</button>`:""}
+    <button class="btn sm bad no-print" onclick="delTask('${k.id}')">🗑</button>
+  </div>`;
+}
+
+/* ---- 2. Mijozlar ---- */
+let clientSearch = "";
+VIEWS.clients = function(){
+  const list = db.clients.filter(c=>!c.archived && c.name.toLowerCase().includes(clientSearch.toLowerCase()));
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Mijozlar ro'yxati</div>
+    <div class="page-sub">Jami: ${db.clients.filter(c=>!c.archived).length} ta faol mijoz</div>
+  </div><button class="btn" onclick="clientForm()">＋ Yangi mijoz</button></div>
+  <div class="card">
+    <input class="search" placeholder="🔎 Ism bo'yicha qidirish..." value="${esc(clientSearch)}"
+      oninput="clientSearch=this.value;VIEWS.clients();this===document.activeElement||0" id="csearch">
+    <div class="mt">
+    ${list.length? list.map(c=>{
+      const last = db.appts.filter(a=>a.clientId===c.id&&a.status==="keldi").map(a=>a.date).sort().pop();
+      return `<div class="list-item">
+        <div class="avatar">${initials(c.name)}</div>
+        <div class="li-main"><div class="li-title">${esc(c.name)} ${c.age?`<span class="muted">(${c.age} yosh)</span>`:""}</div>
+        <div class="li-sub">${esc(c.diagnosis||"tashxis kiritilmagan")} · 📞 ${esc(c.phone||"—")} · oxirgi qabul: ${last?fmtD(last):"hali bo'lmagan"}</div></div>
+        <button class="btn sm ghost" onclick="clientCard('${c.id}')">Karta</button>
+        <button class="btn sm ghost" onclick="clientForm('${c.id}')">✎</button>
+        <button class="btn sm bad" onclick="archiveClient('${c.id}')">🗑</button>
+      </div>`;}).join("") : `<div class="empty"><span class="big">👥</span>Mijozlar hali yo'q. Birinchi mijozni qo'shing!</div>`}
+    </div>
+  </div>`;
+  const s=document.getElementById("csearch"); s.focus(); s.setSelectionRange(s.value.length,s.value.length);
+};
+function clientForm(id){
+  const c = id?client(id):{};
+  openModal(`<h3>${id?"Mijozni tahrirlash":"Yangi mijoz"}</h3>
+    <label>Ism familiya *</label><input id="f_name" value="${esc(c.name||"")}">
+    <div class="grid2"><div><label>Yoshi</label><input id="f_age" type="number" value="${c.age||""}"></div>
+    <div><label>Telefon</label><input id="f_phone" value="${esc(c.phone||"")}"></div></div>
+    <label>Ota-onasi (F.I.Sh.)</label><input id="f_parent" value="${esc(c.parent||"")}">
+    <label>Tashxis / muammo</label><input id="f_diag" value="${esc(c.diagnosis||"")}" placeholder="masalan: dislaliya, R tovushi">
+    <label>Izoh</label><textarea id="f_note" rows="2">${esc(c.note||"")}</textarea>
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="saveClient('${id||""}')">Saqlash</button></div>`);
+}
+function saveClient(id){
+  const name = val("f_name"); if(!name) return toast("Ismni kiriting");
+  const data = {name, age:val("f_age"), phone:val("f_phone"), parent:val("f_parent"), diagnosis:val("f_diag"), note:val("f_note")};
+  if(id) Object.assign(client(id), data);
+  else db.clients.push({id:uid(), created:today(), ...data});
+  save(); closeModal(); render(); toast("Saqlandi ✓");
+}
+function archiveClient(id){
+  if(!confirm(cname(id)+" ro'yxatdan olib tashlansinmi? (tarix saqlanadi)")) return;
+  client(id).archived = true; save(); render(); toast("Arxivlandi");
+}
+function clientCard(id){
+  const c = client(id);
+  const appts = db.appts.filter(a=>a.clientId===id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  const tasks = db.tasks.filter(k=>k.clientId===id);
+  const done = tasks.filter(k=>k.status==="bajarildi").length;
+  openModal(`<h3>${esc(c.name)}</h3>
+    <div class="muted">${c.age?c.age+" yosh · ":""}${esc(c.diagnosis||"")} · 📞 ${esc(c.phone||"—")}${c.parent?" · Ota-onasi: "+esc(c.parent):""}</div>
+    ${c.note?`<div class="mt muted">📌 ${esc(c.note)}</div>`:""}
+    <label>Topshiriqlar bajarilishi</label>
+    <progress max="${tasks.length||1}" value="${done}"></progress>
+    <div class="muted">${done} / ${tasks.length} bajarildi</div>
+    <label>Oxirgi qabullar</label>
+    ${appts.length? appts.map(a=>`<div class="li-sub" style="padding:3px 0">• ${fmtD(a.date)} ${a.time} — ${a.status}${a.paid?" (to'langan)":""}</div>`).join(""):"<div class='muted'>Qabullar yo'q</div>"}
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Yopish</button>
+    <button class="btn" onclick="closeModal();go('progress');progClient='${id}';render()">Oldin/Keyin</button></div>`);
+}
+
+/* ---- 3. Qabul qilish ---- */
+let apptDate = today();
+VIEWS.appts = function(){
+  const list = db.appts.filter(a=>a.date===apptDate).sort((a,b)=>a.time.localeCompare(b.time));
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Qabul qilish</div>
+    <div class="page-sub">Qabullarni rejalashtirish va belgilash</div>
+  </div><button class="btn" onclick="apptForm()">＋ Qabul qo'shish</button></div>
+  <div class="card"><div class="row">
+    <button class="btn sm ghost" onclick="shiftDay(-1)">←</button>
+    <input type="date" style="max-width:170px" value="${apptDate}" onchange="apptDate=this.value;VIEWS.appts()">
+    <button class="btn sm ghost" onclick="shiftDay(1)">→</button>
+    <button class="btn sm ghost" onclick="apptDate=today();VIEWS.appts()">Bugun</button>
+    <div class="spacer"></div><span class="muted">${fmtD(apptDate)} — ${list.length} ta qabul</span>
+  </div>
+  <div class="mt">${list.length? list.map(a=>apptRow(a)).join(""):`<div class="empty"><span class="big">🗓️</span>Bu kunga qabul yo'q.</div>`}</div>
+  </div>`;
+};
+function shiftDay(n){ const d=new Date(apptDate); d.setDate(d.getDate()+n); apptDate=d.toISOString().slice(0,10); VIEWS.appts(); }
+function apptForm(id){
+  if(!db.clients.filter(c=>!c.archived).length) return toast("Avval mijoz qo'shing");
+  const a = id? db.appts.find(x=>x.id===id) : {};
+  openModal(`<h3>${id?"Qabulni tahrirlash":"Yangi qabul"}</h3>
+    <label>Mijoz *</label><select id="f_client">${db.clients.filter(c=>!c.archived).map(c=>
+      `<option value="${c.id}" ${a.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+    <div class="grid2"><div><label>Sana *</label><input id="f_date" type="date" value="${a.date||apptDate||today()}"></div>
+    <div><label>Vaqt *</label><input id="f_time" type="time" value="${a.time||"10:00"}"></div></div>
+    <div class="grid2"><div><label>Davomiylik (daq.)</label><input id="f_dur" type="number" value="${a.dur||30}"></div>
+    <div><label>Narx (so'm)</label><input id="f_price" type="number" value="${a.price||db.appts.slice(-1)[0]?.price||""}"></div></div>
+    <label>Izoh</label><input id="f_anote" value="${esc(a.note||"")}">
+    <div class="actions">${id?`<button class="btn bad" onclick="delAppt('${id}')">O'chirish</button>`:""}
+    <button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="saveAppt('${id||""}')">Saqlash</button></div>`);
+}
+function saveAppt(id){
+  const data = {clientId:val("f_client"), date:val("f_date"), time:val("f_time"), dur:val("f_dur"), price:+val("f_price")||0, note:val("f_anote")};
+  if(!data.date||!data.time) return toast("Sana va vaqtni kiriting");
+  const clash = db.appts.find(a=>a.id!==id && a.date===data.date && a.time===data.time && a.status!=="bekor");
+  if(clash && !confirm("Diqqat: bu vaqtda "+cname(clash.clientId)+" bor. Baribir saqlansinmi?")) return;
+  if(id) Object.assign(db.appts.find(x=>x.id===id), data);
+  else db.appts.push({id:uid(), status:"rejalashtirilgan", paid:false, ...data});
+  save(); closeModal(); render(); toast("Saqlandi ✓");
+}
+function delAppt(id){ if(!confirm("Qabul o'chirilsinmi?"))return; db.appts=db.appts.filter(a=>a.id!==id); save(); closeModal(); render(); }
+function setAppt(id,st){ const a=db.appts.find(x=>x.id===id); a.status=st; save(); render(); toast(st==="keldi"?"Qabul qilindi ✓":"Belgilandi"); }
+function togglePaid(id){ const a=db.appts.find(x=>x.id===id); a.paid=!a.paid; save(); render(); toast(a.paid?"To'lov qabul qilindi ✓":"To'lov bekor qilindi"); }
+
+/* ---- 4. Topshiriqlar ---- */
+VIEWS.tasks = function(){
+  const list = [...db.tasks].sort((a,b)=>(b.given||"").localeCompare(a.given||""));
+  const active = list.filter(k=>k.status==="berildi");
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Mijozga topshiriqlar</div>
+    <div class="page-sub">Uyga vazifalar: ${active.length} ta bajarilmoqda</div>
+  </div><button class="btn" onclick="taskForm()">＋ Topshiriq berish</button></div>
+  <div class="card">${list.length? list.map(k=>taskRow(k)).join(""):
+    `<div class="empty"><span class="big">📝</span>Topshiriqlar yo'q. Mijozga uyga vazifa bering.</div>`}</div>`;
+};
+function taskForm(){
+  if(!db.clients.filter(c=>!c.archived).length) return toast("Avval mijoz qo'shing");
+  const due = new Date(); due.setDate(due.getDate()+7);
+  openModal(`<h3>Topshiriq berish</h3>
+    <label>Mijoz *</label><select id="f_client">${db.clients.filter(c=>!c.archived).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+    <label>Mashq turidan tanlash</label><select id="f_ex" onchange="const e=db.exercises.find(x=>x.id===this.value);if(e){document.getElementById('f_title').value=e.name;document.getElementById('f_desc').value=e.desc}">
+      <option value="">— o'zim yozaman —</option>${db.exercises.map(e=>`<option value="${e.id}">${esc(e.name)} (${esc(e.cat)})</option>`).join("")}</select>
+    <label>Topshiriq nomi *</label><input id="f_title">
+    <label>Tavsif / ko'rsatma</label><textarea id="f_desc" rows="3"></textarea>
+    <label>Muddat (tekshirish kuni)</label><input id="f_due" type="date" value="${due.toISOString().slice(0,10)}">
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="saveTask()">Berish</button></div>`);
+}
+function saveTask(){
+  const title = val("f_title"); if(!title) return toast("Topshiriq nomini kiriting");
+  db.tasks.push({id:uid(), clientId:val("f_client"), title, desc:val("f_desc"), given:today(), due:val("f_due"), status:"berildi"});
+  save(); closeModal(); render(); toast("Topshiriq berildi ✓");
+}
+function setTask(id,st){ db.tasks.find(k=>k.id===id).status=st; save(); render(); }
+function delTask(id){ if(!confirm("Topshiriq o'chirilsinmi?"))return; db.tasks=db.tasks.filter(k=>k.id!==id); save(); render(); }
+
+/* ---- 5. Avto nazorat ---- */
+VIEWS.nazorat = function(){
+  const nz = nazorat();
+  const sec = (title, items, rowFn) => `<div class="card"><h3>${title} <span class="tag ${items.length?'red':'green'}">${items.length}</span></h3>
+    ${items.length? items.map(rowFn).join(""):"<div class='muted'>Hammasi joyida ✓</div>"}</div>`;
+  document.getElementById("main").innerHTML = `
+  <div class="page-title">Avto nazorat</div>
+  <div class="page-sub">Tizim avtomatik tekshiradi va e'tibor kerak bo'lgan holatlarni ko'rsatadi</div>
+  ${sec("⏰ Belgilanmagan o'tgan qabullar", nz.missedAppts, a=>`<div class="list-item"><div class="li-main">
+      <div class="li-title">${esc(cname(a.clientId))}</div><div class="li-sub">${fmtD(a.date)} ${a.time} — holati belgilanmagan</div></div>
+      <button class="btn sm" onclick="setAppt('${a.id}','keldi')">Keldi</button>
+      <button class="btn sm bad" onclick="setAppt('${a.id}','kelmadi')">Kelmadi</button></div>`)}
+  ${sec("💰 To'lanmagan qabullar", nz.unpaid, a=>`<div class="list-item"><div class="li-main">
+      <div class="li-title">${esc(cname(a.clientId))}</div><div class="li-sub">${fmtD(a.date)} — ${fmtMoney(a.price)}</div></div>
+      <button class="btn sm ghost" onclick="togglePaid('${a.id}')">To'landi ✓</button></div>`)}
+  ${sec("📝 Muddati o'tgan topshiriqlar", nz.overdueTasks, k=>taskRow(k))}
+  ${sec("😴 14+ kun kelmagan mijozlar", nz.inactive, c=>`<div class="list-item"><div class="avatar">${initials(c.name)}</div>
+      <div class="li-main"><div class="li-title">${esc(c.name)}</div><div class="li-sub">📞 ${esc(c.phone||"—")} — qo'ng'iroq qilib eslatish tavsiya etiladi</div></div>
+      ${c.phone?`<a href="tel:${esc(c.phone)}" class="btn sm ghost" style="text-decoration:none">📞 Qo'ng'iroq</a>`:""}</div>`)}
+  ${sec("📦 Tugayotgan tovarlar (≤2 dona)", nz.lowStock, p=>`<div class="list-item"><div class="li-main">
+      <div class="li-title">${esc(p.name)}</div><div class="li-sub">Qoldiq: ${p.stock} dona</div></div></div>`)}`;
+};
+
+/* ---- 6. Mashq turlari ---- */
+VIEWS.exercises = function(){
+  const cats = [...new Set(db.exercises.map(e=>e.cat))];
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Mashq turlari</div>
+    <div class="page-sub">Kutubxona: ${db.exercises.length} ta mashq, ${cats.length} ta yo'nalish</div>
+  </div><button class="btn" onclick="exForm()">＋ Mashq qo'shish</button></div>
+  ${cats.map(cat=>`<div class="card"><h3>🧩 ${esc(cat)}</h3>
+    ${db.exercises.filter(e=>e.cat===cat).map(e=>`<div class="list-item">
+      <div class="li-main"><div class="li-title">${esc(e.name)}</div><div class="li-sub">${esc(e.desc)}</div></div>
+      <button class="btn sm ghost" onclick="exForm('${e.id}')">✎</button>
+      <button class="btn sm bad" onclick="delEx('${e.id}')">🗑</button></div>`).join("")}</div>`).join("")}`;
+};
+function exForm(id){
+  const e = id? db.exercises.find(x=>x.id===id) : {};
+  openModal(`<h3>${id?"Mashqni tahrirlash":"Yangi mashq"}</h3>
+    <label>Nomi *</label><input id="f_ename" value="${esc(e.name||"")}">
+    <label>Yo'nalish (kategoriya) *</label><input id="f_ecat" value="${esc(e.cat||"")}" list="cats" placeholder="Artikulyatsiya, Nafas...">
+    <datalist id="cats">${[...new Set(db.exercises.map(x=>x.cat))].map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+    <label>Tavsif / bajarish tartibi</label><textarea id="f_edesc" rows="3">${esc(e.desc||"")}</textarea>
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="saveEx('${id||""}')">Saqlash</button></div>`);
+}
+function saveEx(id){
+  const name=val("f_ename"), cat=val("f_ecat"); if(!name||!cat) return toast("Nomi va yo'nalishini kiriting");
+  if(id) Object.assign(db.exercises.find(x=>x.id===id), {name,cat,desc:val("f_edesc")});
+  else db.exercises.push({id:uid(), name, cat, desc:val("f_edesc")});
+  save(); closeModal(); render(); toast("Saqlandi ✓");
+}
+function delEx(id){ if(!confirm("Mashq o'chirilsinmi?"))return; db.exercises=db.exercises.filter(e=>e.id!==id); save(); render(); }
+
+/* ---- 7. Oldin / Keyin ---- */
+let progClient = "";
+VIEWS.progress = function(){
+  const clients = db.clients.filter(c=>!c.archived);
+  if(!progClient && clients.length) progClient = clients[0].id;
+  const recs = db.progress.filter(p=>p.clientId===progClient).sort((a,b)=>a.date.localeCompare(b.date));
+  const before = recs.filter(r=>r.type==="oldin"), after = recs.filter(r=>r.type==="keyin");
+  const recHtml = r => `<div class="card" style="padding:12px">
+      <div class="row"><b>${fmtD(r.date)}</b><div class="spacer"></div>
+      <button class="btn sm bad no-print" onclick="delProg('${r.id}')">🗑</button></div>
+      ${r.photo?`<img src="${r.photo}" style="max-width:100%;border-radius:10px;margin:8px 0">`:""}
+      <div>${esc(r.text)}</div></div>`;
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Oldingi va keyingi holat</div>
+    <div class="page-sub">Natijalarni hujjatlashtirish (до и после)</div>
+  </div><button class="btn" onclick="progForm()">＋ Yozuv qo'shish</button></div>
+  ${clients.length?`<div class="card"><label>Mijozni tanlang</label>
+    <select style="max-width:300px" onchange="progClient=this.value;VIEWS.progress()">${clients.map(c=>
+      `<option value="${c.id}" ${c.id===progClient?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+  <div class="photo-cmp">
+    <div class="ba-col"><div class="h">⬅ Oldin (${before.length})</div>
+      ${before.length?before.map(recHtml).join(""):"<div class='empty'>Yozuv yo'q</div>"}</div>
+    <div class="ba-col"><div class="h">Keyin ➡ (${after.length})</div>
+      ${after.length?after.map(recHtml).join(""):"<div class='empty'>Yozuv yo'q</div>"}</div>
+  </div>`:`<div class="card"><div class="empty"><span class="big">📈</span>Avval mijoz qo'shing.</div></div>`}`;
+};
+function progForm(){
+  if(!progClient) return toast("Avval mijoz qo'shing");
+  openModal(`<h3>Holat yozuvi</h3>
+    <label>Turi</label><select id="f_ptype"><option value="oldin">Oldin (до)</option><option value="keyin">Keyin (после)</option></select>
+    <label>Sana</label><input id="f_pdate" type="date" value="${today()}">
+    <label>Tavsif * (nutq holati, qaysi tovushlar, xulosa)</label><textarea id="f_ptext" rows="3"></textarea>
+    <label>Rasm / video kadr (ixtiyoriy)</label><input type="file" id="f_pphoto" accept="image/*">
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="saveProg()">Saqlash</button></div>`);
+}
+function saveProg(){
+  const text = val("f_ptext"); if(!text) return toast("Tavsif kiriting");
+  const f = document.getElementById("f_pphoto").files[0];
+  const done = photo => {
+    db.progress.push({id:uid(), clientId:progClient, type:val("f_ptype"), date:val("f_pdate")||today(), text, photo});
+    save(); closeModal(); render(); toast("Saqlandi ✓");
+  };
+  if(!f) return done("");
+  const img = new Image(); const rd = new FileReader();
+  rd.onload = e => { img.onload = () => {
+    const k = Math.min(1, 600/Math.max(img.width,img.height));
+    const cv = document.createElement("canvas"); cv.width=img.width*k; cv.height=img.height*k;
+    cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+    done(cv.toDataURL("image/jpeg",.72));
+  }; img.src = e.target.result; };
+  rd.readAsDataURL(f);
+}
+function delProg(id){ if(!confirm("Yozuv o'chirilsinmi?"))return; db.progress=db.progress.filter(p=>p.id!==id); save(); render(); }
+
+/* ---- 8. Tovarlar ---- */
+VIEWS.products = function(){
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Tovarlar</div>
+    <div class="page-sub">Sotuvdagi mahsulotlar: kartochkalar, kitoblar, o'yinchoqlar...</div>
+  </div><button class="btn" onclick="prodForm()">＋ Tovar qo'shish</button></div>
+  <div class="card"><div class="t-wrap"><table>
+    <tr><th>Nomi</th><th>Narxi</th><th>Qoldiq</th><th>Sotilgan</th><th></th></tr>
+    ${db.products.length? db.products.map(p=>{
+      const sold = db.sales.filter(s=>s.productId===p.id).reduce((s,x)=>s+x.qty,0);
+      return `<tr><td><b>${esc(p.name)}</b></td><td>${fmtMoney(p.price)}</td>
+      <td>${p.stock<=2?`<span class="tag red">${p.stock} dona</span>`:p.stock+" dona"}</td><td>${sold} dona</td>
+      <td style="white-space:nowrap"><button class="btn sm" onclick="sellForm('${p.id}')" ${p.stock?"":"disabled"}>Sotish</button>
+      <button class="btn sm ghost" onclick="prodForm('${p.id}')">✎</button>
+      <button class="btn sm bad" onclick="delProd('${p.id}')">🗑</button></td></tr>`;}).join("")
+      :`<tr><td colspan="5"><div class="empty"><span class="big">🛍️</span>Tovarlar yo'q.</div></td></tr>`}
+  </table></div></div>
+  <div class="card"><h3>🧾 Oxirgi sotuvlar</h3>
+    ${db.sales.length? [...db.sales].reverse().slice(0,15).map(s=>{
+      const p = db.products.find(x=>x.id===s.productId);
+      return `<div class="list-item"><div class="li-main"><div class="li-title">${esc(p?p.name:"(o'chirilgan)")} × ${s.qty}</div>
+      <div class="li-sub">${fmtD(s.date)} ${s.clientId?"· "+esc(cname(s.clientId)):""}</div></div>
+      <span class="money">${fmtMoney(s.total)}</span></div>`;}).join("")
+      :"<div class='muted'>Sotuvlar hali yo'q</div>"}</div>`;
+};
+function prodForm(id){
+  const p = id? db.products.find(x=>x.id===id) : {};
+  openModal(`<h3>${id?"Tovarni tahrirlash":"Yangi tovar"}</h3>
+    <label>Nomi *</label><input id="f_pname" value="${esc(p.name||"")}">
+    <div class="grid2"><div><label>Narxi (so'm) *</label><input id="f_pprice" type="number" value="${p.price||""}"></div>
+    <div><label>Miqdori (dona)</label><input id="f_pstock" type="number" value="${p.stock??10}"></div></div>
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="saveProd('${id||""}')">Saqlash</button></div>`);
+}
+function saveProd(id){
+  const name=val("f_pname"), price=+val("f_pprice"); if(!name||!price) return toast("Nomi va narxini kiriting");
+  if(id) Object.assign(db.products.find(x=>x.id===id), {name, price, stock:+val("f_pstock")||0});
+  else db.products.push({id:uid(), name, price, stock:+val("f_pstock")||0});
+  save(); closeModal(); render(); toast("Saqlandi ✓");
+}
+function delProd(id){ if(!confirm("Tovar o'chirilsinmi?"))return; db.products=db.products.filter(p=>p.id!==id); save(); render(); }
+function sellForm(id){
+  const p = db.products.find(x=>x.id===id);
+  openModal(`<h3>Sotish: ${esc(p.name)}</h3>
+    <div class="muted">Narxi: ${fmtMoney(p.price)} · qoldiq: ${p.stock} dona</div>
+    <label>Miqdor</label><input id="f_qty" type="number" value="1" min="1" max="${p.stock}">
+    <label>Mijoz (ixtiyoriy)</label><select id="f_sclient"><option value="">—</option>
+      ${db.clients.filter(c=>!c.archived).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+    <div class="actions"><button class="btn ghost" onclick="closeModal()">Bekor</button>
+    <button class="btn" onclick="doSell('${id}')">Sotish ✓</button></div>`);
+}
+function doSell(id){
+  const p = db.products.find(x=>x.id===id);
+  const qty = Math.min(+val("f_qty")||1, p.stock);
+  p.stock -= qty;
+  db.sales.push({id:uid(), productId:id, clientId:val("f_sclient"), qty, total:qty*p.price, date:today()});
+  save(); closeModal(); render(); toast("Sotildi: "+fmtMoney(qty*p.price));
+}
+
+/* ---- 9. Hisobot ---- */
+let repMonth = today().slice(0,7);
+VIEWS.report = function(){
+  const m = repMonth;
+  const appts = db.appts.filter(a=>a.date.startsWith(m));
+  const came = appts.filter(a=>a.status==="keldi");
+  const apptIncome = came.filter(a=>a.paid).reduce((s,a)=>s+(+a.price||0),0);
+  const debt = came.filter(a=>!a.paid).reduce((s,a)=>s+(+a.price||0),0);
+  const sales = db.sales.filter(s=>s.date.startsWith(m));
+  const salesIncome = sales.reduce((s,x)=>s+x.total,0);
+  const newClients = db.clients.filter(c=>(c.created||"").startsWith(m)).length;
+  const tasksDone = db.tasks.filter(k=>k.status==="bajarildi" && (k.given||"").startsWith(m)).length;
+  const tasksGiven = db.tasks.filter(k=>(k.given||"").startsWith(m)).length;
+  const perClient = {};
+  came.forEach(a=>{ perClient[a.clientId]=perClient[a.clientId]||{n:0,sum:0}; perClient[a.clientId].n++; perClient[a.clientId].sum+=a.paid?+a.price||0:0; });
+  const [y,mm] = m.split("-");
+  document.getElementById("main").innerHTML = `
+  <div class="topbar"><div>
+    <div class="page-title">Hisobot</div>
+    <div class="page-sub">${M[+mm-1]} ${y} oyi natijalari</div>
+  </div><div class="row no-print"><input type="month" value="${m}" style="max-width:170px" onchange="repMonth=this.value;VIEWS.report()">
+  <button class="btn ghost" onclick="window.print()">🖨 Chop etish</button></div></div>
+  <div class="grid4">
+    <div class="stat"><div class="n" style="font-size:19px">${fmtMoney(apptIncome+salesIncome)}</div><div class="l">Jami tushum</div></div>
+    <div class="stat"><div class="n" style="font-size:19px">${fmtMoney(apptIncome)}</div><div class="l">Qabullardan (${came.length} ta)</div></div>
+    <div class="stat"><div class="n" style="font-size:19px">${fmtMoney(salesIncome)}</div><div class="l">Tovarlardan (${sales.length} ta sotuv)</div></div>
+    <div class="stat ${debt?'warn':''}"><div class="n" style="font-size:19px">${fmtMoney(debt)}</div><div class="l">Qarzdorlik</div></div>
+  </div>
+  <div class="grid4 mt">
+    <div class="stat"><div class="n">${appts.length}</div><div class="l">Jami qabullar</div></div>
+    <div class="stat"><div class="n">${appts.filter(a=>a.status==="kelmadi").length}</div><div class="l">Kelmaganlar</div></div>
+    <div class="stat"><div class="n">${newClients}</div><div class="l">Yangi mijozlar</div></div>
+    <div class="stat"><div class="n">${tasksDone}/${tasksGiven}</div><div class="l">Bajarilgan topshiriqlar</div></div>
+  </div>
+  <div class="card mt"><h3>👥 Mijozlar bo'yicha</h3><div class="t-wrap"><table>
+    <tr><th>Mijoz</th><th>Qabullar</th><th>To'lagan</th></tr>
+    ${Object.keys(perClient).length? Object.entries(perClient).sort((a,b)=>b[1].sum-a[1].sum).map(([cid,v])=>
+      `<tr><td>${esc(cname(cid))}</td><td>${v.n} ta</td><td class="money">${fmtMoney(v.sum)}</td></tr>`).join("")
+      :`<tr><td colspan="3" class="muted">Bu oyda qabullar bo'lmagan</td></tr>`}
+  </table></div></div>`;
+};
+
+/* ================= BACKUP ================= */
+function exportData(){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(db)], {type:"application/json"}));
+  a.download = "logoped_zaxira_"+today()+".json"; a.click();
+  toast("Zaxira fayli yuklandi ⬇");
+}
+function importData(inp){
+  const f = inp.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = e => { try{
+    const d = JSON.parse(e.target.result);
+    if(!d.clients) throw 0;
+    if(!confirm("Joriy ma'lumotlar zaxiradagi bilan ALMASHTIRILADI. Davom etilsinmi?")) return;
+    db = d; save(); render(); toast("Zaxira tiklandi ✓");
+  }catch(_){ toast("Fayl noto'g'ri formatda"); } };
+  rd.readAsText(f); inp.value="";
+}
+
+render();
+</script>
+</body>
+</html>

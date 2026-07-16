@@ -1,0 +1,205 @@
+:root{
+  --bg:#F6F4EF; --surface:#FFFFFF; --ink:#1E2A28; --muted:#6B7A76;
+  --primary:#2E7D6B; --primary-soft:#E3F0EC; --accent:#E8A23B; --accent-soft:#FBF0DC;
+  --danger:#C94F3D; --danger-soft:#F9E7E3; --ok:#3C8C5A; --line:#E4E0D8;
+  --radius:14px; --shadow:0 1px 3px rgba(30,42,40,.08),0 4px 16px rgba(30,42,40,.05);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:15px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;width:100%;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary)}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+.app{display:flex;min-height:100vh}
+
+/* ---------- sidebar ---------- */
+.sidebar{width:230px;background:#20342F;color:#DCE8E4;padding:20px 12px;position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;z-index:50}
+.logo{font-size:19px;font-weight:800;color:#fff;padding:4px 12px 18px;letter-spacing:.3px}
+.logo span{color:#8FD4C1}
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+.nav button{display:flex;align-items:center;gap:10px;background:none;border:none;color:#B9CCC6;padding:10px 12px;border-radius:10px;font-size:14.5px;text-align:left;width:100%}
+.nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav button.active{background:var(--primary);color:#fff;font-weight:600}
+.nav .ic{width:22px;text-align:center;font-size:16px}
+.nav .badge{margin-left:auto;background:var(--danger);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px}
+.side-foot{padding:10px 12px;font-size:12px;color:#7E948E}
+.side-foot button{background:none;border:1px solid #3B524C;color:#B9CCC6;border-radius:8px;padding:6px 10px;font-size:12.5px;margin:3px 3px 0 0}
+
+/* ---------- main ---------- */
+.main{flex:1;margin-left:230px;padding:24px 28px 90px;max-width:1200px}
+.page-title{font-size:24px;font-weight:800;margin-bottom:2px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card h3{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+.stat{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px}
+.stat .n{font-size:24px;font-weight:800;color:var(--primary)}
+.stat .l{font-size:12.5px;color:var(--muted)}
+.stat.warn .n{color:var(--accent)}
+.stat.bad .n{color:var(--danger)}
+
+.btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--primary-soft);color:var(--primary)}
+.btn.warn{background:var(--accent-soft);color:#9A6A16}
+.btn.bad{background:var(--danger-soft);color:var(--danger)}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:99px}
+.tag.green{background:var(--primary-soft);color:var(--primary)}
+.tag.amber{background:var(--accent-soft);color:#9A6A16}
+.tag.red{background:var(--danger-soft);color:var(--danger)}
+.tag.gray{background:#EEECE6;color:var(--muted)}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.t-wrap{overflow-x:auto}
+
+.list-item{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.list-item:last-child{border-bottom:none}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:13px}
+.li-main{flex:1;min-width:180px}
+.li-title{font-weight:600}
+.li-sub{font-size:12.5px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:28px 10px;font-size:14px}
+.empty .big{font-size:30px;display:block;margin-bottom:6px}
+
+/* ---------- modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(20,30,28,.45);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:30px 14px;overflow-y:auto}
+.modal{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:520px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.modal h3{font-size:18px;margin-bottom:6px}
+.modal .actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#20342F;color:#fff;padding:10px 20px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .25s;z-index:200;pointer-events:none}
+.toast.show{opacity:1}
+
+.photo-cmp{display:flex;gap:10px;flex-wrap:wrap}
+.ba-col{flex:1;min-width:160px}
+.ba-col .h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.ba-col img{max-width:100%;border-radius:10px;margin:8px 0;border:1px solid var(--line)}
+
+.search{max-width:280px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+.mt{margin-top:12px}
+.muted{color:var(--muted);font-size:13px}
+.money{font-weight:700;color:var(--primary)}
+progress{width:100%;height:8px;accent-color:var(--primary)}
+a.btn{text-decoration:none;display:inline-block}
+
+.loader{display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--muted)}
+
+/* ---------- login ---------- */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#20342F 0%,#2E7D6B 100%)}
+.login-card{background:#fff;border-radius:20px;padding:30px 26px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{font-size:22px;font-weight:800;margin-bottom:14px}
+.login-logo span{color:var(--primary)}
+.login-card h2{font-size:20px;margin-bottom:4px}
+.login-card p{margin-bottom:6px}
+.login-btn{width:100%;margin-top:18px;padding:12px;font-size:15px}
+.login-err{background:var(--danger-soft);color:var(--danger);font-size:13.5px;font-weight:600;padding:8px 12px;border-radius:10px;margin-top:12px}
+.login-check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
+.login-check input{width:auto}
+.login-tabs{display:flex;gap:8px;margin-bottom:16px;background:var(--bg);padding:5px;border-radius:12px}
+.login-tabs button{flex:1;background:none;border:none;padding:9px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
+.login-tabs button.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
+
+/* mijoz login-parol bo'limi (mijoz formasida) */
+.cred-box{background:var(--primary-soft);border-radius:12px;padding:12px 14px;margin-top:14px}
+.cred-title{font-size:14px;font-weight:700;color:var(--primary)}
+.cred-box .grid2{gap:10px}
+.cred-box input{background:#fff}
+
+/* ---------- mijoz kabineti ---------- */
+.portal{max-width:760px;margin:0 auto;padding:18px 14px 40px}
+.portal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.portal-hi{font-size:20px;font-weight:800}
+.portal-sub{color:var(--muted);font-size:13.5px}
+.portal-tabs{display:flex;gap:8px;background:#fff;padding:6px;border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px}
+.portal-tabs button{flex:1;background:none;border:none;padding:10px 6px;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
+.portal-tabs button.active{background:var(--primary);color:#fff}
+.portal-tabs .badge{background:var(--danger);color:#fff;font-size:10.5px;font-weight:700;padding:0 6px;border-radius:99px}
+@media(max-width:480px){
+  .portal-tabs button{flex-direction:column;gap:2px;font-size:11.5px}
+  .portal-tabs .badge{position:absolute;top:4px;right:8px}
+}
+
+/* ---------- responsive ---------- */
+.bottomnav{display:none}
+
+/* Planshet: yon menyu ixcham (faqat belgilar) */
+@media(min-width:821px) and (max-width:1080px){
+  .sidebar{width:72px;padding:16px 8px}
+  .logo{font-size:0;padding:4px 0 16px;text-align:center}
+  .logo::before{content:"🗣️";font-size:24px}
+  .nav button{justify-content:center;font-size:0;padding:12px 8px;position:relative}
+  .nav .ic{width:auto;font-size:19px}
+  .nav .badge{position:absolute;top:4px;right:6px;margin:0;font-size:10px;padding:0 5px}
+  .side-foot{display:none}
+  .main{margin-left:72px;padding:20px 20px 40px}
+}
+
+/* Telefon */
+@media(max-width:820px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
+  .page-title{font-size:20px}
+  .page-sub{margin-bottom:14px}
+
+  /* iOS avto-zoom oldini olish: input shrifti kamida 16px */
+  input,select,textarea{font-size:16px}
+
+  /* sarlavha va tugma ustma-ust, tugma to'liq enda */
+  .topbar{flex-direction:column;align-items:stretch}
+  .topbar>.btn{width:100%}
+  .topbar .row{justify-content:stretch}
+
+  .card{padding:14px;border-radius:12px}
+  .grid2{gap:10px}
+
+  /* ro'yxat: matn to'liq enda, tugmalar pastda bir qatorda */
+  .list-item{gap:8px 10px;padding:12px 2px}
+  .li-main{min-width:calc(100% - 52px)}
+  .li-sub{overflow-wrap:anywhere}
+  .list-item .btn{flex:1;text-align:center;min-height:38px}
+  .list-item .tag{margin-right:auto}
+
+  .search{max-width:100%}
+  .stat .n{font-size:20px}
+
+  /* modal: pastdan chiqadigan panel */
+  .modal-bg{padding:0;align-items:flex-end}
+  .modal{max-width:100%;max-height:92dvh;overflow-y:auto;border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  .modal .actions{position:sticky;bottom:0;background:#fff;padding-top:12px;margin-top:14px}
+  .modal .actions .btn{flex:1;min-height:44px}
+
+  .photo-cmp{flex-direction:column}
+
+  /* pastki menyu */
+  .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#20342F;z-index:60;overflow-x:auto;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 12px rgba(0,0,0,.18)}
+  .bottomnav::-webkit-scrollbar{display:none}
+  .bottomnav button{flex:1;min-width:62px;background:none;border:none;color:#B9CCC6;padding:9px 4px 7px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;position:relative}
+  .bottomnav button.active{color:#8FD4C1}
+  .bottomnav button.active::after{content:"";position:absolute;top:0;left:18%;right:18%;height:3px;background:#8FD4C1;border-radius:0 0 3px 3px}
+  .bottomnav .ic{font-size:19px}
+  .bottomnav .badge{position:absolute;top:3px;right:10px;background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:0 5px;border-radius:99px}
+}
+
+/* Juda kichik ekran */
+@media(max-width:380px){
+  .grid4,.grid3{grid-template-columns:1fr 1fr;gap:8px}
+  .main{padding-left:10px;padding-right:10px}
+  .avatar{width:34px;height:34px;font-size:11px}
+}
+
+@media print{.sidebar,.bottomnav,.no-print{display:none!important}.main{margin:0}}
