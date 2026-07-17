@@ -110,10 +110,6 @@ a.btn{text-decoration:none;display:inline-block}
 .login-err{background:var(--danger-soft);color:var(--danger);font-size:13.5px;font-weight:600;padding:8px 12px;border-radius:10px;margin-top:12px}
 .login-check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
 .login-check input{width:auto}
-.login-tabs{display:flex;gap:8px;margin-bottom:16px;background:var(--bg);padding:5px;border-radius:12px}
-.login-tabs button{flex:1;background:none;border:none;padding:9px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
-.login-tabs button.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
-
 /* murojaat yozuvi (mijoz kartasida) */
 .ref-item{background:var(--bg);border-radius:10px;padding:9px 12px;margin-bottom:8px}
 .ref-item .li-sub{margin-top:2px}

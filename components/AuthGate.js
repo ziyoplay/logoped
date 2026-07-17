@@ -84,64 +84,64 @@ function Setup({ onDone }) {
   );
 }
 
-/* ---------- kirish: logoped yoki mijoz ---------- */
+/* ---------- kirish: rol avtomatik aniqlanadi ---------- */
 function Login({ account, onDone }) {
-  const [role, setRole] = useState("logoped");
   const [login, setLogin] = useState("");
   const [pass, setPass] = useState("");
   const [remember, setRemember] = useState(false);
   const [err, setErr] = useState("");
+  const [needLogin, setNeedLogin] = useState(false); // bir nechta mijozda parol mos kelsa
+
+  const done = (sess) => { setSession(sess, remember); onDone(sess); };
 
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
-    if (role === "logoped") {
-      const acc = account || getAccount();
-      if (!(await checkPass(acc, pass))) { setErr("Parol noto'g'ri"); setPass(""); return; }
-      setSession({ role: "logoped" }, remember);
-      onDone({ role: "logoped" });
-    } else {
-      let db = null;
-      try { db = JSON.parse(localStorage.getItem("logoped_db")); } catch {}
-      const c = db?.clients?.find(
-        (x) => !x.archived && x.login && x.login.toLowerCase() === login.trim().toLowerCase()
-      );
-      if (!c || !(await checkPass(c.auth, pass))) {
-        setErr("Login yoki parol noto'g'ri");
-        setPass("");
-        return;
-      }
-      const sess = { role: "client", clientId: c.id };
-      setSession(sess, remember);
-      onDone(sess);
+    const acc = account || getAccount();
+    let db = null;
+    try { db = JSON.parse(localStorage.getItem("logoped_db")); } catch {}
+    const clients = (db?.clients || []).filter((x) => !x.archived && x.login && x.auth);
+
+    // login kiritilgan bo'lsa — mijozni login bo'yicha topamiz
+    const name = login.trim().toLowerCase();
+    if (name) {
+      const c = clients.find((x) => x.login.toLowerCase() === name);
+      if (c && (await checkPass(c.auth, pass))) return done({ role: "client", clientId: c.id });
+      setErr("Login yoki parol noto'g'ri");
+      setPass("");
+      return;
     }
+
+    // avval logoped parolini tekshiramiz
+    if (await checkPass(acc, pass)) return done({ role: "logoped" });
+
+    // keyin mijozlar orasidan parol mos keladiganini qidiramiz
+    const matches = [];
+    for (const c of clients) if (await checkPass(c.auth, pass)) matches.push(c);
+    if (matches.length === 1) return done({ role: "client", clientId: matches[0].id });
+    if (matches.length > 1) {
+      setNeedLogin(true);
+      setErr("Bir nechta hisobga mos keldi — loginingizni ham kiriting");
+      return;
+    }
+    setErr("Parol noto'g'ri");
+    setPass("");
   };
 
   return (
     <div className="login-wrap">
       <form className="login-card" onSubmit={submit}>
         <div className="login-logo">Logoped<span>.uz</span></div>
-        <div className="login-tabs">
-          <button type="button" className={role === "logoped" ? "active" : ""}
-            onClick={() => { setRole("logoped"); setErr(""); }}>🧑‍⚕️ Logoped</button>
-          <button type="button" className={role === "client" ? "active" : ""}
-            onClick={() => { setRole("client"); setErr(""); }}>👤 Mijoz</button>
-        </div>
-        {role === "logoped" ? (
+        <h2>Assalomu alaykum!</h2>
+        <p className="muted">Davom etish uchun parolni kiriting — tizim sizni avtomatik taniydi.</p>
+        {needLogin && (
           <>
-            <h2>Assalomu alaykum, {account?.name || ""}!</h2>
-            <p className="muted">Davom etish uchun parolni kiriting.</p>
-          </>
-        ) : (
-          <>
-            <h2>Mijoz kabineti</h2>
-            <p className="muted">Login va parolni logopedingiz beradi.</p>
             <label>Login</label>
             <input value={login} onChange={(e) => setLogin(e.target.value)} autoFocus />
           </>
         )}
         <label>Parol</label>
-        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoFocus={role === "logoped"} />
+        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoFocus={!needLogin} />
         <label className="login-check">
           <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
           Bu qurilmada eslab qolish
