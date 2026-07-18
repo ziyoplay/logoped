@@ -121,6 +121,13 @@ a.btn{text-decoration:none;display:inline-block}
   animation:login-drift 8s ease-in-out infinite;pointer-events:none}
 .login-wrap::before{content:"R";width:74px;height:74px;font-size:28px;top:16%;left:12%}
 .login-wrap::after{content:"Sh";width:56px;height:56px;font-size:20px;bottom:18%;right:13%;animation-delay:-3.5s}
+.login-bubbles span{position:absolute;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;font-family:var(--font-display),"Segoe UI",sans-serif;font-weight:700;color:rgba(255,255,255,.85);
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.22);
+  animation:login-drift 8s ease-in-out infinite;pointer-events:none}
+.login-bubbles span:nth-child(1){width:64px;height:64px;font-size:23px;top:12%;right:18%;animation-delay:-1.5s}
+.login-bubbles span:nth-child(2){width:48px;height:48px;font-size:18px;bottom:14%;left:16%;animation-delay:-5s}
+.login-bubbles span:nth-child(3){width:56px;height:56px;font-size:20px;top:55%;left:6%;animation-delay:-2.5s}
 @keyframes login-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
 .login-card{position:relative;z-index:1;background:#fff;border-radius:24px;padding:32px 28px;width:100%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
 .login-logo{font-family:var(--font-display),"Segoe UI",sans-serif;font-size:26px;font-weight:700;margin-bottom:14px}
@@ -266,7 +273,7 @@ a.btn{text-decoration:none;display:inline-block}
 @media(prefers-reduced-motion:reduce){
   .pt-sound{animation:none}
   .pt-bubble{animation:none}
-  .login-wrap::before,.login-wrap::after{animation:none}
+  .login-wrap::before,.login-wrap::after,.login-bubbles span{animation:none}
   .modal{animation:none}
   .btn:hover{transform:none}
 }

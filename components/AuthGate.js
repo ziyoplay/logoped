@@ -47,6 +47,15 @@ export default function AuthGate({ children }) {
   return <AuthCtx.Provider value={{ account, session, logout }}>{children}</AuthCtx.Provider>;
 }
 
+/* suzuvchi o'zbek harflari — login fonining bezagi */
+const LoginBubbles = () => (
+  <div className="login-bubbles" aria-hidden="true">
+    <span>Oʻ</span>
+    <span>Q</span>
+    <span>Ch</span>
+  </div>
+);
+
 /* ---------- birinchi ishga tushirish: logoped hisobini yaratish ---------- */
 function Setup({ onDone }) {
   const [name, setName] = useState("");
@@ -67,6 +76,7 @@ function Setup({ onDone }) {
 
   return (
     <div className="login-wrap">
+      <LoginBubbles />
       <form className="login-card" onSubmit={submit}>
         <div className="login-logo">Logoped<span>.uz</span></div>
         <h2>Xush kelibsiz! 👋</h2>
@@ -119,6 +129,7 @@ function Login({ account, onDone }) {
 
   return (
     <div className="login-wrap">
+      <LoginBubbles />
       <form className="login-card" onSubmit={submit}>
         <div className="login-logo">Logoped<span>.uz</span></div>
         <h2>Assalomu alaykum!</h2>
