@@ -47,12 +47,12 @@ export default function AuthGate({ children }) {
   return <AuthCtx.Provider value={{ account, session, logout }}>{children}</AuthCtx.Provider>;
 }
 
-/* suzuvchi o'zbek harflari — login fonining bezagi */
+/* suzuvchi harflar — bolalar talaffuzida qiyin tovushlar (R va Sh CSS'da) */
 const LoginBubbles = () => (
   <div className="login-bubbles" aria-hidden="true">
-    <span>Oʻ</span>
-    <span>Q</span>
-    <span>Ch</span>
+    <span>S</span>
+    <span>L</span>
+    <span>Z</span>
   </div>
 );
 
