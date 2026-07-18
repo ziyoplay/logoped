@@ -113,6 +113,7 @@ a.btn{text-decoration:none;display:inline-block}
 /* sahifalar orasida yumshoq o'tish */
 .page-fade{animation:page-in .3s ease both}
 @keyframes page-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes nav-ind{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* ---------- login ---------- */
 .login-wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;
@@ -279,6 +280,7 @@ a.btn{text-decoration:none;display:inline-block}
   .pt-bubble{animation:none}
   .login-wrap::before,.login-wrap::after,.login-bubbles span{animation:none}
   .page-fade{animation:none}
+  .bottomnav button.active::after{animation:none}
   .modal{animation:none}
   .btn:hover{transform:none}
 }
@@ -338,10 +340,11 @@ a.btn{text-decoration:none;display:inline-block}
   /* pastki menyu */
   .bottomnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:#0F231C;z-index:60;overflow-x:auto;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 12px rgba(0,0,0,.22)}
   .bottomnav::-webkit-scrollbar{display:none}
-  .bottomnav button{flex:1;min-width:62px;background:none;border:none;color:#A9C2B8;padding:9px 4px 7px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;position:relative}
+  .bottomnav button{flex:1;min-width:62px;background:none;border:none;color:#A9C2B8;padding:9px 4px 7px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;position:relative;transition:color .25s ease}
   .bottomnav button.active{color:#82D9BC}
-  .bottomnav button.active::after{content:"";position:absolute;top:0;left:18%;right:18%;height:3px;background:#82D9BC;border-radius:0 0 3px 3px}
-  .bottomnav .ic{font-size:19px}
+  .bottomnav button.active::after{content:"";position:absolute;top:0;left:18%;right:18%;height:3px;background:#82D9BC;border-radius:0 0 3px 3px;animation:nav-ind .3s ease}
+  .bottomnav .ic{font-size:19px;transition:transform .25s ease}
+  .bottomnav button.active .ic{transform:translateY(-2px) scale(1.12)}
   .bottomnav .badge{position:absolute;top:3px;right:10px;background:#E2694F;color:#fff;font-size:9px;font-weight:700;padding:0 5px;border-radius:99px}
 }
 
