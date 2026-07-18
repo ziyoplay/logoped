@@ -70,8 +70,8 @@ function Setup({ onDone }) {
       <form className="login-card" onSubmit={submit}>
         <div className="login-logo">Logoped<span>.uz</span></div>
         <h2>Xush kelibsiz! 👋</h2>
-        <p className="muted">Logoped hisobini yarating. Parol faqat shu qurilmada saqlanadi.</p>
-        <label>Ismingiz</label>
+        <p className="muted">Logoped hisobini yarating. Ismingiz kirish uchun login bo'lib xizmat qiladi, parol faqat shu qurilmada saqlanadi.</p>
+        <label>Ismingiz (login)</label>
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="masalan: Dilnoza Karimova" autoFocus />
         <label>Parol</label>
         <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} />
@@ -84,47 +84,36 @@ function Setup({ onDone }) {
   );
 }
 
-/* ---------- kirish: rol avtomatik aniqlanadi ---------- */
+/* ---------- kirish: ism (login) + parol ---------- */
 function Login({ account, onDone }) {
   const [login, setLogin] = useState("");
   const [pass, setPass] = useState("");
   const [remember, setRemember] = useState(false);
   const [err, setErr] = useState("");
-  const [needLogin, setNeedLogin] = useState(false); // bir nechta mijozda parol mos kelsa
 
   const done = (sess) => { setSession(sess, remember); onDone(sess); };
 
   const submit = async (e) => {
     e.preventDefault();
     setErr("");
+    const name = login.trim().toLowerCase();
+    if (!name) return setErr("Ism yoki loginni kiriting");
+    if (!pass) return setErr("Parolni kiriting");
+
     const acc = account || getAccount();
     let db = null;
     try { db = JSON.parse(localStorage.getItem("logoped_db")); } catch {}
     const clients = (db?.clients || []).filter((x) => !x.archived && x.login && x.auth);
 
-    // login kiritilgan bo'lsa — mijozni login bo'yicha topamiz
-    const name = login.trim().toLowerCase();
-    if (name) {
-      const c = clients.find((x) => x.login.toLowerCase() === name);
-      if (c && (await checkPass(c.auth, pass))) return done({ role: "client", clientId: c.id });
-      setErr("Login yoki parol noto'g'ri");
-      setPass("");
-      return;
-    }
+    // logoped — o'z ismi bilan kiradi
+    if (acc?.name?.trim().toLowerCase() === name && (await checkPass(acc, pass)))
+      return done({ role: "logoped" });
 
-    // avval logoped parolini tekshiramiz
-    if (await checkPass(acc, pass)) return done({ role: "logoped" });
+    // mijoz — o'z logini bilan kiradi
+    const c = clients.find((x) => x.login.toLowerCase() === name);
+    if (c && (await checkPass(c.auth, pass))) return done({ role: "client", clientId: c.id });
 
-    // keyin mijozlar orasidan parol mos keladiganini qidiramiz
-    const matches = [];
-    for (const c of clients) if (await checkPass(c.auth, pass)) matches.push(c);
-    if (matches.length === 1) return done({ role: "client", clientId: matches[0].id });
-    if (matches.length > 1) {
-      setNeedLogin(true);
-      setErr("Bir nechta hisobga mos keldi — loginingizni ham kiriting");
-      return;
-    }
-    setErr("Parol noto'g'ri");
+    setErr("Ism yoki parol noto'g'ri");
     setPass("");
   };
 
@@ -133,15 +122,11 @@ function Login({ account, onDone }) {
       <form className="login-card" onSubmit={submit}>
         <div className="login-logo">Logoped<span>.uz</span></div>
         <h2>Assalomu alaykum!</h2>
-        <p className="muted">Davom etish uchun parolni kiriting — tizim sizni avtomatik taniydi.</p>
-        {needLogin && (
-          <>
-            <label>Login</label>
-            <input value={login} onChange={(e) => setLogin(e.target.value)} autoFocus />
-          </>
-        )}
+        <p className="muted">Ismingiz (login) va parolingizni kiriting.</p>
+        <label>Ism / login</label>
+        <input value={login} onChange={(e) => setLogin(e.target.value)} placeholder="masalan: Dilnoza Karimova" autoFocus />
         <label>Parol</label>
-        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoFocus={!needLogin} />
+        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} />
         <label className="login-check">
           <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
           Bu qurilmada eslab qolish
