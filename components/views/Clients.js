@@ -27,7 +27,7 @@ export default function Clients({ go, setProgClient }) {
     const c = activeClients().find((x) => x.id === openId);
     if (!c) { setOpenId(null); return null; }
     return (
-      <>
+      <div key={openId} className="page-fade">
         <ClientPage
           c={c}
           onBack={() => setOpenId(null)}
@@ -42,13 +42,13 @@ export default function Clients({ go, setProgClient }) {
         {modal?.type === "referral" && <ReferralForm clientId={c.id} onClose={() => setModal(null)} />}
         {modal?.type === "appt" && <ApptForm initial={{ clientId: c.id }} onClose={() => setModal(null)} />}
         {modal?.type === "task" && <TaskForm defaultClientId={c.id} onClose={() => setModal(null)} />}
-      </>
+      </div>
     );
   }
 
   /* ---- mijozlar ro'yxati ---- */
   return (
-    <>
+    <div key="list" className="page-fade">
       <PageHead
         title="Mijozlar ro'yxati"
         sub={`Jami: ${activeClients().length} ta faol mijoz`}
@@ -88,7 +88,7 @@ export default function Clients({ go, setProgClient }) {
         </div>
       </div>
       {modal?.type === "form" && <ClientForm client={modal.client} onClose={() => setModal(null)} />}
-    </>
+    </div>
   );
 }
 

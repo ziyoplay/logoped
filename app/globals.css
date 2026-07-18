@@ -110,6 +110,10 @@ a.btn{text-decoration:none;display:inline-block}
 
 .loader{display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--muted)}
 
+/* sahifalar orasida yumshoq o'tish */
+.page-fade{animation:page-in .3s ease both}
+@keyframes page-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
 /* ---------- login ---------- */
 .login-wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;
   background:radial-gradient(700px 460px at 82% 12%,rgba(255,201,74,.14),transparent 60%),
@@ -274,6 +278,7 @@ a.btn{text-decoration:none;display:inline-block}
   .pt-sound{animation:none}
   .pt-bubble{animation:none}
   .login-wrap::before,.login-wrap::after,.login-bubbles span{animation:none}
+  .page-fade{animation:none}
   .modal{animation:none}
   .btn:hover{transform:none}
 }

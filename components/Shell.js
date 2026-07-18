@@ -77,7 +77,9 @@ export default function Shell() {
           />
         </div>
       </aside>
-      <main className="main">{views[page]}</main>
+      <main className="main">
+        <div key={page} className="page-fade">{views[page]}</div>
+      </main>
       <nav className="bottomnav">
         {PAGES.map((p) => <NavBtn key={p.id} p={p} mobile />)}
         <button onClick={logout}><span className="ic">🚪</span>Chiqish</button>

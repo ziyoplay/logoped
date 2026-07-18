@@ -119,7 +119,7 @@ export default function ClientPortal() {
         ))}
       </nav>
 
-      <main className="pt-body">
+      <main key={tab} className="pt-body page-fade">
         {tab === "plan" && (
           <>
             <section className="pt-card">
