@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/lib/store";
 import { fmtD, fmtMoney, initials, uid, today, ageFrom, phoneOf } from "@/lib/helpers";
 import { makeHashes, newSalt } from "@/lib/auth";
@@ -258,22 +258,62 @@ function ClientForm({ client, onClose }) {
   });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
-  // rasmni kvadrat qilib kichraytiramiz (240px) — baza katta bo'lib ketmasligi uchun
+  // rasm/kadr kvadrat qilib kichraytiriladi (240px) — baza katta bo'lib ketmasligi uchun
+  const toSquare = (src, w, h) => {
+    const s = Math.min(w, h);
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = 240;
+    cv.getContext("2d").drawImage(src, (w - s) / 2, (h - s) / 2, s, s, 0, 0, 240, 240);
+    return cv.toDataURL("image/jpeg", 0.85);
+  };
+
   const onPhoto = (e) => {
     const file = e.target.files[0];
     e.target.value = "";
     if (!file) return;
     const img = new Image();
     img.onload = () => {
-      const s = Math.min(img.width, img.height);
-      const cv = document.createElement("canvas");
-      cv.width = cv.height = 240;
-      cv.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 240, 240);
-      setF((p) => ({ ...p, photo: cv.toDataURL("image/jpeg", 0.85) }));
+      setF((p) => ({ ...p, photo: toSquare(img, img.width, img.height) }));
       URL.revokeObjectURL(img.src);
     };
     img.onerror = () => toast("Rasm o'qilmadi — boshqa fayl tanlang");
     img.src = URL.createObjectURL(file);
+  };
+
+  /* ---- kamera bilan olish ---- */
+  const [camOn, setCamOn] = useState(false);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const camInputRef = useRef(null); // brauzer kamerani bermasa — telefonning kamera-dialogi
+
+  const closeCam = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setCamOn(false);
+  };
+  useEffect(() => closeCam, []);
+
+  const openCam = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 640 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setCamOn(true);
+      requestAnimationFrame(() => {
+        if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.play(); }
+      });
+    } catch {
+      camInputRef.current?.click();
+    }
+  };
+
+  const shoot = () => {
+    const v = videoRef.current;
+    if (!v?.videoWidth) return;
+    setF((p) => ({ ...p, photo: toSquare(v, v.videoWidth, v.videoHeight) }));
+    closeCam();
   };
 
   const saveClient = async () => {
@@ -310,17 +350,30 @@ function ClientForm({ client, onClose }) {
       <div className="photo-pick">
         <Avatar c={{ name: f.name || "?", photo: f.photo }} big />
         <div className="photo-pick-btns">
+          <button type="button" className="btn ghost sm" onClick={openCam}>📸 Kameradan olish</button>
           <label className="btn ghost sm photo-pick-label">
-            📷 {f.photo ? "Rasmni almashtirish" : "Rasm qo'shish"}
+            🖼 Galereyadan
             <input type="file" accept="image/*" onChange={onPhoto} hidden />
           </label>
           {f.photo && (
             <button type="button" className="btn sm bad" onClick={() => setF({ ...f, photo: "" })}>
-              🗑 Olib tashlash
+              🗑
             </button>
           )}
+          {/* zaxira yo'l: brauzer kamerani bermasa, telefonning o'z kamera-dialogi ochiladi */}
+          <input type="file" accept="image/*" capture="environment" onChange={onPhoto} hidden ref={camInputRef} />
         </div>
       </div>
+
+      {camOn && (
+        <div className="photo-cam">
+          <video ref={videoRef} playsInline muted />
+          <div className="photo-cam-btns">
+            <button type="button" className="btn" onClick={shoot}>📸 Suratga olish</button>
+            <button type="button" className="btn ghost" onClick={closeCam}>Bekor</button>
+          </div>
+        </div>
+      )}
 
       <Field label="F.I.Sh. (mijoz) *"><input value={f.name} onChange={set("name")} placeholder="Familiya Ism Sharif" /></Field>
       <Field label="Tug'ilgan sana">

@@ -85,8 +85,12 @@ tr:last-child td{border-bottom:none}
 
 /* anketada rasm tanlash */
 .photo-pick{display:flex;align-items:center;gap:14px;margin:14px 0 4px}
-.photo-pick-btns{display:flex;gap:8px;flex-wrap:wrap}
+.photo-pick-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .photo-pick-label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.photo-cam{margin:12px 0;text-align:center}
+.photo-cam video{width:100%;max-width:300px;aspect-ratio:1;object-fit:cover;border-radius:16px;background:#111;display:block;margin:0 auto}
+.photo-cam-btns{display:flex;gap:10px;justify-content:center;margin-top:10px}
+.photo-cam-btns .btn{min-height:42px}
 .li-main{flex:1;min-width:180px}
 .li-title{font-weight:700}
 .li-sub{font-size:12.5px;color:var(--muted)}
