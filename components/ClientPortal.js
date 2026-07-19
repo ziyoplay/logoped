@@ -13,7 +13,7 @@ const TABS = [
 const SOUNDS = ["R", "S", "Sh", "L"];
 
 export default function ClientPortal() {
-  const { db, patch, toast, client } = useApp();
+  const { db, taskDone, toast, client } = useApp();
   const { session, logout } = useAuth();
   const [tab, setTab] = useState("plan");
 
@@ -46,7 +46,7 @@ export default function ClientPortal() {
     : null;
 
   const markDone = (id) => {
-    patch((d) => { d.tasks.find((x) => x.id === id).status = "bajarildi"; });
+    taskDone(id);
     toast("Barakalla! Yana bitta yulduzcha ⭐");
   };
 
