@@ -113,8 +113,10 @@ a.btn{text-decoration:none;display:inline-block}
 
 .loader{display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--muted)}
 
-/* sahifalar orasida yumshoq o'tish */
-.page-fade{animation:page-in .3s ease both}
+/* sahifalar orasida yumshoq o'tish.
+   Diqqat: fill-mode "both" bo'lsa transform saqlanib qoladi va ichidagi
+   position:fixed modal oynalar ekranga emas, shu elementga bog'lanib buziladi */
+.page-fade{animation:page-in .3s ease backwards}
 @keyframes page-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* ---------- login ---------- */
@@ -207,6 +209,7 @@ a.btn{text-decoration:none;display:inline-block}
 .pt-exit{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);color:#fff;
   border:1.5px solid rgba(255,255,255,.35);border-radius:99px;padding:6px 14px;font-size:13px;font-weight:600;z-index:2}
 .pt-exit:hover{background:rgba(255,255,255,.22)}
+.pt-exit:active{background:rgba(255,255,255,.3);transform:scale(.96)}
 
 /* ---- yulduzchali progress ---- */
 .pt-strip{max-width:640px;margin:-38px auto 0;position:relative;z-index:2;background:#fff;border-radius:18px;
@@ -224,6 +227,7 @@ a.btn{text-decoration:none;display:inline-block}
   background:#fff;border:none;border-radius:99px;padding:12px 8px;font-size:14px;font-weight:700;
   color:var(--muted);box-shadow:var(--shadow)}
 .pt-tabs button.active{background:var(--pt-deep);color:#fff}
+.pt-tabs button:active{transform:scale(.96)}
 .pt-dot{position:absolute;top:6px;right:12px;background:var(--pt-coral);color:#fff;font-style:normal;
   font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
 
@@ -271,13 +275,39 @@ a.btn{text-decoration:none;display:inline-block}
 .pt-ba-head.after{background:var(--pt-deep);color:#fff}
 
 @media(max-width:560px){
-  .pt-hero{padding:52px 14px 66px}
-  .pt-strip{margin-left:14px;margin-right:14px}
-  .pt-chip{margin-left:0}
-  .pt-tabs button{font-size:12.5px;padding:11px 4px}
+  .pt-hero{padding:58px 14px 58px}
+  .pt-bubble{padding:20px 18px;border-radius:22px}
+  .pt-bubble::after{left:32px;bottom:-13px;border-width:14px}
+  .pt-next{font-size:14px}
+  /* suzuvchi harflar pufakcha ustiga chiqmasin: chetga suriladi, bittasi yashiriladi */
+  .pt-sound-0{width:42px;height:42px;font-size:16px;top:7%;left:4%}
+  .pt-sound-1{display:none}
+  .pt-sound-2{width:36px;height:36px;font-size:14px;top:8%;right:22%}
+  .pt-sound-3{width:28px;height:28px;font-size:12px;top:76%;right:5%}
+  .pt-exit{top:12px;right:12px;min-height:40px;padding:8px 16px;font-size:13.5px}
+  .pt-strip{margin:-32px 14px 0;padding:12px 14px;gap:8px 10px}
+  .pt-stars{font-size:20px}
+  .pt-stars-label{font-size:12.5px}
+  .pt-chip{margin-left:0;width:100%;text-align:center}
+  /* tablar ekran tepasiga yopishadi — pastga aylantirganda ham qo'l ostida */
+  .pt-tabs{position:sticky;top:0;z-index:5;margin-top:12px;padding:10px 14px 12px;
+    background:linear-gradient(to bottom,var(--pt-mint) 80%,transparent)}
+  .pt-tabs button{font-size:12.5px;padding:11px 4px;min-height:48px;gap:5px}
+  .pt-tabs button span{font-size:17px}
+  .pt-dot{top:4px;right:8px}
+  .pt-body{margin-bottom:0;padding-bottom:calc(44px + env(safe-area-inset-bottom))}
+  .pt-card{padding:15px;border-radius:16px}
+  .pt-appt{flex-wrap:wrap;gap:8px 12px}
+  .pt-state{margin-left:auto}
   .pt-ba{flex-direction:column}
-  .pt-task{flex-wrap:wrap}
-  .pt-done{flex:1;min-height:46px}
+  .pt-task{flex-wrap:wrap;gap:10px 14px}
+  .pt-done{flex:1;min-height:48px}
+}
+@media(max-width:380px){
+  .pt-hi{font-size:19px}
+  .pt-stars{font-size:18px}
+  .pt-tabs button{font-size:11.5px}
+  .pt-date{width:44px;height:48px}
 }
 @media(prefers-reduced-motion:reduce){
   .pt-sound{animation:none}
