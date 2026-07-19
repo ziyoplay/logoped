@@ -30,10 +30,11 @@ export default function Shell() {
   const { account, logout } = useAuth();
   const [page, setPage] = useState("home");
   const [progClient, setProgClient] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const fileRef = useRef(null);
 
   const nzCount = nazorat(db).total;
-  const go = (p) => { setPage(p); window.scrollTo(0, 0); };
+  const go = (p) => { setPage(p); setMenuOpen(false); window.scrollTo(0, 0); };
 
   const views = {
     home: <Home go={go} />,
@@ -47,10 +48,10 @@ export default function Shell() {
     report: <Report />,
   };
 
-  const NavBtn = ({ p, mobile }) => (
+  const NavBtn = ({ p }) => (
     <button className={p.id === page ? "active" : ""} onClick={() => go(p.id)}>
       <span className="ic">{p.ic}</span>
-      {mobile ? p.t.split(" ")[0] : p.t}
+      {p.t}
       {p.id === "nazorat" && nzCount > 0 && <span className="badge">{nzCount}</span>}
     </button>
   );
@@ -80,10 +81,33 @@ export default function Shell() {
       <main className="main">
         <div key={page} className="page-fade">{views[page]}</div>
       </main>
-      <nav className="bottomnav">
-        {PAGES.map((p) => <NavBtn key={p.id} p={p} mobile />)}
-        <button onClick={logout}><span className="ic">🚪</span>Chiqish</button>
-      </nav>
+
+      {/* telefon: yuqori panel + uch chiziqli menyu */}
+      <header className="mobilebar">
+        <div className="logo">Logoped<span>.uz</span></div>
+        <button className="burger" aria-label="Menyuni ochish" onClick={() => setMenuOpen(true)}>
+          ☰{nzCount > 0 && <span className="badge">{nzCount}</span>}
+        </button>
+      </header>
+      {menuOpen && (
+        <div className="drawer-bg" onClick={(e) => e.target === e.currentTarget && setMenuOpen(false)}>
+          <div className="drawer">
+            <div className="drawer-head">
+              <div className="logo">Logoped<span>.uz</span></div>
+              <button className="burger" aria-label="Menyuni yopish" onClick={() => setMenuOpen(false)}>✕</button>
+            </div>
+            <nav className="nav">
+              {PAGES.map((p) => <NavBtn key={p.id} p={p} />)}
+            </nav>
+            <div className="side-foot">
+              👤 {account?.name}<br />
+              <button onClick={() => exportData(db, toast)}>⬇ Zaxira</button>
+              <button onClick={() => fileRef.current?.click()}>⬆ Yuklash</button>
+              <button onClick={logout}>🚪 Chiqish</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

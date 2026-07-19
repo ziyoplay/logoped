@@ -17,6 +17,13 @@ export const metadata = {
   description: "Logoped uchun mijozlar, qabullar, topshiriqlar va hisobot ilovasi",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover", // iPhone'da pastki xavfsiz zona (safe-area) ishlashi uchun
+  themeColor: "#0F231C",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="uz" className={`${display.variable} ${body.variable}`}>
