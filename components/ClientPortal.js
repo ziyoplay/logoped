@@ -87,6 +87,7 @@ export default function ClientPortal() {
         ))}
         <button className="pt-exit" onClick={logout}>Chiqish</button>
         <div className="pt-bubble">
+          {me.photo && <img className="pt-ava" src={me.photo} alt={me.name} />}
           <div className="pt-hi">Assalomu alaykum, {me.name}! 👋</div>
           <div className="pt-next">
             {next

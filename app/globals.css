@@ -80,7 +80,13 @@ tr:last-child td{border-bottom:none}
 
 .list-item{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--card-line);flex-wrap:wrap}
 .list-item:last-child{border-bottom:none}
-.avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--primary-soft),#C8E8DA);color:var(--primary-deep);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:13px}
+.avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--primary-soft),#C8E8DA);color:var(--primary-deep);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:13px;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+
+/* anketada rasm tanlash */
+.photo-pick{display:flex;align-items:center;gap:14px;margin:14px 0 4px}
+.photo-pick-btns{display:flex;gap:8px;flex-wrap:wrap}
+.photo-pick-label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
 .li-main{flex:1;min-width:180px}
 .li-title{font-weight:700}
 .li-sub{font-size:12.5px;color:var(--muted)}
@@ -192,6 +198,7 @@ a.btn{text-decoration:none;display:inline-block}
 .pt-bubble::after{content:"";position:absolute;left:44px;bottom:-16px;border:18px solid transparent;
   border-top-color:#fff;border-bottom:none;border-left:none}
 .pt-hi{font-family:var(--font-display),"Segoe UI",sans-serif;font-size:clamp(20px,4.5vw,27px);font-weight:700;line-height:1.25;color:var(--ink)}
+.pt-ava{float:right;width:56px;height:56px;border-radius:50%;object-fit:cover;margin:0 0 8px 12px;border:3px solid var(--pt-mint);box-shadow:0 4px 12px rgba(9,28,23,.18)}
 .pt-next{margin-top:8px;font-size:15px;color:var(--muted)}
 .pt-next b{color:var(--pt-leaf)}
 @keyframes pt-pop{from{opacity:0;transform:scale(.92) translateY(14px)}to{opacity:1;transform:none}}

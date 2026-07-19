@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { fmtD, fmtMoney, initials, uid, today, ageFrom, phoneOf } from "@/lib/helpers";
 import { makeHashes, newSalt } from "@/lib/auth";
-import { Modal, Field, Empty, PageHead, Stat } from "../ui";
+import { Modal, Field, Empty, PageHead, Stat, Avatar } from "../ui";
 import { ApptForm } from "../appt";
 import { TaskForm, TaskRow } from "../task";
 
@@ -68,7 +68,7 @@ export default function Clients({ go, setProgClient }) {
               const age = ageFrom(c.birthDate) ?? c.age;
               return (
                 <div className="list-item clickable" key={c.id} onClick={() => setOpenId(c.id)}>
-                  <div className="avatar">{initials(c.name)}</div>
+                  <Avatar c={c} />
                   <div className="li-main">
                     <div className="li-title">
                       {c.name} {age ? <span className="muted">({age} yosh)</span> : null}
@@ -120,7 +120,7 @@ function ClientPage({ c, onBack, onEdit, onArchive, onAddReferral, onAddAppt, on
 
       {/* sarlavha */}
       <div className="card client-head mt">
-        <div className="avatar big">{initials(c.name)}</div>
+        <Avatar c={c} big />
         <div className="li-main">
           <div className="client-name">{c.name}</div>
           <div className="muted">
@@ -243,6 +243,7 @@ function ClientForm({ client, onClose }) {
   const c = client || {};
   const [f, setF] = useState({
     name: c.name || "",
+    photo: c.photo || "",
     birthDate: c.birthDate || "",
     fatherPhone: c.fatherPhone || "",
     motherPhone: c.motherPhone || (c.phone && !c.fatherPhone ? c.phone : ""),
@@ -256,6 +257,24 @@ function ClientForm({ client, onClose }) {
     refState: "",
   });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+
+  // rasmni kvadrat qilib kichraytiramiz (240px) — baza katta bo'lib ketmasligi uchun
+  const onPhoto = (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(img.width, img.height);
+      const cv = document.createElement("canvas");
+      cv.width = cv.height = 240;
+      cv.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 240, 240);
+      setF((p) => ({ ...p, photo: cv.toDataURL("image/jpeg", 0.85) }));
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => toast("Rasm o'qilmadi — boshqa fayl tanlang");
+    img.src = URL.createObjectURL(file);
+  };
 
   const saveClient = async () => {
     if (!f.name.trim()) return toast("F.I.Sh. kiriting");
@@ -287,6 +306,22 @@ function ClientForm({ client, onClose }) {
   return (
     <Modal onClose={onClose}>
       <h3>{c.id ? "Mijozni tahrirlash" : "Yangi mijoz"}</h3>
+
+      <div className="photo-pick">
+        <Avatar c={{ name: f.name || "?", photo: f.photo }} big />
+        <div className="photo-pick-btns">
+          <label className="btn ghost sm photo-pick-label">
+            📷 {f.photo ? "Rasmni almashtirish" : "Rasm qo'shish"}
+            <input type="file" accept="image/*" onChange={onPhoto} hidden />
+          </label>
+          {f.photo && (
+            <button type="button" className="btn sm bad" onClick={() => setF({ ...f, photo: "" })}>
+              🗑 Olib tashlash
+            </button>
+          )}
+        </div>
+      </div>
+
       <Field label="F.I.Sh. (mijoz) *"><input value={f.name} onChange={set("name")} placeholder="Familiya Ism Sharif" /></Field>
       <Field label="Tug'ilgan sana">
         <input type="date" value={f.birthDate} onChange={set("birthDate")} />

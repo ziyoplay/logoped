@@ -2,6 +2,7 @@
 import { useApp } from "@/lib/store";
 import { fmtD, fmtMoney, initials, nazorat, phoneOf } from "@/lib/helpers";
 import { TaskRow } from "../task";
+import { Avatar } from "../ui";
 
 function Section({ title, count, children }) {
   return (
@@ -64,7 +65,7 @@ export default function Nazorat() {
       <Section title="😴 14+ kun kelmagan mijozlar" count={nz.inactive.length}>
         {nz.inactive.map((c) => (
           <div className="list-item" key={c.id}>
-            <div className="avatar">{initials(c.name)}</div>
+            <Avatar c={c} />
             <div className="li-main">
               <div className="li-title">{c.name}</div>
               <div className="li-sub">📞 {phoneOf(c) || "—"} — qo'ng'iroq qilib eslatish tavsiya etiladi</div>

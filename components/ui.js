@@ -1,4 +1,14 @@
 "use client";
+import { initials } from "@/lib/helpers";
+
+// mijoz avatari: rasm bo'lsa rasm, bo'lmasa ismning bosh harflari
+export function Avatar({ c, big }) {
+  return (
+    <div className={"avatar" + (big ? " big" : "")}>
+      {c?.photo ? <img src={c.photo} alt={c.name || "avatar"} /> : initials(c?.name || "?")}
+    </div>
+  );
+}
 
 export function Modal({ onClose, children }) {
   return (
