@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useApp, exportData, importData } from "@/lib/store";
 import { useAuth } from "./AuthGate";
 import { nazorat } from "@/lib/helpers";
@@ -34,7 +35,22 @@ export default function Shell() {
   const fileRef = useRef(null);
 
   const nzCount = nazorat(db).total;
-  const go = (p) => { setPage(p); setMenuOpen(false); window.scrollTo(0, 0); };
+  // Sahifa almashuvi. Brauzer View Transitions'ni qo'llasa, eski va yangi sahifa
+  // bir-biriga yumshoq singib almashadi; qo'llamasa — .page-fade animatsiyasi qoladi.
+  const go = (p) => {
+    const apply = () => {
+      flushSync(() => { setPage(p); setMenuOpen(false); });
+      window.scrollTo(0, 0);
+    };
+    const calm = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (calm || typeof document.startViewTransition !== "function") return apply();
+
+    const root = document.documentElement;
+    root.classList.add("vt-active"); // ikkita animatsiya ustma-ust tushmasligi uchun
+    document.startViewTransition(apply).finished
+      .catch(() => {})
+      .finally(() => root.classList.remove("vt-active"));
+  };
 
   const views = {
     home: <Home go={go} />,

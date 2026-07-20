@@ -129,6 +129,16 @@ a.btn{text-decoration:none;display:inline-block}
 .page-fade{animation:page-in .3s ease backwards}
 @keyframes page-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
+/* Brauzer View Transitions'ni qo'llasa — eski sahifa so'nib, yangisi joyida paydo
+   bo'ladi (kesishuv). Faqat shaffoflik o'zgaradi: siljitsak, chap menyu ham
+   qimirlab ketardi, chunki suratga butun ekran olinadi.
+   Bunday paytda .page-fade o'chiriladi, aks holda animatsiya ikki marta ketadi. */
+.vt-active .page-fade{animation:none}
+::view-transition-old(root){animation:vt-out .22s ease forwards}
+::view-transition-new(root){animation:vt-in .32s ease backwards}
+@keyframes vt-out{to{opacity:0}}
+@keyframes vt-in{from{opacity:0}}
+
 /* ---------- login ---------- */
 .login-wrap{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;
   background:radial-gradient(700px 460px at 82% 12%,rgba(255,201,74,.14),transparent 60%),
@@ -185,6 +195,9 @@ a.btn{text-decoration:none;display:inline-block}
 .cred-title{font-size:14px;font-weight:800;color:var(--primary-deep)}
 .cred-box .grid2{gap:10px}
 .cred-box input{background:#fff}
+
+/* topshiriq videosi (logoped ko'radigan oyna) */
+.task-video{width:100%;max-height:60vh;margin-top:12px;border-radius:14px;background:#000;display:block}
 
 /* guvohnoma — ixtiyoriy hujjat rasmi */
 .opt-note{font-weight:600;color:var(--muted)}
@@ -283,6 +296,33 @@ a.btn{text-decoration:none;display:inline-block}
 .pt-done{background:var(--pt-sun);color:#5C4708;border:none;border-radius:99px;padding:10px 18px;
   font-size:14px;font-weight:800;box-shadow:0 3px 0 #DBA92B;white-space:nowrap}
 .pt-done:active{transform:translateY(2px);box-shadow:0 1px 0 #DBA92B}
+.pt-done:disabled{opacity:.6;box-shadow:0 3px 0 #DBA92B;transform:none}
+.pt-video-link{display:inline-block;margin-top:5px;font-size:12.5px;font-weight:700;color:var(--pt-leaf)}
+
+/* "Bajardim" oynasi — mashq videosini yuborish */
+.pt-sheet-bg{position:fixed;inset:0;background:rgba(15,42,33,.55);backdrop-filter:blur(3px);z-index:150;
+  display:flex;align-items:flex-end;justify-content:center;padding:14px;overflow-y:auto;
+  animation:fade-in .2s ease}
+.pt-sheet{background:#fff;border-radius:22px;padding:20px;width:100%;max-width:440px;margin:auto 0 0;
+  box-shadow:0 -8px 40px rgba(9,28,23,.3);animation:pt-pop .28s ease}
+.pt-sheet h3{font-family:var(--font-display),"Segoe UI",sans-serif;font-size:21px;color:var(--pt-deep)}
+.pt-sheet-task{font-weight:700;margin-top:4px}
+.pt-sheet-hint{font-size:14px;color:var(--muted);line-height:1.6;margin-top:8px}
+.pt-sheet-video{width:100%;max-height:44vh;margin-top:14px;border-radius:14px;background:#000;display:block}
+.pt-sheet-size{font-size:12.5px;color:var(--muted);margin-top:6px;text-align:center;word-break:break-all}
+.pt-pick{width:100%;margin-top:14px;padding:16px;border:2px dashed var(--pt-leaf);border-radius:16px;
+  background:var(--pt-mint);color:var(--pt-leaf);font-size:15px;font-weight:800}
+.pt-pick:disabled{opacity:.6}
+.pt-sheet-btns{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.pt-sheet-btns .pt-done{width:100%;padding:14px}
+.pt-skip{background:var(--pt-mint);color:var(--pt-deep);border:none;border-radius:99px;padding:12px;
+  font-size:14px;font-weight:700;width:100%}
+.pt-skip.ghost{background:none;color:var(--muted)}
+.pt-skip:disabled{opacity:.6}
+@media(min-width:560px){
+  .pt-sheet-bg{align-items:center}
+  .pt-sheet{margin:0}
+}
 
 /* oldin / keyin */
 .pt-ba{display:flex;gap:14px}
@@ -331,6 +371,7 @@ a.btn{text-decoration:none;display:inline-block}
   .pt-bubble{animation:none}
   .login-wrap::before,.login-wrap::after,.login-bubbles span{animation:none}
   .page-fade{animation:none}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
   .drawer,.drawer-bg{animation:none}
   .modal{animation:none}
   .btn:hover{transform:none}
