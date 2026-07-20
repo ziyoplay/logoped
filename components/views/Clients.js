@@ -231,6 +231,17 @@ function ClientPage({ c, onBack, onEdit, onArchive, onAddReferral, onAddAppt, on
               </div>
             ) : <Empty>Hali xizmat ko&apos;rsatilmagan.</Empty>}
           </div>
+
+          {/* guvohnoma (ixtiyoriy) */}
+          {c.guvohnoma && (
+            <div className="card">
+              <h3>📄 Guvohnoma</h3>
+              <a href={c.guvohnoma} target="_blank" rel="noreferrer" className="doc-thumb wide">
+                <img src={c.guvohnoma} alt="Guvohnoma" />
+              </a>
+              <div className="muted mt">Kattalashtirib ko&apos;rish uchun rasmni bosing.</div>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -244,6 +255,7 @@ function ClientForm({ client, onClose }) {
   const [f, setF] = useState({
     name: c.name || "",
     photo: c.photo || "",
+    guvohnoma: c.guvohnoma || "",
     birthDate: c.birthDate || "",
     fatherPhone: c.fatherPhone || "",
     motherPhone: c.motherPhone || (c.phone && !c.fatherPhone ? c.phone : ""),
@@ -267,18 +279,30 @@ function ClientForm({ client, onClose }) {
     return cv.toDataURL("image/jpeg", 0.85);
   };
 
-  const onPhoto = (e) => {
+  // guvohnoma hujjati — matni o'qilishi kerak, shuning uchun nisbati saqlanadi.
+  // Uzun tomoni 900px: baza bitta JSON bo'lib saqlangani uchun hajmni tiyib turamiz.
+  const toDoc = (img) => {
+    const k = Math.min(1, 900 / Math.max(img.width, img.height));
+    const cv = document.createElement("canvas");
+    cv.width = Math.round(img.width * k);
+    cv.height = Math.round(img.height * k);
+    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+    return cv.toDataURL("image/jpeg", 0.75);
+  };
+
+  const readImage = (e, done) => {
     const file = e.target.files[0];
     e.target.value = "";
     if (!file) return;
     const img = new Image();
-    img.onload = () => {
-      setF((p) => ({ ...p, photo: toSquare(img, img.width, img.height) }));
-      URL.revokeObjectURL(img.src);
-    };
+    img.onload = () => { done(img); URL.revokeObjectURL(img.src); };
     img.onerror = () => toast("Rasm o'qilmadi — boshqa fayl tanlang");
     img.src = URL.createObjectURL(file);
   };
+
+  const onPhoto = (e) => readImage(e, (img) => setF((p) => ({ ...p, photo: toSquare(img, img.width, img.height) })));
+
+  const onGuvohnoma = (e) => readImage(e, (img) => setF((p) => ({ ...p, guvohnoma: toDoc(img) })));
 
   /* ---- kamera bilan olish ---- */
   const [camOn, setCamOn] = useState(false);
@@ -389,6 +413,29 @@ function ClientForm({ client, onClose }) {
         <input value={f.diagnosis} onChange={set("diagnosis")} placeholder="masalan: dislaliya, R tovushi" />
       </Field>
       <Field label="Izoh"><textarea rows={2} value={f.note} onChange={set("note")} /></Field>
+
+      <div className="cred-box">
+        <div className="cred-title">📄 Guvohnoma <span className="opt-note">— не обязательно</span></div>
+        <div className="muted">Tibbiy xulosa, sertifikat yoki boshqa hujjat rasmini yuklashingiz mumkin.</div>
+        {f.guvohnoma && (
+          <a href={f.guvohnoma} target="_blank" rel="noreferrer" className="doc-thumb">
+            <img src={f.guvohnoma} alt="Guvohnoma" />
+          </a>
+        )}
+        <div className="photo-pick-btns mt">
+          <label className="btn ghost sm photo-pick-label">
+            {f.guvohnoma ? "🔄 Boshqasini tanlash" : "🖼 Rasm yuklash"}
+            <input type="file" accept="image/*" onChange={onGuvohnoma} hidden />
+          </label>
+          <label className="btn ghost sm photo-pick-label">
+            📸 Kameradan
+            <input type="file" accept="image/*" capture="environment" onChange={onGuvohnoma} hidden />
+          </label>
+          {f.guvohnoma && (
+            <button type="button" className="btn sm bad" onClick={() => setF({ ...f, guvohnoma: "" })}>🗑</button>
+          )}
+        </div>
+      </div>
 
       {!c.id && (
         <div className="cred-box" style={{ background: "var(--accent-soft)" }}>

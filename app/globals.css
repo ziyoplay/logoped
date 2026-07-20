@@ -186,6 +186,12 @@ a.btn{text-decoration:none;display:inline-block}
 .cred-box .grid2{gap:10px}
 .cred-box input{background:#fff}
 
+/* guvohnoma — ixtiyoriy hujjat rasmi */
+.opt-note{font-weight:600;color:var(--muted)}
+.doc-thumb{display:block;margin-top:10px;max-width:190px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.doc-thumb.wide{max-width:100%}
+.doc-thumb img{display:block;width:100%;height:auto}
+
 /* ============================================================
    MIJOZ KABINETI — ota-onalar ko'radigan sahifa
    Imzo: nutq pufakchasi + suzuvchi tovushlar (R, S, Sh, L)
