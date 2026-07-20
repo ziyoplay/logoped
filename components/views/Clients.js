@@ -104,6 +104,8 @@ function ClientPage({ c, onBack, onEdit, onArchive, onAddReferral, onAddAppt, on
   const upcoming = appts.filter((a) => a.status === "rejalashtirilgan" && a.date >= today()).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const tasks = db.tasks.filter((k) => k.clientId === c.id);
   const activeTasks = tasks.filter((k) => k.status === "berildi");
+  const doneTasks = tasks.filter((k) => k.status !== "berildi")
+    .sort((a, b) => (b.given || "").localeCompare(a.given || ""));
   const doneCount = tasks.filter((k) => k.status === "bajarildi").length;
   const referrals = [...(c.referrals || [])].sort((a, b) => b.date.localeCompare(a.date));
 
@@ -196,6 +198,13 @@ function ClientPage({ c, onBack, onEdit, onArchive, onAddReferral, onAddAppt, on
             <h3>📝 Faol topshiriqlar</h3>
             {activeTasks.length ? activeTasks.map((k) => <TaskRow key={k.id} task={k} />)
               : <Empty>Faol topshiriq yo&apos;q.</Empty>}
+          </div>
+
+          {/* bajarilgan topshiriqlar — mijoz yuborgan videolari bilan */}
+          <div className="card">
+            <h3>🎥 Bajarilgan topshiriqlar</h3>
+            {doneTasks.length ? doneTasks.map((k) => <TaskRow key={k.id} task={k} />)
+              : <Empty>Hali bajarilgan topshiriq yo&apos;q.</Empty>}
           </div>
         </div>
 
