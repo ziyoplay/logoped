@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/lib/store";
+import { useAuth } from "../AuthGate";
 import { fmtD, fmtMoney, initials, uid, today, ageFrom, phoneOf } from "@/lib/helpers";
 import { makeHashes, newSalt } from "@/lib/auth";
 import { Modal, Field, Empty, PageHead, Stat, Avatar } from "../ui";
@@ -251,6 +252,7 @@ function ClientPage({ c, onBack, onEdit, onArchive, onAddReferral, onAddAppt, on
 /* ================= MIJOZ ANKETASI ================= */
 function ClientForm({ client, onClose }) {
   const { db, patch, toast } = useApp();
+  const { account } = useAuth();
   const c = client || {};
   const [f, setF] = useState({
     name: c.name || "",
@@ -347,6 +349,10 @@ function ClientForm({ client, onClose }) {
     if (login && !c.auth && !f.newPass) return toast("Yangi login uchun parol ham kiriting");
     if (login && db.clients.some((x) => x.id !== c.id && x.login === login))
       return toast("Bu login band — boshqasini tanlang");
+    // Kirishda avval logoped hisobi tekshiriladi: login uning ismi bilan bir xil
+    // bo'lsa, mijoz hech qachon o'z kabinetiga kira olmaydi.
+    if (login && account?.name?.trim().toLowerCase() === login)
+      return toast("Bu login logoped ismi bilan bir xil — boshqasini tanlang");
     const auth = f.newPass ? await makeHashes(newSalt(), f.newPass) : undefined;
     const { newPass, refBy, refDate, refState, ...fields } = f;
     const data = { ...fields, login };

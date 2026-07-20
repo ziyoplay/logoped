@@ -4,6 +4,7 @@ import {
   ACC_KEY, getAccount, getSession, setSession, clearSession,
   makeHashes, checkPass, newSalt,
 } from "@/lib/auth";
+import { flushPendingSave } from "@/lib/pending-save";
 
 const AuthCtx = createContext(null);
 export const useAuth = () => useContext(AuthCtx);
@@ -54,6 +55,9 @@ export default function AuthGate({ children }) {
   useEffect(() => { boot(); }, []);
 
   const logout = async () => {
+    // Saqlanmagan o'zgarishlar cookie o'chirilgunga qadar jo'natilishi kerak,
+    // aks holda ular bilan birga oxirgi tahrirlar ham yo'qoladi.
+    await flushPendingSave();
     if (serverMode) {
       try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
     } else clearSession();
