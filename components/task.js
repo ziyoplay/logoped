@@ -13,6 +13,7 @@ const STATUS = {
 export function TaskRow({ task: k }) {
   const { cname, patch } = useApp();
   const [cls, label] = STATUS[k.status] || STATUS.berildi;
+  const [showVideo, setShowVideo] = useState(false);
 
   const setStatus = (st) => patch((d) => { d.tasks.find((x) => x.id === k.id).status = st; });
   const del = () => {
@@ -30,6 +31,10 @@ export function TaskRow({ task: k }) {
         </div>
       </div>
       <span className={"tag " + cls}>{label}</span>
+      {k.videoId && (
+        <button className="btn sm ghost no-print" title="Mijoz yuborgan video"
+                onClick={() => setShowVideo(true)}>🎥</button>
+      )}
       {k.status === "berildi" && (
         <>
           <button className="btn sm" onClick={() => setStatus("bajarildi")}>✓</button>
@@ -37,6 +42,20 @@ export function TaskRow({ task: k }) {
         </>
       )}
       <button className="btn sm bad no-print" onClick={del}>🗑</button>
+
+      {showVideo && (
+        <Modal onClose={() => setShowVideo(false)}>
+          <h3>🎥 {k.title}</h3>
+          <div className="muted">{cname(k.clientId)} yuborgan video</div>
+          <video className="task-video" src={"/api/task-video/" + k.videoId} controls autoPlay playsInline />
+          <div className="actions">
+            <a className="btn ghost" href={"/api/task-video/" + k.videoId} target="_blank" rel="noreferrer">
+              Yangi oynada ochish
+            </a>
+            <button className="btn" onClick={() => setShowVideo(false)}>Yopish</button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

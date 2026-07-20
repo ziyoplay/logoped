@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "./AuthGate";
 import { fmtD, fmtMoney, today, daysAgo } from "@/lib/helpers";
+
+const MAX_VIDEO = 25 * 1024 * 1024;
+const mb = (n) => (n / 1024 / 1024).toFixed(1) + " MB";
 
 const TABS = [
   { id: "plan", ic: "🗓️", t: "Mashg'ulotlar" },
@@ -14,8 +17,9 @@ const SOUNDS = ["R", "S", "Sh", "L"];
 
 export default function ClientPortal() {
   const { db, taskDone, toast, client } = useApp();
-  const { session, logout } = useAuth();
+  const { session, logout, serverMode } = useAuth();
   const [tab, setTab] = useState("plan");
+  const [doneFor, setDoneFor] = useState(null); // video so'raladigan topshiriq
 
   const me = client(session.clientId);
   if (!me) return <div className="loader">Hisob topilmadi. Logopedingizga murojaat qiling.</div>;
@@ -45,9 +49,18 @@ export default function ClientPortal() {
     ? (daysAgo(next.date) === 0 ? "bugun" : daysAgo(next.date) === -1 ? "ertaga" : fmtD(next.date))
     : null;
 
-  const markDone = (id) => {
-    taskDone(id);
+  // Serverli rejimda avval video so'raymiz; bazasiz rejimda saqlash joyi yo'q,
+  // shuning uchun to'g'ridan-to'g'ri belgilanadi.
+  const markDone = (k) => {
+    if (serverMode) return setDoneFor(k);
+    taskDone(k.id);
     toast("Barakalla! Yana bitta yulduzcha ⭐");
+  };
+
+  const finishTask = async (id, video) => {
+    const ok = await taskDone(id, video);
+    setDoneFor(null);
+    if (ok) toast(video ? "Video yuborildi. Barakalla! ⭐" : "Barakalla! Yana bitta yulduzcha ⭐");
   };
 
   // 5 yulduzli o'lchov: bajarilgan / jami topshiriqlar
@@ -153,7 +166,7 @@ export default function ClientPortal() {
                         {overdue ? "⏰ Muddati o'tdi: " : "Muddat: "}{fmtD(k.due)}
                       </div>
                     </div>
-                    <button className="pt-done" onClick={() => markDone(k.id)}>Bajardim ✓</button>
+                    <button className="pt-done" onClick={() => markDone(k)}>Bajardim ✓</button>
                   </div>
                 );
               }) : <div className="pt-empty">🎉 Hamma topshiriq bajarilgan. Barakalla!</div>}
@@ -165,6 +178,10 @@ export default function ClientPortal() {
                   <div className="pt-task-main">
                     <div className="pt-task-title">{k.title}</div>
                     <div className="pt-task-due">{fmtD(k.due)}</div>
+                    {k.videoId && (
+                      <a className="pt-video-link" href={"/api/task-video/" + k.videoId}
+                         target="_blank" rel="noreferrer">🎥 Yuborgan videongiz</a>
+                    )}
                   </div>
                   <span className={"pt-state " + (k.status === "bajarildi" ? "ok" : "miss")}>
                     {k.status === "bajarildi" ? "⭐ Bajarildi" : "Bajarilmadi"}
@@ -206,6 +223,82 @@ export default function ClientPortal() {
           )
         )}
       </main>
+
+      {doneFor && (
+        <TaskDoneSheet
+          task={doneFor}
+          onCancel={() => setDoneFor(null)}
+          onSubmit={finishTask}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ===== "Bajardim" oynasi: mashqni video qilib yuborish ===== */
+function TaskDoneSheet({ task, onCancel, onSubmit }) {
+  const { toast } = useApp();
+  const [file, setFile] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef(null);
+
+  // ko'rib olish uchun vaqtinchalik havola — yopilganda bo'shatiladi
+  const [preview, setPreview] = useState("");
+  useEffect(() => {
+    if (!file) return setPreview("");
+    const u = URL.createObjectURL(file);
+    setPreview(u);
+    return () => URL.revokeObjectURL(u);
+  }, [file]);
+
+  const pick = (e) => {
+    const f = e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    if (f.size > MAX_VIDEO)
+      return toast(`Video juda katta (${mb(f.size)}). 25 MB gacha bo'lsin — qisqaroq oling.`);
+    setFile(f);
+  };
+
+  const send = async (withVideo) => {
+    setBusy(true);
+    await onSubmit(task.id, withVideo ? file : null);
+  };
+
+  return (
+    <div className="pt-sheet-bg" onClick={(e) => !busy && e.target === e.currentTarget && onCancel()}>
+      <div className="pt-sheet">
+        <h3>Barakalla! 🎉</h3>
+        <div className="pt-sheet-task">{task.title}</div>
+        <p className="pt-sheet-hint">
+          Mashqni qanday bajarganingizni qisqa video qilib yuboring — logopedingiz
+          ko&apos;rib, keyingi mashg&apos;ulotda maslahat beradi.
+        </p>
+
+        {preview ? (
+          <>
+            <video className="pt-sheet-video" src={preview} controls playsInline />
+            <div className="pt-sheet-size">{file.name} · {mb(file.size)}</div>
+          </>
+        ) : (
+          <button type="button" className="pt-pick" disabled={busy} onClick={() => inputRef.current?.click()}>
+            🎥 Video olish yoki tanlash
+          </button>
+        )}
+        <input type="file" accept="video/*" capture="environment" hidden ref={inputRef} onChange={pick} />
+
+        <div className="pt-sheet-btns">
+          {file && (
+            <button className="pt-done" disabled={busy} onClick={() => send(true)}>
+              {busy ? "Yuborilmoqda…" : "Yuborish ✓"}
+            </button>
+          )}
+          <button className="pt-skip" disabled={busy} onClick={() => send(false)}>
+            {busy && !file ? "Saqlanmoqda…" : "Videosiz belgilash"}
+          </button>
+          {!busy && <button className="pt-skip ghost" onClick={onCancel}>Bekor</button>}
+        </div>
+      </div>
     </div>
   );
 }
