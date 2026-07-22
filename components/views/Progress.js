@@ -81,7 +81,6 @@ function ProgressForm({ clientId, onClose }) {
   const { patch, toast } = useApp();
   const { serverMode } = useAuth();
   const [f, setF] = useState({ type: "oldin", date: today(), text: "" });
-  const [file, setFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -108,27 +107,9 @@ function ProgressForm({ clientId, onClose }) {
       }
     }
 
-    const done = (photo) => {
-      patch((d) => { d.progress.push({ id: uid(), clientId, ...f, photo, ...(videoId ? { videoId } : {}) }); });
-      toast("Saqlandi ✓");
-      onClose();
-    };
-    if (!file) return done("");
-    // rasmni kichraytirib base64 ko'rinishida saqlaymiz (localStorage hajmi cheklangan)
-    const img = new Image();
-    const rd = new FileReader();
-    rd.onload = (e) => {
-      img.onload = () => {
-        const k = Math.min(1, 600 / Math.max(img.width, img.height));
-        const cv = document.createElement("canvas");
-        cv.width = img.width * k;
-        cv.height = img.height * k;
-        cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
-        done(cv.toDataURL("image/jpeg", 0.72));
-      };
-      img.src = e.target.result;
-    };
-    rd.readAsDataURL(file);
+    patch((d) => { d.progress.push({ id: uid(), clientId, ...f, ...(videoId ? { videoId } : {}) }); });
+    toast("Saqlandi ✓");
+    onClose();
   };
 
   return (
@@ -143,9 +124,6 @@ function ProgressForm({ clientId, onClose }) {
       <Field label="Sana"><input type="date" value={f.date} onChange={set("date")} /></Field>
       <Field label="Tavsif * (nutq holati, qaysi tovushlar, xulosa)">
         <textarea rows={3} value={f.text} onChange={set("text")} />
-      </Field>
-      <Field label="Rasm (ixtiyoriy)">
-        <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0] || null)} />
       </Field>
       {serverMode ? (
         <Field label="Video (ixtiyoriy, 25 MB gacha)">
