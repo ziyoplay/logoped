@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useApp } from "@/lib/store";
+import { useAuth } from "../AuthGate";
 import { fmtD, today, uid } from "@/lib/helpers";
 import { Modal, Field, Empty, PageHead } from "../ui";
 
@@ -16,6 +17,9 @@ export default function Progress({ progClient, setProgClient }) {
 
   const del = (id) => {
     if (!confirm("Yozuv o'chirilsinmi?")) return;
+    const rec = db.progress.find((p) => p.id === id);
+    // serverdagi videoni ham tozalaymiz — yozuvsiz video keraksiz joy egallaydi
+    if (rec?.videoId) fetch("/api/progress-video/" + rec.videoId, { method: "DELETE" }).catch(() => {});
     patch((d) => { d.progress = d.progress.filter((p) => p.id !== id); });
   };
 
@@ -27,6 +31,9 @@ export default function Progress({ progClient, setProgClient }) {
         <button className="btn sm bad no-print" onClick={() => del(r.id)}>🗑</button>
       </div>
       {r.photo && <img src={r.photo} alt="holat rasmi" />}
+      {r.videoId && (
+        <video className="task-video" src={"/api/progress-video/" + r.videoId} controls playsInline preload="metadata" />
+      )}
       <div>{r.text}</div>
     </div>
   );
@@ -72,14 +79,37 @@ export default function Progress({ progClient, setProgClient }) {
 
 function ProgressForm({ clientId, onClose }) {
   const { patch, toast } = useApp();
+  const { serverMode } = useAuth();
   const [f, setF] = useState({ type: "oldin", date: today(), text: "" });
   const [file, setFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
+  const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
-  const saveRec = () => {
+  const saveRec = async () => {
     if (!f.text.trim()) return toast("Tavsif kiriting");
+
+    // video serverga alohida yuklanadi — base64 qilib JSONga sig'dirib bo'lmaydi
+    let videoId;
+    if (videoFile) {
+      if (videoFile.size > 25 * 1024 * 1024) return toast("Video juda katta — 25 MB gacha");
+      setBusy(true);
+      try {
+        const fd = new FormData();
+        fd.append("clientId", clientId);
+        fd.append("video", videoFile);
+        const r = await fetch("/api/progress-video", { method: "POST", body: fd });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) { setBusy(false); return toast(j.error || "Video yuklanmadi, qayta urinib ko'ring"); }
+        videoId = j.videoId;
+      } catch {
+        setBusy(false);
+        return toast("Server bilan aloqa yo'q");
+      }
+    }
+
     const done = (photo) => {
-      patch((d) => { d.progress.push({ id: uid(), clientId, ...f, photo }); });
+      patch((d) => { d.progress.push({ id: uid(), clientId, ...f, photo, ...(videoId ? { videoId } : {}) }); });
       toast("Saqlandi ✓");
       onClose();
     };
@@ -117,9 +147,16 @@ function ProgressForm({ clientId, onClose }) {
       <Field label="Rasm (ixtiyoriy)">
         <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0] || null)} />
       </Field>
+      {serverMode ? (
+        <Field label="Video (ixtiyoriy, 25 MB gacha)">
+          <input type="file" accept="video/*" capture="environment" onChange={(e) => setVideoFile(e.target.files[0] || null)} />
+        </Field>
+      ) : (
+        <div className="muted">Video yuklash faqat server rejimida ishlaydi.</div>
+      )}
       <div className="actions">
-        <button className="btn ghost" onClick={onClose}>Bekor</button>
-        <button className="btn" onClick={saveRec}>Saqlash</button>
+        <button className="btn ghost" onClick={onClose} disabled={busy}>Bekor</button>
+        <button className="btn" onClick={saveRec} disabled={busy}>{busy ? "Yuklanmoqda..." : "Saqlash"}</button>
       </div>
     </Modal>
   );

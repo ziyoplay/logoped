@@ -423,7 +423,21 @@ function ClientForm({ client, onClose }) {
         <Field label="Otasining telefoni"><input value={f.fatherPhone} onChange={set("fatherPhone")} placeholder="+998 90 123 45 67" /></Field>
         <Field label="Onasining telefoni"><input value={f.motherPhone} onChange={set("motherPhone")} placeholder="+998 90 123 45 67" /></Field>
       </div>
+
       <Field label="Ota-onasi (F.I.Sh.)"><input value={f.parent} onChange={set("parent")} /></Field>
+
+      {!c.id && (
+        <div className="cred-box" style={{ background: "var(--accent-soft)" }}>
+          <div className="cred-title" style={{ color: "#9A6A16" }}>📋 Birinchi murojaat</div>
+          <div className="grid2">
+            <Field label="Kim murojaat qildi (F.I.Sh.)"><input value={f.refBy} onChange={set("refBy")} placeholder="masalan: onasi — Karimova Nodira" /></Field>
+            <Field label="Murojaat sanasi"><input type="date" value={f.refDate} onChange={set("refDate")} /></Field>
+          </div>
+          <Field label="Murojaat paytidagi holati (oldingi holat)">
+            <textarea rows={2} value={f.refState} onChange={set("refState")} placeholder="nutq holati, shikoyatlar..." />
+          </Field>
+        </div>
+      )}
       <Field label="Tashxis / muammo">
         <input value={f.diagnosis} onChange={set("diagnosis")} placeholder="masalan: dislaliya, R tovushi" />
       </Field>
@@ -451,19 +465,6 @@ function ClientForm({ client, onClose }) {
           )}
         </div>
       </div>
-
-      {!c.id && (
-        <div className="cred-box" style={{ background: "var(--accent-soft)" }}>
-          <div className="cred-title" style={{ color: "#9A6A16" }}>📋 Birinchi murojaat</div>
-          <div className="grid2">
-            <Field label="Kim murojaat qildi (F.I.Sh.)"><input value={f.refBy} onChange={set("refBy")} placeholder="masalan: onasi — Karimova Nodira" /></Field>
-            <Field label="Murojaat sanasi"><input type="date" value={f.refDate} onChange={set("refDate")} /></Field>
-          </div>
-          <Field label="Murojaat paytidagi holati (oldingi holat)">
-            <textarea rows={2} value={f.refState} onChange={set("refState")} placeholder="nutq holati, shikoyatlar..." />
-          </Field>
-        </div>
-      )}
 
       <div className="cred-box">
         <div className="cred-title">🔑 Mijoz kabinetiga kirish (ixtiyoriy)</div>

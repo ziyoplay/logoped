@@ -202,6 +202,11 @@ a.btn{text-decoration:none;display:inline-block}
 .cred-box .grid2{gap:10px}
 .cred-box input{background:#fff}
 
+/* topshiriq formasi: mashqlarni galochka bilan tanlash */
+.ex-check-list{max-height:180px;overflow-y:auto;border:1px solid var(--border,#e3e3e3);border-radius:12px;padding:6px 10px;background:#fff}
+.ex-check-item{display:flex;align-items:center;gap:8px;padding:5px 2px;cursor:pointer;font-size:14px}
+.ex-check-item input[type="checkbox"]{width:17px;height:17px;accent-color:var(--primary);flex:none;margin:0}
+
 /* topshiriq videosi (logoped ko'radigan oyna) */
 .task-video{width:100%;max-height:60vh;margin-top:12px;border-radius:14px;background:#000;display:block}
 
@@ -272,6 +277,7 @@ a.btn{text-decoration:none;display:inline-block}
 .pt-card{background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px}
 .pt-card h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:12px}
 .pt-card img{max-width:100%;border-radius:12px;margin:8px 0}
+.pt-card video{max-width:100%;border-radius:12px;margin:8px 0;background:#000;display:block}
 .pt-card p{margin-top:4px}
 .pt-empty{text-align:center;color:var(--muted);padding:22px 8px;font-size:14.5px;line-height:1.6}
 

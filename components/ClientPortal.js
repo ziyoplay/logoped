@@ -201,6 +201,7 @@ export default function ClientPortal() {
                   <div className="pt-card" key={r.id}>
                     <b>{fmtD(r.date)}</b>
                     {r.photo && <img src={r.photo} alt="holat rasmi" />}
+                    {r.videoId && <video src={"/api/progress-video/" + r.videoId} controls playsInline preload="metadata" />}
                     <p>{r.text}</p>
                   </div>
                 )) : <div className="pt-empty">Yozuv yo'q</div>}
@@ -211,6 +212,7 @@ export default function ClientPortal() {
                   <div className="pt-card" key={r.id}>
                     <b>{fmtD(r.date)}</b>
                     {r.photo && <img src={r.photo} alt="holat rasmi" />}
+                    {r.videoId && <video src={"/api/progress-video/" + r.videoId} controls playsInline preload="metadata" />}
                     <p>{r.text}</p>
                   </div>
                 )) : <div className="pt-empty">Yozuv yo'q</div>}
