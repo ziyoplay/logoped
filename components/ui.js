@@ -1,4 +1,5 @@
 "use client";
+import { useRef } from "react";
 import { initials } from "@/lib/helpers";
 
 // mijoz avatari: rasm bo'lsa rasm, bo'lmasa ismning bosh harflari
@@ -11,8 +12,14 @@ export function Avatar({ c, big }) {
 }
 
 export function Modal({ onClose, children }) {
+  // bosish modal ichida boshlanib tashqarida qo'yib yuborilsa, modal yopilmasligi kerak
+  const downOnBg = useRef(false);
   return (
-    <div className="modal-bg" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="modal-bg"
+      onMouseDown={(e) => { downOnBg.current = e.target === e.currentTarget; }}
+      onClick={(e) => downOnBg.current && e.target === e.currentTarget && onClose()}
+    >
       <div className="modal">{children}</div>
     </div>
   );
