@@ -131,8 +131,11 @@ function ClientPage({ c, onBack, onEdit, onArchive, onAddReferral, onAddAppt, on
             {c.diagnosis ? <> · 🩺 {c.diagnosis}</> : null}
           </div>
           <div className="client-contacts">
-            {c.fatherPhone && <a className="tag green" href={"tel:" + c.fatherPhone}>📞 Otasi: {c.fatherPhone}</a>}
-            {c.motherPhone && <a className="tag green" href={"tel:" + c.motherPhone}>📞 Onasi: {c.motherPhone}</a>}
+            {c.gender && <span className="tag gray">{c.gender === "erkak" ? "👦 Erkak" : "👧 Ayol"}</span>}
+            {c.fatherPhone && <a className="tag green" href={"tel:" + c.fatherPhone}>📞 Otasi{c.fatherName ? " (" + c.fatherName + ")" : ""}: {c.fatherPhone}</a>}
+            {!c.fatherPhone && c.fatherName && <span className="tag gray">👨 Otasi: {c.fatherName}</span>}
+            {c.motherPhone && <a className="tag green" href={"tel:" + c.motherPhone}>📞 Onasi{c.motherName ? " (" + c.motherName + ")" : ""}: {c.motherPhone}</a>}
+            {!c.motherPhone && c.motherName && <span className="tag gray">👩 Onasi: {c.motherName}</span>}
             {!c.fatherPhone && !c.motherPhone && c.phone && <a className="tag green" href={"tel:" + c.phone}>📞 {c.phone}</a>}
             {c.parent && <span className="tag gray">👪 {c.parent}</span>}
             {c.login && <span className="tag amber">🔑 {c.login}</span>}
@@ -268,7 +271,10 @@ function ClientForm({ client, onClose }) {
     photo: c.photo || "",
     guvohnoma: c.guvohnoma || "",
     birthDate: c.birthDate || "",
+    gender: c.gender || "",
+    fatherName: c.fatherName || "",
     fatherPhone: c.fatherPhone || "",
+    motherName: c.motherName || "",
     motherPhone: c.motherPhone || (c.phone && !c.fatherPhone ? c.phone : ""),
     parent: c.parent || "",
     diagnosis: c.diagnosis || "",
@@ -415,16 +421,27 @@ function ClientForm({ client, onClose }) {
       )}
 
       <Field label="F.I.Sh. (mijoz) *"><input value={f.name} onChange={set("name")} placeholder="Familiya Ism Sharif" /></Field>
-      <Field label="Tug'ilgan sana">
-        <input type="date" value={f.birthDate} onChange={set("birthDate")} />
-      </Field>
+      <div className="grid2">
+        <Field label="Tug'ilgan sana">
+          <input type="date" value={f.birthDate} onChange={set("birthDate")} />
+        </Field>
+        <Field label="Jinsi">
+          <select value={f.gender} onChange={set("gender")}>
+            <option value="">— tanlanmagan —</option>
+            <option value="erkak">Erkak</option>
+            <option value="ayol">Ayol</option>
+          </select>
+        </Field>
+      </div>
       {f.birthDate && <div className="muted">Yoshi: {ageFrom(f.birthDate)} da</div>}
       <div className="grid2">
+        <Field label="Otasining ismi"><input value={f.fatherName} onChange={set("fatherName")} placeholder="F.I.Sh." /></Field>
         <Field label="Otasining telefoni"><input value={f.fatherPhone} onChange={set("fatherPhone")} placeholder="+998 90 123 45 67" /></Field>
+      </div>
+      <div className="grid2">
+        <Field label="Onasining ismi"><input value={f.motherName} onChange={set("motherName")} placeholder="F.I.Sh." /></Field>
         <Field label="Onasining telefoni"><input value={f.motherPhone} onChange={set("motherPhone")} placeholder="+998 90 123 45 67" /></Field>
       </div>
-
-      <Field label="Ota-onasi (F.I.Sh.)"><input value={f.parent} onChange={set("parent")} /></Field>
 
       {!c.id && (
         <div className="cred-box" style={{ background: "var(--accent-soft)" }}>
