@@ -1,0 +1,9 @@
+node_modules
+data
+android
+.tools
+.git
+artifacts
+test-results
+dist
+.env

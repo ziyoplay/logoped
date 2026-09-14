@@ -1,0 +1,18 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'uz.nutq.logoped'
+    compileSdk 36
+    defaultConfig {
+        applicationId 'uz.nutq.logoped'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+    }
+    buildFeatures { buildConfig true }
+    buildTypes {
+        debug { manifestPlaceholders = [cleartext: 'true']; applicationIdSuffix '.debug' }
+        release { manifestPlaceholders = [cleartext: 'false']; minifyEnabled false }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

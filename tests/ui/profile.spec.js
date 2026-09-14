@@ -1,0 +1,32 @@
+import { test, expect } from '@playwright/test';
+test('Profile preview, photo, color and details save across reloads',async({page},testInfo)=>{
+  await page.goto('/');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+  await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+  async function settings(){if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();await page.getByRole('button',{name:'Sozlamalar',exact:true}).click();}
+  await settings();
+  await page.getByLabel('Ism va familiya *',{exact:true}).fill('Malika Salimova');
+  await page.getByLabel('Mutaxassislik *',{exact:true}).fill('Logoped-defektolog');
+  await page.getByLabel('Telefon raqami',{exact:true}).fill('+998901234567');
+  await page.getByLabel('Ish tajribasi (yil)').fill('7');
+  await page.getByLabel('Qabul manzili').fill('Toshkent, Yunusobod');
+  await page.getByLabel('O‘zingiz haqingizda').fill('Har bir bola uchun individual yondashuv.');
+  await page.getByRole('button',{name:'Ko‘k',exact:true}).click();
+  await expect(page.locator('.profile-preview h2')).toHaveText('Malika Salimova');
+  const photo=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle='#dce9f7';g.fillRect(0,0,128,128);g.fillStyle='#326baf';g.font='bold 44px sans-serif';g.textAlign='center';g.fillText('MS',64,80);return c.toDataURL('image/png').split(',')[1];});
+  await page.getByLabel('Profil rasmi',{exact:true}).setInputFiles({name:'avatar.png',mimeType:'image/png',buffer:Buffer.from(photo,'base64')});
+  await expect(page.getByAltText('Tanlangan profil rasmi')).toBeVisible();
+  await page.getByRole('button',{name:'Profilni saqlash',exact:true}).click();
+  await expect(page.getByText('Barcha o‘zgarishlar saqlangan')).toBeVisible();
+  await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Malika.'})).toBeVisible();await settings();
+  await expect(page.getByLabel('Mutaxassislik *',{exact:true})).toHaveValue('Logoped-defektolog');
+  await expect(page.getByAltText('Tanlangan profil rasmi')).toHaveAttribute('src',/^data:image\/jpeg;base64,/);
+  await expect(page.getByRole('button',{name:'Ko‘k',exact:true})).toHaveAttribute('aria-pressed','true');
+  await page.getByLabel('Telefon raqami',{exact:true}).fill('Changed');await page.getByRole('button',{name:'Bekor qilish',exact:true}).click();
+  await expect(page.getByLabel('Telefon raqami',{exact:true})).toHaveValue('+998901234567');
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.screenshot({path:`artifacts/${testInfo.project.name}-profile.png`,fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  await page.getByRole('button',{name:'Profil rasmini olib tashlash'}).click();await page.getByRole('button',{name:'Profilni saqlash',exact:true}).click();await expect(page.getByText('Barcha o‘zgarishlar saqlangan')).toBeVisible();
+  await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Malika.'})).toBeVisible();await settings();
+  await expect(page.getByAltText('Tanlangan profil rasmi')).toHaveCount(0);
+});
