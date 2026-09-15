@@ -86,7 +86,7 @@ PostgreSQL bilan noldan boshlash uchun:
 1. `.env.example`dan `.env` yarating va `DATABASE_URL`ga provayder bergan ulanish URLini kiriting. URLdagi `@` oldiga teskari qiya chiziq qo‘ymang; parolda maxsus belgilar bo‘lsa URL encoding ishlating.
 2. `DATABASE_SCHEMA=nutq` qoldiring. Server birinchi ishga tushishda shu alohida schemani va jadvallarni yaratadi. Eski `public` jadvallar o‘zgarmaydi, eski SQLite/PostgreSQL ma’lumotlari avtomatik ko‘chirilmaydi.
 3. Mahalliy kompyuter uchun tashqi host/port, hosting ichidagi ilova uchun o‘sha tarmoqdagi ichki host/port ishlating. DATABASE_URLni GitHubga yuklamang.
-4. Hostingda GitHub branch `codex/nutq-personal`, build turi `Dockerfile`, ilova porti `3001` tanlanadi. Environment bo‘limiga `DATABASE_URL`, `DATABASE_SCHEMA=nutq` kiriting va deploy qiling. HTTPS proxy uchun yuqoridagi cookie/proxy sozlamalarini ham kiriting.
+4. Hostingda GitHub branch `main`, build turi `Dockerfile`, ilova porti `3001` tanlanadi. Environment bo‘limiga `DATABASE_URL`, `DATABASE_SCHEMA=nutq` kiriting va deploy qiling. HTTPS proxy uchun yuqoridagi cookie/proxy sozlamalarini ham kiriting.
 5. PostgreSQL ishlatilganda ham zaxiralar uchun `/app/data`ga doimiy volume ulang yoki `BACKUP_DIRECTORY`ni doimiy diskka yo‘naltiring. Nusxalarni alohida joyga saqlashni sozlang.
 
 Asosiy jadvallar: `users`, `sessions`, `patients`, `appointments`, `exercises`, `results`, `audit_log`, `schema_migrations`, `client_accounts`, `patient_exercises`. Bemor, qabul va natijalar tashqi kalitlar bilan bog‘langan; ball, davomiylik va holat cheklovlari bazada ham tekshiriladi. `clinics` va `invitations` jadvallari eski kod bilan moslik uchun qolgan; amaldagi ilova bitta logoped uchun va jamoa APIlari yopiq.
@@ -149,6 +149,6 @@ PostgreSQL schema migratsiyasi 2 yangi jadvalni ma’lumotlarni o‘chirmasdan q
 
 Brauzerda `Unexpected token '<'` chiqishi ko‘pincha `/api/…` so‘roviga JSON o‘rniga HTML kelganini bildiradi. Shu domenning `/api/health` manzili HTTP 200 va `application/json` turidagi `{"ok":true}` javobini qaytarishi kerak. `/api/me`ga kirmagan foydalanuvchi uchun HTTP 401 JSON normal holat.
 
-Hostingda `codex/nutq-personal` branchidagi `Dockerfile` Node serverini `server/index.js` orqali ishga tushiradi. Domen trafikini ilovaning `3001` portiga yo‘naltiring, `/api` yo‘lini saqlang. Faqat `dist` papkasini statik joylashtirish backendni ishga tushirmaydi. PostgreSQL muhit qiymatlari backendga beriladi.
+Hostingda `main` branchidagi `Dockerfile` Node serverini `server/index.js` orqali ishga tushiradi. Domen trafikini ilovaning `3001` portiga yo‘naltiring, `/api` yo‘lini saqlang. Faqat `dist` papkasini statik joylashtirish backendni ishga tushirmaydi. PostgreSQL muhit qiymatlari backendga beriladi.
 
 Ilova noto‘g‘ri formatdagi javoblarni muvaffaqiyatli saqlash deb qabul qilmaydi. Texnik HTML/JSON parser xatosi o‘rniga tushunarli xabar chiqadi, kiritilgan forma saqlanib qoladi va qayta urinish mumkin. Bu xabar tekshiruvi hostingdagi yo‘naltirishni o‘zi o‘zgartirmaydi.
