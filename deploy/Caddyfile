@@ -1,0 +1,5 @@
+# Replace the example with your own domain. Start Node with COOKIE_SECURE=true and TRUST_PROXY=1.
+nutq.example.uz {
+    encode gzip
+    reverse_proxy 127.0.0.1:3001
+}

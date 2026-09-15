@@ -1,0 +1,6 @@
+import {test,expect} from '@playwright/test';
+test('A refresh failure after saving does not cause a duplicate patient',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();await page.getByRole('button',{name:'Bemor qo‘shish Yangi bemor kartasini oching'}).click();await page.getByLabel('Bemorning ism va familiyasi').fill('Aloqa Test Bemor');await page.getByLabel('Tug‘ilgan sana').fill('2020-05-12');
+ await page.route('**/api/exercises',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Sinov uzilishi'})}));await page.getByRole('button',{name:'Saqlash',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();await expect(page.getByText('Yozuv saqlandi, lekin ro‘yxat yangilanmadi. Qayta urinish tugmasini bosing.')).toBeVisible();
+ await page.unroute('**/api/exercises');await page.getByRole('button',{name:'Qayta urinish',exact:true}).click();await expect(page.getByText('Yozuv saqlandi, lekin ro‘yxat yangilanmadi. Qayta urinish tugmasini bosing.')).not.toBeVisible();const r=await page.request.get('/api/patients');expect((await r.json()).filter(p=>p.name==='Aloqa Test Bemor')).toHaveLength(1);
+});
