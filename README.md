@@ -144,3 +144,11 @@ Logoped uchun:
 Klient faqat o‘z qabullari, biriktirilgan mashqlari va natijalarini ko‘radi, o‘z parolini o‘zgartirishi mumkin. Bemor kartasi va qabulning ichki izohlari ko‘rsatilmaydi. **Natijalarga yozilgan kuzatuvlar klientga ko‘rinadi**; ularga faqat baham ko‘rmoqchi bo‘lgan matnni yozing. Klientga boshqa bemorlar, umumiy mashqlar kutubxonasi, eksport, zaxira yoki boshqaruv APIlari ochilmaydi. Namuna hisobida haqiqiy klient akkaunti yaratilmaydi.
 
 PostgreSQL schema migratsiyasi 2 yangi jadvalni ma’lumotlarni o‘chirmasdan qo‘shadi. Zaxira formati klient bog‘lanishlari va biriktirilgan mashqlarni ham saqlaydi; avvalgi 1-versiya zaxiralari tiklanishi qo‘llab-quvvatlanadi.
+
+## API o‘rniga HTML qaytsa
+
+Brauzerda `Unexpected token '<'` chiqishi ko‘pincha `/api/…` so‘roviga JSON o‘rniga HTML kelganini bildiradi. Shu domenning `/api/health` manzili HTTP 200 va `application/json` turidagi `{"ok":true}` javobini qaytarishi kerak. `/api/me`ga kirmagan foydalanuvchi uchun HTTP 401 JSON normal holat.
+
+Hostingda `codex/nutq-personal` branchidagi `Dockerfile` Node serverini `server/index.js` orqali ishga tushiradi. Domen trafikini ilovaning `3001` portiga yo‘naltiring, `/api` yo‘lini saqlang. Faqat `dist` papkasini statik joylashtirish backendni ishga tushirmaydi. PostgreSQL muhit qiymatlari backendga beriladi.
+
+Ilova noto‘g‘ri formatdagi javoblarni muvaffaqiyatli saqlash deb qabul qilmaydi. Texnik HTML/JSON parser xatosi o‘rniga tushunarli xabar chiqadi, kiritilgan forma saqlanib qoladi va qayta urinish mumkin. Bu xabar tekshiruvi hostingdagi yo‘naltirishni o‘zi o‘zgartirmaydi.

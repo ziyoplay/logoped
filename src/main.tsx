@@ -13,7 +13,7 @@ import './friendly.css';
 import './dark.css';
 import './controls.css';
 import {PatientSelect,ThemeSwitch} from './controls';
-import {api} from './api';
+import {api,ApiError} from './api';
 import {Landing} from './landing';
 import {ClientAccess,ClientPortal} from './clients';
 import {BackupStatus} from './backup-status';
@@ -58,7 +58,7 @@ function App(){
   useEffect(()=>{const update=()=>setLocationHash(window.location.hash);window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update);},[]);
   const [user,setUser]=useState<User|null>(null),[boot,setBoot]=useState(true),[bootError,setBootError]=useState(''),[data,setData]=useState<Data>(initialData),[loading,setLoading]=useState(false),[error,setError]=useState(''),[page,setPage]=useState<Page>('home'),[search,setSearch]=useState(''),[day,setDay]=useState(today()),[modal,setModal]=useState<Modal|null>(null),[selected,setSelected]=useState<string|null>(null),[menu,setMenu]=useState(false),[toast,setToast]=useState(''),[filter,setFilter]=useState('active'),[category,setCategory]=useState('Barchasi');
   const notify=(s:string)=>setToast(s);
-  async function bootSession(){setBoot(true);setBootError('');try{setUser((await api<{user:User}>('/me')).user);}catch(e){if(!(e as Error).message.includes('hisobingizga'))setBootError((e as Error).message);}finally{setBoot(false);}}
+  async function bootSession(){setBoot(true);setBootError('');try{setUser((await api<{user:User}>('/me')).user);}catch(e){if(!(e instanceof ApiError&&e.status===401))setBootError((e as Error).message);}finally{setBoot(false);}}
   useEffect(()=>{void bootSession();const expire=()=>{setUser(null);setData(initialData);setModal(null);};window.addEventListener('session-expired',expire);return()=>window.removeEventListener('session-expired',expire);},[]);
   async function reload(){const entries=await Promise.all((Object.keys(initialData) as Table[]).map(async key=>[key,await api('/'+key)]));setData(Object.fromEntries(entries) as Data);setError('');}
   useEffect(()=>{if(!user||user.role==='client')return;setLoading(true);reload().catch(e=>setError(e.message)).finally(()=>setLoading(false));const refresh=()=>{if(document.visibilityState==='visible')reload().catch(e=>setError(e.message));};const timer=setInterval(refresh,30000);window.addEventListener('focus',refresh);return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);};},[user?.id]);
@@ -77,7 +77,7 @@ function App(){
   const activePatient=selected?patient(selected):null;
   if(boot)return <div className="loading-screen"><Brand/><p>Yuklanmoqda…</p></div>;
   if((!user&&locationHash!=='#kirish')||['#bosh-sahifa','#xizmatlar','#yondashuv','#aloqa'].includes(locationHash))return <Landing/>;
-  if(bootError)return <div className="loading-screen"><Brand/><p className="error">{bootError}</p><Button onClick={()=>void bootSession()}>Qayta urinish</Button></div>;
+  if(bootError)return <div className="loading-screen"><Brand/><p className="error">{bootError}</p><Button onClick={()=>void bootSession()}>Qayta urinish</Button><a className="text-button" href="#bosh-sahifa">Bosh sahifaga qaytish</a></div>;
   if(!user)return <Auth onLogin={u=>{setUser(u);setPage('home');setData(initialData);setSelected(null);}}/>;
 
   if(user.role==='client')return <ClientPortal user={user} onLogout={()=>{setUser(null);setData(initialData);window.location.hash='';}}/>;
