@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openDatabase } from './db.js';
 import { sqliteStorage } from './storage.js';
+import { mountClients } from './clients.js';
 import { mountTeam, admin, audit, tokenHash } from './team.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const text = (max = 200) => z.string().trim().min(1).max(max);
@@ -118,6 +119,11 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
         req.ownerId = teamMode ? (await db.prepare('SELECT owner_id FROM clinics WHERE id=?').get(s.clinic_id)).owner_id : s.id;
         next();
     });
+    app.use('/api', (req,res,next)=>{
+        if(req.user.role==='client' && !(['GET /me','POST /logout','POST /password','GET /client/overview'].includes(req.method+' '+req.path)))return res.status(403).json({error:'Bu amal faqat logoped uchun.'});
+        next();
+    });
+    mountClients(app,db,{passwordHash});
     if (teamMode)
         mountTeam(app, db);
     app.get('/api/backup-status', (req, res) => { admin(req); res.json(app.locals.backups?.status() || { lastSuccess: null, lastError: 'Avtomatik zaxira xizmati ishga tushmagan.', running: false }); });
@@ -209,6 +215,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
                 const current = await db.prepare('SELECT revision FROM ' + table + ' WHERE id=?').get(req.params.id);
                 if (req.get('If-Match') !== String(current.revision))
                     fail(409, 'Yozuv yangilangan. Sahifani yangilab qayta urinib ko‘ring.');
+                if(table==='patients')await db.prepare('DELETE FROM users WHERE id IN (SELECT user_id FROM client_accounts WHERE patient_id=? AND owner_id=?)').run(req.params.id,req.ownerId);
                 await db.prepare('DELETE FROM ' + table + ' WHERE id=? AND user_id=?').run(req.params.id, req.ownerId);
                 await audit(db, req, 'delete', table, req.params.id);
             });

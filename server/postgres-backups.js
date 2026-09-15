@@ -1,12 +1,12 @@
 import {createHash} from 'node:crypto';
 import {mkdir,readdir,rename,rm,writeFile,readFile} from 'node:fs/promises';
 import path from 'node:path';
-export const snapshotTables=['users','clinics','patients','exercises','appointments','results','sessions','invitations','audit_log'];
+export const snapshotTables=['users','clinics','patients','exercises','appointments','results','sessions','invitations','audit_log','client_accounts','patient_exercises'];
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
-export async function snapshot(db){return db.transaction(async()=>{const tables={};for(const table of snapshotTables)tables[table]=await db.prepare('SELECT * FROM '+table+(['patients','exercises','appointments','results'].includes(table)?' ORDER BY created_order':table==='audit_log'?' ORDER BY id':'')).all();return {schemaVersion:1,createdAt:new Date().toISOString(),tables};},{isolation:'repeatable read'});}
+export async function snapshot(db){return db.transaction(async()=>{const tables={};for(const table of snapshotTables)tables[table]=await db.prepare('SELECT * FROM '+table+(['patients','exercises','appointments','results'].includes(table)?' ORDER BY created_order':table==='audit_log'?' ORDER BY id':'')).all();return {schemaVersion:2,createdAt:new Date().toISOString(),tables};},{isolation:'repeatable read'});}
 export async function writeSnapshot(db,directory){await mkdir(directory,{recursive:true});const data=await snapshot(db);const archive={format:'nutq-postgres-backup-v1',sha256:digest(data),data};
  const target=path.join(directory,'nutq-pg-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json');const partial=target+'.partial';try{await writeFile(partial,JSON.stringify(archive),{mode:0o600,flag:'wx'});await readSnapshot(partial);await rename(partial,target);return target}catch(e){await rm(partial,{force:true}).catch(()=>{});throw e;}}
-export async function readSnapshot(filename){const archive=JSON.parse(await readFile(filename,'utf8'));if(archive.format!=='nutq-postgres-backup-v1'||archive.data?.schemaVersion!==1||archive.sha256!==digest(archive.data))throw Error('Zaxira formati yoki nazorat xeshi noto‘g‘ri.');for(const table of snapshotTables)if(!Array.isArray(archive.data.tables[table]))throw Error('Zaxira jadvali yetishmaydi: '+table);return archive.data;}
+export async function readSnapshot(filename){const archive=JSON.parse(await readFile(filename,'utf8'));if(archive.format!=='nutq-postgres-backup-v1'||![1,2].includes(archive.data?.schemaVersion)||archive.sha256!==digest(archive.data))throw Error('Zaxira formati yoki nazorat xeshi noto‘g‘ri.');if(archive.data.schemaVersion===1){archive.data.tables.client_accounts=[];archive.data.tables.patient_exercises=[];}for(const table of snapshotTables)if(!Array.isArray(archive.data.tables[table]))throw Error('Zaxira jadvali yetishmaydi: '+table);return archive.data;}
 export async function restoreSnapshot(db,data){
  if(!db.schema.startsWith('nutq_restore_')&&!db.schema.startsWith('nutq_test_'))throw Error('Tiklash uchun nutq_restore_ bilan boshlanuvchi yangi schema tanlang.');
  await db.transaction(async()=>{

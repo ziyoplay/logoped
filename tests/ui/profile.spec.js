@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 test('Profile preview, photo, color and details save across reloads',async({page},testInfo)=>{
-  await page.goto('/');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+  await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
   await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
   async function settings(){if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();await page.getByRole('button',{name:'Sozlamalar',exact:true}).click();}
   await settings();

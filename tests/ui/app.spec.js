@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 test('Logoped can manage a patient, appointment, exercise and result',async({page},testInfo)=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/');
+  await page.goto('/#kirish');
   await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
   await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
   await page.screenshot({path:`artifacts/${testInfo.project.name}-dashboard.png`,fullPage:true});
