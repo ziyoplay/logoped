@@ -45,3 +45,22 @@ Final verification for the clinic update: 6 API/storage tests and 10 desktop/mob
 
 ## Personal-use correction — 2026-09-14
 User clarified that the product is for one logoped. The shipped server now defaults to per-account data ownership and disables team endpoints/invitations. Removed the team UI, invitation field, therapist assignment and therapist calendar filter. Replaced team settings with standalone backup status. No records were deleted. Legacy team schema/tests remain for migration compatibility, but are not enabled by the server entry point. Desktop/mobile personal-mode tests verify the absence of team controls, successful access to backups/export and disabled team API. Build and 7 API/storage tests passed; 10 browser tests passed.
+
+## PostgreSQL fresh setup — 2026-09-15
+
+Added an async storage interface with PostgreSQL via node-postgres and retained SQLite support. DATABASE_URL selects PostgreSQL; startup fails on a database connection error instead of falling back silently. Fresh installation creates ten tables in the dedicated nutq schema. Existing public tables and SQLite data were not imported, changed or deleted. Product remains single-logoped; legacy team endpoints stay disabled by default.
+
+PostgreSQL uses foreign keys, checks, indexes, per-client transactions, and an advisory transaction lock around application CRUD to protect schedule and revision checks across simultaneous requests. Automatic six-hour PostgreSQL snapshots have SHA-256 integrity checks and 30-copy retention. Restore targets a newly named schema and discards sessions/invitations. Snapshot files contain private data and are not encrypted.
+
+Verified on the supplied remote PostgreSQL using disposable nutq_test_ schemas:
+- Five existing API/personal tests passed, including ownership, profile persistence, validation, session revocation and disabled team endpoints.
+- One PostgreSQL concurrency/restore test passed: simultaneous overlapping appointments returned 201/409; simultaneous revision-zero edits returned 200/409; full snapshot restored into an empty schema; sessions were cleared; overwrite and checksum tampering were rejected.
+- SQLite regression: seven tests passed; PostgreSQL-specific test skipped in the default command.
+- TypeScript and Vite production build passed.
+- Local server restarted with PostgreSQL, /api/health returned HTTP 200, and a startup snapshot was produced. Live nutq users/patients/appointments/exercises/results counts were all zero; thirteen existing public tables remained.
+
+Browser verification initially exposed a test race: theme test reloaded before asynchronous demo login completed. It now waits for the authenticated dashboard. Remote-database runs use an explicit 15-second assertion timeout (default local tests remain 5 seconds) and disposable schemas via npm run test:ui:postgres.
+
+No production-host application deploy or physical Android retest was performed in this update. Hosting still needs the internal DATABASE_URL environment value, DATABASE_SCHEMA=nutq, the Nutq branch/Dockerfile, persistent backup storage and HTTPS settings. Credentials are excluded from Git and Docker build context.
+
+Final PostgreSQL browser rerun: all 10 desktop/mobile tests passed (2.4 minutes), covering patient/appointment/exercise/result CRUD, profile photo/details, reload persistence, theme/picker behavior, personal-mode controls and save-success/refresh-failure handling. Temporary test schemas were cleaned up.

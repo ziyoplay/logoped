@@ -4,12 +4,14 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createApp } from '../server/app.js';
+import {postgresFixture} from './postgres-fixture.js';
+const fixture=postgresFixture();
 const dir=mkdtempSync(path.join(tmpdir(),'nutq-test-'));
 const filename=path.join(dir,'test.sqlite');
 let instance,server,base;
-async function start(){instance=createApp({filename,teamMode:true});server=instance.app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port;}
-async function stop(){await new Promise(r=>server.close(r));instance.db.close();}
-before(start);after(async()=>{await stop();rmSync(dir,{recursive:true});});
+async function start(){instance=createApp({filename,teamMode:true,database:await fixture.open()});server=instance.app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port;}
+async function stop(){await new Promise(r=>server.close(r));await instance.db.close();}
+before(start);after(async()=>{await stop();await fixture.cleanup();rmSync(dir,{recursive:true});});
 async function request(route,{method='GET',body,cookie,csrf=true,revision}={}){let version=revision;if(route==='/me'&&method==='PATCH'&&version===undefined)version=(await request('/me',{cookie})).body.user?.revision;if(version===undefined&&['PUT','DELETE'].includes(method)){const table=route.split('/')[1],id=route.split('/')[2];const rows=await request('/'+table,{cookie});version=Array.isArray(rows.body)?rows.body.find(r=>r.id===id)?.revision:undefined;}const r=await fetch(base+'/api'+route,{method,headers:{'Content-Type':'application/json',...(version!==undefined?{'If-Match':String(version)}:{}),...(csrf?{'X-Requested-With':'Nutq'}:{}),...(cookie?{Cookie:cookie}:{})},body:body?JSON.stringify(body):undefined});return {status:r.status,body:await r.json(),cookie:r.headers.get('set-cookie')?.split(';')[0],headers:r.headers};}
 const person={name:'Test Bemor',birth_date:'2020-02-29',guardian:'Test Vasiy',phone:'+998901234567',focus:'R tovushi',notes:'Tekshiruv',status:'active'};
 test('Account isolation, validation, schedule conflicts, persistence, export and session revocation',async()=>{

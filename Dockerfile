@@ -12,7 +12,7 @@ ENV NODE_ENV=production PORT=3001
 COPY package*.json ./
 RUN npm ci --omit=dev && mkdir -p /app/data && chown node:node /app/data
 COPY server ./server
-COPY scripts/backup.js ./scripts/backup.js
+COPY scripts ./scripts
 COPY --from=build /app/dist ./dist
 USER node
 VOLUME ["/app/data"]

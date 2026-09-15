@@ -7,3 +7,5 @@ artifacts
 test-results
 dist
 .env
+.env.*
+!.env.example

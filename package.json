@@ -7,14 +7,16 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "concurrently -k \"node --watch server/index.js\" \"vite --host 0.0.0.0\"",
+    "dev": "concurrently -k \"node --env-file-if-exists=.env --watch server/index.js\" \"vite --host 0.0.0.0\"",
     "build": "tsc --noEmit && vite build",
     "start": "node --env-file-if-exists=.env server/index.js",
     "test": "node --test tests/*.test.js",
     "test:ui": "playwright test",
     "android:build": "powershell -ExecutionPolicy Bypass -File scripts/build-android.ps1",
     "backup": "node --env-file-if-exists=.env scripts/backup.js",
-    "restore": "node scripts/restore.js"
+    "restore": "node scripts/restore.js",
+    "restore:postgres": "node --env-file-if-exists=.env scripts/restore-postgres.js",
+    "test:ui:postgres": "node --env-file-if-exists=.env scripts/test-postgres-ui.js"
   },
   "dependencies": {
     "@fontsource/manrope": "^5.2.0",
@@ -23,6 +25,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
+    "pg": "^8.23.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^4.1.0"
