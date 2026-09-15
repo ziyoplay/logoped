@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('Theme persists and patient picker supports search, keyboard and saving',async({page},testInfo)=>{
- await page.goto('/');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+ await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
  await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
  await page.getByRole('button',{name:'Och mavzuga o‘tish'}).click();
  await expect(page.locator('html')).toHaveAttribute('data-theme','light');await page.reload();await expect(page.getByRole('button',{name:'To‘q mavzuga o‘tish'})).toBeVisible();

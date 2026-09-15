@@ -1,6 +1,6 @@
 # Nutq — bitta logoped uchun shaxsiy ilova
 
-Bemorlar, qabul jadvali, mashqlar, natijalar va profil bitta logopedning kundalik ishlari uchun mo‘ljallangan. Kompyuter va telefonda bir xil hisobga kiring — ikkalasi serverdagi bir xil PostgreSQL yoki SQLite bazadan foydalanadi. Jamoa, xodim taklifi va logopedga biriktirish boshqaruvlari yo‘q. Har bir hisob faqat o‘z yozuvlarini ko‘radi.
+Saytning bosh sahifasida Iroda logoped xizmatlari va aloqa ma’lumotlari ko‘rsatiladi. Bemorlar, qabul jadvali, mashqlar, natijalar va profil logopedning ish kabinetida boshqariladi; klientlar uchun alohida kabinet mavjud. Kompyuter va telefonda bir xil hisobga kiring — ikkalasi serverdagi bir xil PostgreSQL yoki SQLite bazadan foydalanadi. Jamoa, xodim taklifi va logopedga biriktirish boshqaruvlari yo‘q. Har bir hisob faqat o‘z yozuvlarini ko‘radi.
 
 ## Ishga tushirish
 
@@ -14,7 +14,7 @@ npm.cmd start
 
 Kompyuterda http://localhost:3001 ni oching. Keyingi safar `Start-Nutq.cmd` orqali ishga tushiring. Server kompyuteri yoqilgan va jarayon ishlayotgan bo‘lishi kerak.
 
-1. «Hisob yarating» orqali shaxsiy hisob yarating. Haqiqiy bemorlarni namuna hisobiga kiritmang.
+1. Bosh sahifadagi «Kabinetga kirish», keyin «Hisob yarating» orqali logoped hisobini yarating. Haqiqiy bemorlarni namuna hisobiga kiritmang.
 2. O‘ng yuqoridagi avatar orqali profil, telefon, ish manzili va amaliyot nomini kiriting.
 3. Bemorlarni qo‘shing, qabul belgilang, mashq va natijalarni saqlang. Jadvaldagi vaqtlar bir-biriga to‘qnashmaydi.
 4. Telefonda ham shu serverga, shu email va parol bilan kiring. Alohida telefon hisobi ochish kerak emas.
@@ -89,7 +89,7 @@ PostgreSQL bilan noldan boshlash uchun:
 4. Hostingda GitHub branch `codex/nutq-personal`, build turi `Dockerfile`, ilova porti `3001` tanlanadi. Environment bo‘limiga `DATABASE_URL`, `DATABASE_SCHEMA=nutq` kiriting va deploy qiling. HTTPS proxy uchun yuqoridagi cookie/proxy sozlamalarini ham kiriting.
 5. PostgreSQL ishlatilganda ham zaxiralar uchun `/app/data`ga doimiy volume ulang yoki `BACKUP_DIRECTORY`ni doimiy diskka yo‘naltiring. Nusxalarni alohida joyga saqlashni sozlang.
 
-Asosiy jadvallar: `users`, `sessions`, `patients`, `appointments`, `exercises`, `results`, `audit_log`, `schema_migrations`. Bemor, qabul va natijalar tashqi kalitlar bilan bog‘langan; ball, davomiylik va holat cheklovlari bazada ham tekshiriladi. `clinics` va `invitations` jadvallari eski kod bilan moslik uchun qolgan; amaldagi ilova bitta logoped uchun va jamoa APIlari yopiq.
+Asosiy jadvallar: `users`, `sessions`, `patients`, `appointments`, `exercises`, `results`, `audit_log`, `schema_migrations`, `client_accounts`, `patient_exercises`. Bemor, qabul va natijalar tashqi kalitlar bilan bog‘langan; ball, davomiylik va holat cheklovlari bazada ham tekshiriladi. `clinics` va `invitations` jadvallari eski kod bilan moslik uchun qolgan; amaldagi ilova bitta logoped uchun va jamoa APIlari yopiq.
 
 Baza TLS talab qilsa provayder bergan sertifikat va URL SSL sozlamalaridan foydalaning: [node-postgres SSL](https://node-postgres.com/features/ssl). Ulanishning sertifikat tekshiruvi kodda o‘chirilmaydi.
 
@@ -123,9 +123,24 @@ PostgreSQL testlari haqiqiy bazaga ulanadi, lekin faqat vaqtinchalik `nutq_test_
 
 ```powershell
 $env:NUTQ_TEST_POSTGRES='1'
-node --env-file=.env --test tests/api.test.js tests/personal.test.js tests/postgres.test.js
+node --env-file=.env --test tests/api.test.js tests/personal.test.js tests/clients.test.js tests/postgres.test.js
 Remove-Item Env:NUTQ_TEST_POSTGRES
 npm.cmd run test:ui:postgres
 ```
 
 Bu sinovlar uchun baza foydalanuvchisida schema yaratish huquqi kerak. Oddiy `npm test` SQLite sinovlarini bajaradi va PostgreSQL testini o‘tkazib yuboradi.
+
+## Bosh sahifa va klient kabineti
+
+Bosh sahifa login talab qilmaydi. Xizmatlar, yondashuv, telefon va Telegram havolalari mavjud. Ochiq matnlar va aloqa ma’lumotlari `src/landing.tsx`da joylashgan; narx, ish manzili yoki malaka haqida tasdiqlanmagan ma’lumot kiritilmagan. `/#kirish` logoped va klient uchun umumiy kirish oynasini ochadi. Rang mavzusi saqlanadi.
+
+Logoped uchun:
+
+1. Bemor kartasini oching. «Klient kabineti» bo‘limida bemor yoki ota-onaning emaili va kamida 10 belgili boshlang‘ich parolni kiriting.
+2. «Klient akkaunti yaratish»ni bosing. Login va parolni klientga o‘zingiz yetkazing; ilova xabar yubormaydi. Har bir bemor kartasiga bitta klient akkaunti bog‘lanadi.
+3. Kutubxonadagi mashqni tanlab, klientga ko‘rsatma bilan biriktiring. Biriktirishni olib tashlash asl mashqni o‘chirmaydi.
+4. Kerak bo‘lsa «Kirishni yopish» yoki parolni yangilash orqali sessiyalarni darhol bekor qiling.
+
+Klient faqat o‘z qabullari, biriktirilgan mashqlari va natijalarini ko‘radi, o‘z parolini o‘zgartirishi mumkin. Bemor kartasi va qabulning ichki izohlari ko‘rsatilmaydi. **Natijalarga yozilgan kuzatuvlar klientga ko‘rinadi**; ularga faqat baham ko‘rmoqchi bo‘lgan matnni yozing. Klientga boshqa bemorlar, umumiy mashqlar kutubxonasi, eksport, zaxira yoki boshqaruv APIlari ochilmaydi. Namuna hisobida haqiqiy klient akkaunti yaratilmaydi.
+
+PostgreSQL schema migratsiyasi 2 yangi jadvalni ma’lumotlarni o‘chirmasdan qo‘shadi. Zaxira formati klient bog‘lanishlari va biriktirilgan mashqlarni ham saqlaydi; avvalgi 1-versiya zaxiralari tiklanishi qo‘llab-quvvatlanadi.

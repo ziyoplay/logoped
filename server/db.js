@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 export function openDatabase(filename) {
@@ -84,5 +84,6 @@ export function openDatabase(filename) {
     db.exec('CREATE INDEX IF NOT EXISTS appointments_therapist_date ON appointments(therapist_id,date)');
     db.exec('COMMIT');
   } catch(error) {db.exec('ROLLBACK');db.close();throw error;}
+  db.exec(readFileSync(new URL('./client-schema.sql',import.meta.url),'utf8'));
   return db;
 }
