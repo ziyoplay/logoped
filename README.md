@@ -81,6 +81,8 @@ npm.cmd run android:build
 
 ## PostgreSQL va hosting
 
+Dokploy uchun tayyor sozlamalar: [deploy/DOKPLOY.md](deploy/DOKPLOY.md). Muhit qiymatlari namunasi: [deploy/dokploy.env.example](deploy/dokploy.env.example). Dockerfile API va bazani tekshiradigan healthcheck bilan ta’minlangan.
+
 PostgreSQL bilan noldan boshlash uchun:
 
 1. `.env.example`dan `.env` yarating va `DATABASE_URL`ga provayder bergan ulanish URLini kiriting. URLdagi `@` oldiga teskari qiya chiziq qo‘ymang; parolda maxsus belgilar bo‘lsa URL encoding ishlating.

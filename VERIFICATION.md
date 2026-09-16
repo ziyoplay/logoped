@@ -88,3 +88,11 @@ Build passed. Six targeted desktop/mobile checks passed after correcting the tes
 Added one-time viewport reveals, staggered service cards, gentle floating speech bubbles, smooth anchor scrolling, and pointer/touch feedback for public-page controls. Floating pauses offscreen and when the document is hidden. Reduced-motion preferences disable CSS motion and cancel active reveal animations, including preference changes while the page is open. Observers and animation handles are cleaned up on navigation. Content remains visible without animation support.
 
 TypeScript/Vite build passed. Read-only browser checks on desktop and Pixel 7 viewport confirmed moving bubbles, offscreen pause, runtime reduced-motion disabling, login/home navigation cleanup, no horizontal overflow and no page JavaScript errors. Screenshots were inspected. No database or backend changes.
+# Deployment configuration — 2026-09-16
+
+- Added `deploy/DOKPLOY.md` and a credential-free environment template for the existing Node/PostgreSQL deployment.
+- Dockerfile binds explicitly to `0.0.0.0` and checks `/api/health` using a dependency-free Node script. `npm run deploy:check -- URL` additionally verifies the unauthenticated `/api/me` response.
+- `npm run build` passed. `npm test`: 8 passed, PostgreSQL integration test skipped.
+- Exercised the deployment checker against local HTTP fixtures: valid JSON passed; HTML fallback, malformed JSON, and HTTP 503 all exited with failure.
+- Read-only check against the existing public domain still found HTML at `/api/health`. No hosting settings were changed. These repository changes do not switch the existing service's build type or routing.
+- Docker is unavailable on this workstation, so the image build and container healthcheck were not executed inside Docker. The Node check script was executed directly.
