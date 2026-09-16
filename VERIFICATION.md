@@ -107,3 +107,8 @@ TypeScript/Vite build passed. Read-only browser checks on desktop and Pixel 7 vi
 - Added private-key exclusions for Git/Docker and nested environment exclusions for Docker. Docker build copies the guard before running npm build.
 - `npm run build` passed both secret checks. `npm test`: 9 passed, 1 PostgreSQL test skipped. New isolated fixture test covers backend-only configuration, source/bundle leaks, VITE-prefixed secrets and value-free diagnostics.
 - No credential rotation, hosting changes or Git history rewrite was performed.
+# Hosting port 8020 — 2026-09-17
+
+- Docker runtime default and exposed port, Dokploy environment template and hosting guide now use 8020. Local npm start retains its default 3001.
+- Started the real server on 127.0.0.1:8020 with an isolated temporary SQLite database. The deployment checker read PORT from the environment and confirmed health HTTP 200 JSON and unauthenticated me HTTP 401 JSON. Stopped the temporary server afterward; no production records were used.
+- Docker image execution and remote hosting settings were not changed or tested in this check. Existing hosting PORT values must be updated to 8020 when deploying.

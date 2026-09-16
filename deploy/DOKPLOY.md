@@ -10,10 +10,11 @@ Mavjud sayt ilovasida quyidagilarni belgilang. PostgreSQL xizmatini qayta yarati
 | Dockerfile path | `Dockerfile` |
 | Build context | `.` |
 | Build stage | Bo‘sh — oxirgi runtime bosqichi ishlatiladi |
-| Domain container port | `3001` |
+| Domain container port | `8020` |
 | Domain path | `/`; `/api` yo‘li o‘zgartirilmaydi |
 
 1. [dokploy.env.example](dokploy.env.example) qiymatlarini ilovaning Environment bo‘limiga kiriting. `DATABASE_URL`ni mavjud bazaning Internal Connection URL qiymatiga almashtiring. Ilova va baza bir ichki Docker tarmog‘ida bo‘lishi kerak. `@` oldida `\` bo‘lmasin.
+   Environment bo‘limida eski `PORT=3001` qolgan bo‘lsa, `PORT=8020`ga almashtiring: hosting muhiti Dockerfile qiymatidan ustun turadi. Domen porti ham `8020` bo‘lsin. Mahalliy `npm start` uchun odatiy port `3001` bo‘lib qoladi.
 2. Zaxiralar saqlanishi uchun ilovaning `/app/data` katalogiga doimiy volume ulang.
 3. Sozlamalarni saqlang va Deploy bosing. Dockerfile frontendni yig‘adi va API bilan birga Node 24 serverida ishga tushiradi. Alohida frontend/backend xizmatlarini yaratish shart emas.
 4. Deploy tugagach sayt domenini tekshiring:
