@@ -12,6 +12,7 @@ import './styles.css';
 import './friendly.css';
 import './dark.css';
 import './controls.css';
+import './auth-motion.css';
 import {PatientSelect,ThemeSwitch} from './controls';
 import {api,ApiError} from './api';
 import {Landing} from './landing';

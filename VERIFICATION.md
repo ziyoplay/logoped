@@ -96,3 +96,7 @@ TypeScript/Vite build passed. Read-only browser checks on desktop and Pixel 7 vi
 - Exercised the deployment checker against local HTTP fixtures: valid JSON passed; HTML fallback, malformed JSON, and HTTP 503 all exited with failure.
 - Read-only check against the existing public domain still found HTML at `/api/health`. No hosting settings were changed. These repository changes do not switch the existing service's build type or routing.
 - Docker is unavailable on this workstation, so the image build and container healthcheck were not executed inside Docker. The Node check script was executed directly.
+# Login motion — 2026-09-16
+
+- Added scoped CSS entrance effects to the login/register screen, finite letter/sound-bar motion and button feedback. Existing reduced-motion preference disables these effects; focus cancels the form reveal immediately.
+- `npm run build` passed. Browser preview confirmed the auth animation styles, no horizontal overflow, a visible usable form, immediate input focus and login/register switching without submitting data.

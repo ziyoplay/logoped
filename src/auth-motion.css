@@ -1,0 +1,62 @@
+/* A short welcome sequence; the form stays usable throughout. */
+@media (prefers-reduced-motion: no-preference) {
+  .auth .auth-story > .brand,
+  .auth .auth-copy,
+  .auth .auth-foot,
+  .auth .auth-mobile-brand,
+  .auth .auth-panel > * {
+    animation: auth-arrive 520ms cubic-bezier(.2,.7,.2,1) backwards;
+  }
+  .auth .auth-copy { animation-delay: 80ms; }
+  .auth .auth-foot { animation-delay: 180ms; }
+  .auth .auth-panel > h2 { animation-delay: 60ms; }
+  .auth .auth-panel > p { animation-delay: 100ms; }
+  .auth .auth-panel > form { animation-delay: 140ms; }
+  .auth .auth-panel > .auth-toggle,
+  .auth .auth-panel > .divider,
+  .auth .auth-panel > .demo-button { animation-delay: 200ms; }
+
+  /* Individual translate keeps each letter's existing rotation intact. */
+  .auth .speech-art > span {
+    animation: auth-letter-bob 2100ms ease-in-out 2;
+  }
+  .auth .speech-art > span:nth-child(2) { animation-delay: 180ms; }
+  .auth .speech-art > span:nth-child(3) { animation-delay: 360ms; }
+  .auth .sound-bars i {
+    transform-origin: center;
+    animation: auth-sound-wave 900ms ease-in-out 4;
+  }
+  .auth .sound-bars i:nth-child(3n + 2) { animation-delay: 120ms; }
+  .auth .sound-bars i:nth-child(3n) { animation-delay: 240ms; }
+
+  .auth .button,
+  .auth .auth-home-link,
+  .auth .auth-toggle button {
+    transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  }
+  .auth .button > svg { transition: transform 180ms ease; }
+  .auth .button:active:not(:disabled) { transform: scale(.98); }
+  .auth .button:focus-visible > svg { transform: translateX(4px); }
+  .auth .auth-panel .error { animation: auth-arrive 220ms ease-out; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .auth .button:hover:not(:disabled) { transform: translateY(-2px); }
+    .auth .button:hover:not(:disabled) > svg { transform: translateX(4px); }
+    .auth .auth-home-link:hover { transform: translateX(-3px); }
+  }
+  /* Keyboard focus must never wait for a reveal. */
+  .auth .auth-panel > :focus-within { animation: none; }
+}
+
+@keyframes auth-arrive {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes auth-letter-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -9px; }
+}
+@keyframes auth-sound-wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(.5); }
+}
