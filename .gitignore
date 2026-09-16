@@ -16,6 +16,10 @@ android/local.properties
 .idea/
 .env.*
 !.env.example
+*.pem
+*.key
+*.p12
+*.pfx
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm

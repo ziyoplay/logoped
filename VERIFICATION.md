@@ -100,3 +100,10 @@ TypeScript/Vite build passed. Read-only browser checks on desktop and Pixel 7 vi
 
 - Added scoped CSS entrance effects to the login/register screen, finite letter/sound-bar motion and button feedback. Existing reduced-motion preference disables these effects; focus cancels the form reveal immediately.
 - `npm run build` passed. Browser preview confirmed the auth animation styles, no horizontal overflow, a visible usable form, immediate input focus and login/register switching without submitting data.
+# Client secret protection — 2026-09-16
+
+- Checked tracked files, compiled frontend and locally available Git history for known environment credentials and common private-key/token signatures; no matches found. `.env` and `.env.deploy` are ignored. This is a scoped scan, not a guarantee for every credential format or external copy.
+- Build now rejects sensitive `VITE_` variables and detected credential values/signatures in frontend source, public assets and the generated bundle. Diagnostics contain locations only.
+- Added private-key exclusions for Git/Docker and nested environment exclusions for Docker. Docker build copies the guard before running npm build.
+- `npm run build` passed both secret checks. `npm test`: 9 passed, 1 PostgreSQL test skipped. New isolated fixture test covers backend-only configuration, source/bundle leaks, VITE-prefixed secrets and value-free diagnostics.
+- No credential rotation, hosting changes or Git history rewrite was performed.

@@ -9,3 +9,10 @@ dist
 .env
 .env.*
 !.env.example
+**/.env
+**/.env.*
+**/.idea
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx

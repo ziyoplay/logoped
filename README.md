@@ -24,6 +24,10 @@ Kompyuterda http://localhost:3001 ni oching. Keyingi safar `Start-Nutq.cmd` orqa
 
 ## Ma’lumotlarni himoyalash
 
+- Baza paroli va API kalitlarini faqat backend `.env` faylida yoki hosting Environment bo‘limida saqlang. `VITE_` bilan boshlangan qiymatlar brauzerga chiqarilishi mumkin; u yerga maxfiy kalit kiritmang.
+- `npm run build`dan oldin va keyin frontend maxfiy qiymatlarga tekshiriladi. Skript aniqlangan qiymatni chop etmaydi, faqat fayl yoki o‘zgaruvchi nomini ko‘rsatadi. Tekshiruv ma’lum kalit formatlari va muhitdagi maxfiy qiymatlarga asoslanadi; bu barcha turdagi sirlarni kafolatli aniqlaydigan audit emas.
+- `.env` va xususiy kalit fayllari Git hamda Docker build kontekstidan chiqarilgan. Oldin chat, rasm yoki boshqa joyga oshkor qilingan kalitni yashirish uning eski nusxasini bekor qilmaydi; bunday kalit provayderda almashtiriladi.
+
 - Tarixi mavjud bemor o‘chirilmaydi. Bemor kartasini tahrirlab «Holati → Arxivda» tanlang: qabul va natijalar saqlanadi.
 - Ikki qurilmada bir yozuv yoki profil tahrirlansa, eskirgan nusxa yangisini bosib ketmaydi. Xatoda yozilgan matnni nusxalab, oynani yoping, yangilang va qayta oching.
 - Qo‘shish/tahrirlash/o‘chirish va faoliyat jurnaliga yozish bitta baza tranzaksiyasida bajariladi. Server amallar jurnalini saqlaydi; bu eski maydon qiymatlarini saqlovchi to‘liq tarix emas.

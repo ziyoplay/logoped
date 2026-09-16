@@ -7,8 +7,10 @@
     "node": ">=24.0.0"
   },
   "scripts": {
+    "prebuild": "node scripts/check-client-secrets.js",
     "dev": "concurrently -k \"node --env-file-if-exists=.env --watch server/index.js\" \"vite --host 0.0.0.0\"",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "node scripts/check-client-secrets.js --bundle",
     "start": "node --env-file-if-exists=.env server/index.js",
     "deploy:check": "node scripts/check-deployment.js",
     "test": "node --test tests/*.test.js",

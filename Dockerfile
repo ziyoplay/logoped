@@ -4,6 +4,7 @@ COPY package*.json ./
 RUN npm ci
 COPY index.html tsconfig.json vite.config.ts ./
 COPY src ./src
+COPY scripts/check-client-secrets.js ./scripts/check-client-secrets.js
 RUN npm run build
 
 FROM node:24-bookworm-slim
