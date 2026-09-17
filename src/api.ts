@@ -5,7 +5,9 @@ export class ApiError extends Error {
 export async function api<T=unknown>(url:string,options:RequestInit={}):Promise<T>{
   let res:Response,body:string;const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),20000);
   try{
-    res=await fetch('/api'+url,{...options,headers:{'Content-Type':'application/json','X-Requested-With':'Nutq',...options.headers},credentials:'same-origin',signal:controller.signal});
+    // A previous static deployment may have cached HTML under an API URL.
+    // Always read session and application data from the current server.
+    res=await fetch('/api'+url,{...options,headers:{'Content-Type':'application/json','X-Requested-With':'Nutq',...options.headers},credentials:'same-origin',cache:'no-store',signal:controller.signal});
     body=await res.text();
   }catch{throw new ApiError('Server bilan aloqa yo‘q. Internet va server ishlayotganini tekshiring.');}finally{clearTimeout(timer);}
   const responseError=()=>new ApiError('Ilova serveridan ma’lumot olinmadi. Sayt ulanishini tekshirish kerak. Birozdan keyin qayta urinib ko‘ring.');
