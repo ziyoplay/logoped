@@ -13,6 +13,8 @@ import './friendly.css';
 import './dark.css';
 import './controls.css';
 import './auth-motion.css';
+import './page-transition.css';
+import {transitionPage} from './page-transition';
 import {PatientSelect,ThemeSwitch} from './controls';
 import {api,ApiError} from './api';
 import {Landing} from './landing';
@@ -56,7 +58,15 @@ function Auth({onLogin}:{onLogin:(u:User)=>void}){
 
 function App(){
   const [locationHash,setLocationHash]=useState(window.location.hash);
-  useEffect(()=>{const update=()=>setLocationHash(window.location.hash);window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update);},[]);
+  useEffect(()=>{
+    const update=()=>{
+      const next=window.location.hash;
+      if((next==='#kirish')!==(locationHash==='#kirish'))transitionPage(()=>setLocationHash(next));
+      else setLocationHash(next);
+    };
+    window.addEventListener('hashchange',update);
+    return()=>window.removeEventListener('hashchange',update);
+  },[locationHash]);
   const [user,setUser]=useState<User|null>(null),[boot,setBoot]=useState(true),[bootError,setBootError]=useState(''),[data,setData]=useState<Data>(initialData),[loading,setLoading]=useState(false),[error,setError]=useState(''),[page,setPage]=useState<Page>('home'),[search,setSearch]=useState(''),[day,setDay]=useState(today()),[modal,setModal]=useState<Modal|null>(null),[selected,setSelected]=useState<string|null>(null),[menu,setMenu]=useState(false),[toast,setToast]=useState(''),[filter,setFilter]=useState('active'),[category,setCategory]=useState('Barchasi');
   const notify=(s:string)=>setToast(s);
   async function bootSession(){setBoot(true);setBootError('');try{setUser((await api<{user:User}>('/me')).user);}catch(e){if(!(e instanceof ApiError&&e.status===401))setBootError((e as Error).message);}finally{setBoot(false);}}
@@ -79,7 +89,7 @@ function App(){
   if(boot)return <div className="loading-screen"><Brand/><p>Yuklanmoqda…</p></div>;
   if((!user&&locationHash!=='#kirish')||['#bosh-sahifa','#xizmatlar','#yondashuv','#aloqa'].includes(locationHash))return <Landing/>;
   if(bootError)return <div className="loading-screen"><Brand/><p className="error">{bootError}</p><Button onClick={()=>void bootSession()}>Qayta urinish</Button><a className="text-button" href="#bosh-sahifa">Bosh sahifaga qaytish</a></div>;
-  if(!user)return <Auth onLogin={u=>{setUser(u);setPage('home');setData(initialData);setSelected(null);}}/>;
+  if(!user)return <Auth onLogin={u=>transitionPage(()=>{setUser(u);setPage('home');setData(initialData);setSelected(null);})}/>;
 
   if(user.role==='client')return <ClientPortal user={user} onLogout={()=>{setUser(null);setData(initialData);window.location.hash='';}}/>;
 
