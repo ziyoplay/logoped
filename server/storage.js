@@ -31,9 +31,12 @@ export async function openPostgres({connectionString=process.env.DATABASE_URL,sc
 async function poolSchema(db,schema){
  await db.exec('CREATE SCHEMA IF NOT EXISTS "'+schema+'"');
  const sql=await readFile(new URL('./postgres.sql',import.meta.url),'utf8');await db.exec(sql);
+ await db.exec("ALTER TABLE patients ADD COLUMN IF NOT EXISTS telegram TEXT NOT NULL DEFAULT ''");
  await db.exec(await readFile(new URL('./client-schema.sql',import.meta.url),'utf8'));
+ await db.exec(await readFile(new URL('./patient-media-schema.sql',import.meta.url),'utf8'));
  const version=await db.prepare('SELECT version FROM schema_migrations WHERE version=1').get();if(!version)await db.prepare('INSERT INTO schema_migrations(version) VALUES(?)').run(1);
  await db.prepare('INSERT INTO schema_migrations(version) VALUES(2) ON CONFLICT DO NOTHING').run();
+ await db.prepare('INSERT INTO schema_migrations(version) VALUES(3) ON CONFLICT DO NOTHING').run();
 }
 export async function openStorage({filename,connectionString=process.env.DATABASE_URL,schema}={}){
  return connectionString?openPostgres({connectionString,schema}):sqliteStorage(openDatabase(filename));

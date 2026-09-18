@@ -8,5 +8,8 @@ if(!existsSync(source))throw Error('Zaxira topilmadi.');
 if(source===target||existsSync(target)||existsSync(target+'-wal')||existsSync(target+'-shm'))throw Error('Yangi, mavjud bo‘lmagan fayl nomini tanlang.');
 const db=new DatabaseSync(source,{readOnly:true});
 try{if(db.prepare('PRAGMA integrity_check').get().integrity_check!=='ok')throw Error('Zaxira buzilgan.');for(const table of ['users','patients','appointments','results','exercises'])db.prepare('SELECT 1 FROM '+table+' LIMIT 1').get();mkdirSync(path.dirname(target),{recursive:true});await backup(db,target);}finally{db.close();}
-const restored=new DatabaseSync(target);try{restored.exec('DELETE FROM sessions');if(restored.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='invitations'").get())restored.exec('DELETE FROM invitations');}finally{restored.close();}
+const restored=new DatabaseSync(target);try{restored.exec('DELETE FROM sessions');if(restored.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='invitations'").get())restored.exec('DELETE FROM invitations');
+if(restored.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='patient_telegram'").get())restored.exec('DELETE FROM patient_telegram');
+if(restored.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='telegram_state'").get())restored.exec('DELETE FROM telegram_state');
+if(restored.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='patient_videos'").get())restored.exec("UPDATE patient_videos SET state='failed',error='Zaxiradan tiklangan. Telegramni tekshirib, qayta yuboring.' WHERE state<>'sent'");}finally{restored.close();}
 console.log('Tiklandi: '+target+'\nServerni to‘xtating va DATABASE_PATH ni shu faylga yo‘naltiring. Barcha foydalanuvchilar qayta kiradi.');

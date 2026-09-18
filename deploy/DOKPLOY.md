@@ -28,3 +28,11 @@ Tekshiruv yozuv yaratmaydi. `/api/health` HTTP 200 JSON `{"ok":true}`, `/api/me`
 `Unexpected token '<'` yoki JSON o‘rniga HTML javobi domen statik sahifaga yo‘naltirilganini bildirishi mumkin. Faqat `dist` katalogini tarqatish yetarli emas. Ushbu fayllarni GitHubga yuklash Dokploydagi build turi, branch yoki domen portini avtomatik o‘zgartirmaydi.
 
 Parollar faqat hosting Environment bo‘limida saqlanadi. `VITE_` o‘zgaruvchilariga baza ulanishini qo‘ymang. Baza noto‘g‘ri sozlangan bo‘lsa server ishga tushmaydi; PostgreSQL o‘rniga bo‘sh SQLite bazaga yashirin o‘tmaydi.
+
+## Bemor videolari va Telegram
+
+Environment bo‘limiga `TELEGRAM_BOT_TOKEN` qo‘shing. `VIDEO_DIRECTORY=/app/data/videos` va `/app/data` uchun doimiy volume kerak. Token frontendga yoki gitga yozilmaydi. Bot polling orqali ishlaydi; boshqa bot worker yoki webhook bilan bir paytda ishlatmang.
+
+Bemor kartasida Telegram username kiriting, «Telegram ulash havolasi»ni oling va bemorga yetkazing. Bemor o‘z akkauntida Start bosadi; username mosligi serverda tekshiriladi. MP4 video (45 MB gacha) yuklanganda faqat shu bemorning ulangan Telegramiga yuboriladi. Noaniq yuborishdan so‘ng avtomatik takrorlanmaydi: Telegramni tekshirib, «Qayta yuborish»ni tanlang. `/stop` ulanishni uzadi.
+
+Baza zaxirasi video fayllarini o‘z ichiga olmaydi: `/app/data/videos` katalogini ham alohida zaxiralang. Tiklashda Telegram ulanishlari xavfsizlik uchun qayta tasdiqlanadi.

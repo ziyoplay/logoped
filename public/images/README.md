@@ -1,0 +1,5 @@
+# Logoped xonasi tasviri
+
+Fayl: `public/images/logoped-room.png`. Built-in `image_gen` yordamida yaratilgan; haqiqiy kabinet fotosi emas. Bosh sahifada tasviriy fon sifatida belgilangan.
+
+Prompt: "Create a photorealistic wide editorial interior photograph for a speech therapist practice website hero background, landscape 16:9. A calm welcoming contemporary children's speech therapy room, small pale wood table and two mint chairs at right center, wall mounted articulation practice mirror, low shelves with a few colorful wooden educational toys and picture cards, daylight from large sheer-curtained window on right, pale sage walls, tidy and credible small clinic. No people, no medical equipment, no text, no logos. Composition leaves left third as quiet softly lit wall so website headline can overlay; meaningful room details right two thirds. Natural photographic textures, subtle warm daylight, restrained green accents, not a fantasy luxury room. This is an illustrative room, not an existing real practice."

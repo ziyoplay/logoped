@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 
 const sensitiveName = /(?:SECRET|PASSWORD|PRIVATE_KEY|API_KEY|TOKEN|DATABASE_URL)/i;
 const keyPatterns = [
+  /\b\d{6,12}:[A-Za-z0-9_-]{35}\b/,
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
   /\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,})/,
   /\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{30,}/,

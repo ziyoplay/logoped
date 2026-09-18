@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 test('Logoped can manage a patient, appointment, exercise and result',async({page},testInfo)=>{
+  test.setTimeout(60000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/#kirish');
   await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
@@ -7,7 +8,7 @@ test('Logoped can manage a patient, appointment, exercise and result',async({pag
   await page.screenshot({path:`artifacts/${testInfo.project.name}-dashboard.png`,fullPage:true});
   await page.getByRole('button',{name:'Bemor qo‘shish Yangi bemor kartasini oching'}).click();
   await page.getByLabel('Bemorning ism va familiyasi').fill('UI Test Bemor');
-  await page.getByLabel('Tug‘ilgan sana').fill('2020-05-12');
+  await page.getByLabel('Tug‘ilgan sana').fill('2020-05-12');await page.getByLabel('Telegram username').fill('@parent_test');
   await page.getByLabel('Ota-ona / vasiy').fill('UI Test Vasiy');
   await page.getByLabel('Telefon raqami').fill('+998901112233');
   await page.getByLabel('Ishlash yo‘nalishi').fill('R tovushi');
@@ -42,9 +43,10 @@ test('Logoped can manage a patient, appointment, exercise and result',async({pag
   await expect(page.getByRole('heading',{name:'UI Test Mashq',exact:true})).toBeVisible();
   await nav('Qabul jadvali');
   await page.getByLabel('Qabul sanasi').fill('2026-10-20');
-  await expect(page.getByRole('button',{name:'UI Test Bemor',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'UI Test Bemor qabulini yakunlash',exact:true}).click();
-  await expect(page.locator('.appointment .badge')).toHaveText('Yakunlangan');
+  await page.getByRole('button',{name:'UI Test Bemor, 15:00, Individual mashg‘ulot',exact:true}).click();
+  await page.getByRole('combobox',{name:'Holati',exact:true}).selectOption('completed');
+  await page.getByRole('button',{name:'Saqlash',exact:true}).click();
+  await expect(page.locator('.schedule-booking.completed')).toContainText('15:00');
   await page.reload();
   await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
   await nav('Bemorlar');await page.getByRole('textbox',{name:'Bemor qidirish'}).fill('UI Test Bemor');

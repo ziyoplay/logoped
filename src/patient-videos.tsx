@@ -1,0 +1,35 @@
+import {useEffect,useRef,useState} from 'react';
+import {IconBrandTelegram,IconUpload,IconVideo,IconCopy,IconTrash} from '@tabler/icons-react';
+import {api} from './api';
+import './patient-videos.css';
+type Video={id:string;title:string;size:number;state:string;created_at:number;error:string};
+type Media={enabled:boolean;ready:boolean;connected:boolean;videos:Video[]};
+const labels:Record<string,string>={pending:'Yuborish navbatida',sending:'Telegram’ga yuborilmoqda',sent:'Telegram’ga yuborildi',failed:'Yuborishni tekshiring'};
+export function PatientVideos({patientId,telegram}:{patientId:string;telegram:string}){
+ const [data,setData]=useState<Media|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[link,setLink]=useState(''),[progress,setProgress]=useState<number|null>(null),[notice,setNotice]=useState(''),[remove,setRemove]=useState<string|null>(null);
+ const upload=useRef<XMLHttpRequest|null>(null),alive=useRef(true),form=useRef<HTMLFormElement>(null);
+ const base='/patients/'+patientId;
+ async function reload(){const result=await api<Media>(base+'/media');if(alive.current)setData(result);}
+ useEffect(()=>{alive.current=true;void reload().catch(e=>setError(e.message));const timer=setInterval(()=>{if(document.visibilityState==='visible')void reload().catch(()=>{});},5000);return()=>{alive.current=false;clearInterval(timer);upload.current?.abort();};},[patientId]);
+ async function action(work:()=>Promise<void>){setBusy(true);setError('');setNotice('');try{await work();await reload();}catch(e){if(alive.current)setError((e as Error).message);}finally{if(alive.current)setBusy(false);}}
+ async function submit(e:React.FormEvent<HTMLFormElement>){
+  e.preventDefault();const values=new FormData(e.currentTarget),file=values.get('video') as File,title=String(values.get('title')||'').trim();
+  if(!file?.size||file.size>45*1024*1024){setError('45 MB gacha bo‘lgan MP4 video tanlang.');return;}
+  await action(async()=>{setProgress(0);try{await new Promise<void>((resolve,reject)=>{
+   const xhr=new XMLHttpRequest();upload.current=xhr;xhr.open('POST','/api'+base+'/videos?title='+encodeURIComponent(title));xhr.setRequestHeader('Content-Type','video/mp4');xhr.setRequestHeader('X-Requested-With','Nutq');xhr.timeout=180000;
+   xhr.upload.onprogress=e=>{if(alive.current&&e.lengthComputable)setProgress(Math.round(e.loaded/e.total*100));};
+   xhr.onload=()=>{try{const body=JSON.parse(xhr.responseText);if(xhr.status<200||xhr.status>=300)throw new Error(body.error||'Video saqlanmadi.');resolve();}catch(e){reject(e instanceof SyntaxError?new Error('Server javobi noto‘g‘ri. Sahifani yangilang.'):e);}};
+   xhr.onerror=()=>reject(new Error('Ulanish uzildi. Videolar ro‘yxatini tekshirib, qayta urinib ko‘ring.'));
+   xhr.ontimeout=()=>reject(new Error('Yuklash vaqti tugadi. Internetni va videolar ro‘yxatini tekshiring.'));
+   xhr.onabort=()=>reject(new Error('Yuklash to‘xtatildi.'));xhr.send(file);
+  });if(alive.current){form.current?.reset();setNotice('Video saqlandi. Bemorning Telegrami ulangach yuboriladi.');}}
+  finally{upload.current=null;if(alive.current)setProgress(null);}});
+ }
+ return <section className="panel patient-videos"><div className="video-heading"><IconVideo size={24}/><div><h2>Bemor videolari</h2><p>Yuklangan video shu bemorning Telegramiga yuboriladi.</p></div></div>
+ {error&&<p className="error" role="alert">{error}</p>}{notice&&<p className="access-success" role="status">{notice}</p>}
+ {data&&<><div className="telegram-connection"><IconBrandTelegram size={22}/><div><strong>{telegram?'@'+telegram:'Telegram kiritilmagan'}</strong><small>{data.connected?'Ulangan · videolarni qabul qiladi':!data.enabled?'Telegram xizmati hali sozlanmagan':!data.ready?'Telegram bot ulanmoqda…':'Bemor botda Start bosishi kerak'}</small></div>{data.connected?<button className="text-button" disabled={busy} onClick={()=>void action(async()=>{await api(base+'/telegram-link',{method:'DELETE'});setLink('');})}>Ulanishni uzish</button>:<button className="button secondary" disabled={busy||!data.ready||!telegram} onClick={()=>void action(async()=>{setLink((await api<{url:string}>(base+'/telegram-link',{method:'POST'})).url);})}>Telegram ulash havolasi</button>}</div>
+ {link&&!data.connected&&<div className="telegram-link"><p>Havolani bemorga yuboring. U o‘z Telegram akkauntida ochib, <strong>Start</strong> bosadi. Havola 24 soat amal qiladi.</p><input aria-label="Bemor uchun Telegram ulash havolasi" value={link} readOnly onFocus={e=>e.currentTarget.select()}/><button className="text-button" onClick={()=>navigator.clipboard.writeText(link).then(()=>setNotice('Havola nusxalandi.')).catch(()=>setError('Havolani belgilab, qo‘lda nusxalang.'))}><IconCopy size={16}/>Havolani nusxalash</button></div>}
+ <form ref={form} onSubmit={e=>void submit(e)}><label className="field"><span>Video nomi *</span><input name="title" required maxLength={150} placeholder="Masalan, uyda bajariladigan mashq"/></label><label className="field video-file"><span>MP4 video · 45 MB gacha *</span><input name="video" type="file" accept="video/mp4,.mp4" required/></label><button className="button primary" disabled={busy}><IconUpload size={18}/>{progress!==null?progress+'% yuklandi…':'Videoni saqlash va Telegram’ga yuborish'}</button>{progress!==null&&<progress max={100} value={progress} aria-label="Video yuklanishi"/>}{!data.connected&&<p className="hint">Video saqlanadi; Telegram ulanguncha yuborish navbatida kutadi.</p>}</form>
+ <div className="patient-video-list">{!data.videos.length?<p className="muted">Hali video qo‘shilmagan.</p>:data.videos.map(v=><article key={v.id}><div className="video-meta"><strong>{v.title}</strong><span>{(Number(v.size)/1024/1024).toFixed(1)} MB</span></div><video controls preload="none" src={'/api'+base+'/videos/'+v.id} aria-label={v.title}/><div className="video-state"><span className={'badge '+(v.state==='sent'?'completed':v.state==='failed'?'cancelled':'scheduled')}>{v.state==='pending'&&!data.connected?'Telegram ulanishini kutmoqda':labels[v.state]||v.state}</span>{v.state==='failed'&&<button className="text-button" disabled={busy||!data.connected} onClick={()=>void action(async()=>{await api(base+'/videos/'+v.id+'/retry',{method:'POST'});})}>Qayta yuborish</button>}<button className="icon-button" aria-label={v.title+' videosini o‘chirish'} disabled={busy||v.state==='sending'} onClick={()=>setRemove(v.id)}><IconTrash size={17}/></button></div>{v.error&&<p className="hint">{v.error}</p>}{remove===v.id&&<div className="video-delete"><p>Saytdagi video o‘chiriladi. Telegram’ga yuborilgan nusxa qoladi.</p><button className="button danger" disabled={busy} onClick={()=>void action(async()=>{await api(base+'/videos/'+v.id,{method:'DELETE'});setRemove(null);})}>Videoni o‘chirish</button><button className="button secondary" onClick={()=>setRemove(null)}>Bekor qilish</button></div>}</article>)}</div></>}
+ </section>;
+}

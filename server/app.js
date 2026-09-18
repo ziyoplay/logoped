@@ -8,12 +8,13 @@ import { fileURLToPath } from 'node:url';
 import { openDatabase } from './db.js';
 import { sqliteStorage } from './storage.js';
 import { mountClients } from './clients.js';
+import {patientMedia} from './patient-media.js';
 import { mountTeam, admin, audit, tokenHash } from './team.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const text = (max = 200) => z.string().trim().min(1).max(max);
 const optionalText = (max = 2000) => z.string().trim().max(max).default('');
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => !isNaN(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v, 'Sana noto‘g‘ri');
-const patientSchema = z.object({ name: text(100), birth_date: date.refine(v => v <= new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tashkent' }).format(new Date()) && v >= '1900-01-01'), guardian: optionalText(100), phone: optionalText(30), focus: optionalText(150), notes: optionalText(5000), status: z.enum(['active', 'archived']).default('active') });
+const patientSchema = z.object({ name: text(100), telegram: z.string().trim().max(80).default('').transform(v=>v.replace(/^https:\/\/t\.me\//i,'').replace(/^@/,'')).refine(v=>v===''||/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(v),'Telegram username noto‘g‘ri'), birth_date: date.refine(v => v <= new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tashkent' }).format(new Date()) && v >= '1900-01-01'), guardian: optionalText(100), phone: optionalText(30), focus: optionalText(150), notes: optionalText(5000), status: z.enum(['active', 'archived']).default('active') });
 const exerciseSchema = z.object({ title: text(150), category: z.enum(['Talaffuz', 'Artikulyatsiya', 'Nafas', 'Lug‘at', 'Boshqa']), duration: z.number().int().min(1).max(120), instructions: text(5000) });
 const appointmentSchema = z.object({ therapist_id: z.uuid().optional(), patient_id: z.uuid(), date, time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/), duration: z.number().int().min(5).max(240), title: text(150), status: z.enum(['scheduled', 'completed', 'cancelled']).default('scheduled'), notes: optionalText(5000) }).refine(v => minutes(v.time) + v.duration <= 1440, 'Qabul bir kun ichida tugashi kerak');
 const resultSchema = z.object({ patient_id: z.uuid(), exercise_id: z.uuid().nullable().default(null), date, score: z.number().int().min(0).max(100), notes: optionalText(5000) });
@@ -32,7 +33,7 @@ const avatarSchema = z.string().max(150000).refine(value => {
 }, 'JPEG rasm tanlang');
 const profileSchema = z.object({ name: text(100).optional(), clinic: text(150).optional(), specialty: text(100).optional(), phone: z.string().trim().max(30).optional(), address: z.string().trim().max(200).optional(), bio: z.string().trim().max(1000).optional(), experience_years: z.number().int().min(0).max(80).nullable().optional(), accent: z.enum(['green', 'blue', 'plum', 'orange']).optional(), avatar: avatarSchema.optional() }).strict().refine(v => Object.keys(v).length > 0);
 function fail(status, message) { const e = new Error(message); e.status = status; throw e; }
-export function createApp({ filename = process.env.DATABASE_PATH || path.join(root, 'data', 'nutq.sqlite'), secure = process.env.COOKIE_SECURE === 'true', teamMode = false, database } = {}) {
+export function createApp({ filename = process.env.DATABASE_PATH || path.join(root, 'data', 'nutq.sqlite'), secure = process.env.COOKIE_SECURE === 'true', teamMode = false, database, mediaOptions } = {}) {
     const db = database || sqliteStorage(openDatabase(filename));
     const transaction = work => db.transaction(work);
     const app = express();
@@ -124,6 +125,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
         next();
     });
     mountClients(app,db,{passwordHash});
+    const media=patientMedia(db,mediaOptions);media.mount(app);app.locals.media=media;
     if (teamMode)
         mountTeam(app, db);
     app.get('/api/backup-status', (req, res) => { admin(req); res.json(app.locals.backups?.status() || { lastSuccess: null, lastError: 'Avtomatik zaxira xizmati ishga tushmagan.', running: false }); });
@@ -239,6 +241,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
             return next(err);
         if (err instanceof z.ZodError)
             return res.status(400).json({ error: 'Maydonlarni tekshiring: ' + err.issues.map(i => i.path.join('.')).filter(Boolean).join(', ') });
+        if(err.type==='entity.too.large')return res.status(413).json({error:req.is('video/mp4')?'Video 45 MB dan oshmasligi kerak.':'So‘rov hajmi juda katta.'});
         if (err.type === 'entity.parse.failed')
             return res.status(400).json({ error: 'So‘rov formati noto‘g‘ri.' });
         if (err.status)

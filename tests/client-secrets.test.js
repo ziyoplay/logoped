@@ -22,6 +22,9 @@ test('Frontend secret guard keeps backend secrets private and rejects client exp
   assert.deepEqual(checkClientSecrets(root, {bundle: true, environment: {}}), [path.join('dist', 'app.js')]);
   fs.writeFileSync(path.join(root, 'dist', 'app.js'), 'fetch("/api/me")');
   assert.deepEqual(checkClientSecrets(root, {bundle: true, environment: {}}), []);
+  fs.writeFileSync(path.join(root, 'dist', 'app.js'), 'const token = "'+'123456789:'+ 'a'.repeat(35)+'";');
+  assert.deepEqual(checkClientSecrets(root, {bundle: true, environment: {}}), [path.join('dist', 'app.js')]);
+  fs.writeFileSync(path.join(root, 'dist', 'app.js'), 'fetch("/api/me")');
   fs.writeFileSync(path.join(root, '.env.production'), `VITE_PRIVATE_KEY=${password}`);
   const result = checkClientSecrets(root, {environment: {}});
   assert.deepEqual(result, ['.env.production: VITE_PRIVATE_KEY']);

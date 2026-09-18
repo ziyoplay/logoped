@@ -84,6 +84,9 @@ export function openDatabase(filename) {
     db.exec('CREATE INDEX IF NOT EXISTS appointments_therapist_date ON appointments(therapist_id,date)');
     db.exec('COMMIT');
   } catch(error) {db.exec('ROLLBACK');db.close();throw error;}
+  const patientColumns=new Set(db.prepare('PRAGMA table_info(patients)').all().map(c=>c.name));
+  if(!patientColumns.has('telegram'))db.exec("ALTER TABLE patients ADD COLUMN telegram TEXT NOT NULL DEFAULT ''");
   db.exec(readFileSync(new URL('./client-schema.sql',import.meta.url),'utf8'));
+  db.exec(readFileSync(new URL('./patient-media-schema.sql',import.meta.url),'utf8'));
   return db;
 }
