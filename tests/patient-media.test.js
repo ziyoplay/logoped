@@ -29,7 +29,7 @@ test('Patient video authorization, private Telegram pairing, delivery, retry and
   const message=(id,type,username='parent_test',text='/start '+secret)=>({update_id:id,message:{chat:{id:789,type},from:{id:789,username},text}});
   updates=[message(1,'group')];await app.locals.media.run();assert.equal(sent.length,0);
   updates=[message(2,'private','stranger_test')];await app.locals.media.run();assert.equal(sent.length,0);
-  updates=[message(3,'private')];await app.locals.media.run();assert.equal(sent.length,1);assert.equal(sent[0].chat_id,'789');assert.equal(sent[0].caption,'Uy mashqi');assert.equal(sent[0].protect_content,true);
+  updates=[message(3,'private')];await app.locals.media.run();assert.equal(sent.length,1);assert.equal(sent[0].chat_id,'789');assert.match(sent[0].caption,/Uy mashqi/);assert.equal(sent[0].protect_content,true);
   await app.locals.media.run();assert.equal(sent.length,1,'Delivered videos must not send again');
   let media=await req(url+'/media','GET',null,a.cookie);assert.equal(media.body.connected,true);assert.equal(media.body.videos[0].state,'sent');assert.equal(JSON.stringify(media.body).includes(secret),false);
   const second=await req(url+'/videos?title=Ikkinchi','POST',mp4,a.cookie,{'Content-Type':'video/mp4'});failSend=true;await app.locals.media.run();assert.equal((await req(url+'/media','GET',null,a.cookie)).body.videos.find(v=>v.id===second.body.id).state,'failed');
@@ -51,7 +51,7 @@ test('Patient video authorization, private Telegram pairing, delivery, retry and
   updates=[message(7,'private','new_parent','/start '+new URL(menuLink.body.url).searchParams.get('start'))];await app.locals.media.run();
   assert.ok(replies.at(-1).reply_markup.keyboard);
   const callback=(id,chat=789)=>({update_id:id,callback_query:{id:'query-'+id,from:{id:chat,username:'new_parent'},message:{chat:{id:chat,type:'private'}},data:'video:'+second.body.id}});
-  updates=[callback(8)];await app.locals.media.run();assert.equal(sent.length,3);assert.equal(sent.at(-1).caption,'Ikkinchi');
+  updates=[callback(8)];await app.locals.media.run();assert.equal(sent.length,3);assert.match(sent.at(-1).caption,/Ikkinchi/);
   updates=[callback(9,999)];await app.locals.media.run();assert.equal(sent.length,3,'A forwarded callback must not reveal the video');
   updates=[message(10,'private','new_parent','/stop')];await app.locals.media.run();
   updates=[callback(11)];await app.locals.media.run();assert.equal(sent.length,3,'Old video buttons must stop working after unlink');

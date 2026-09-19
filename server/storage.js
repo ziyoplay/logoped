@@ -37,6 +37,7 @@ async function poolSchema(db,schema){
  const version=await db.prepare('SELECT version FROM schema_migrations WHERE version=1').get();if(!version)await db.prepare('INSERT INTO schema_migrations(version) VALUES(?)').run(1);
  await db.prepare('INSERT INTO schema_migrations(version) VALUES(2) ON CONFLICT DO NOTHING').run();
  await db.prepare('INSERT INTO schema_migrations(version) VALUES(3) ON CONFLICT DO NOTHING').run();
+ await db.prepare('INSERT INTO schema_migrations(version) VALUES(4) ON CONFLICT DO NOTHING').run();
 }
 export async function openStorage({filename,connectionString=process.env.DATABASE_URL,schema}={}){
  return connectionString?openPostgres({connectionString,schema}):sqliteStorage(openDatabase(filename));

@@ -1,3 +1,5 @@
+import {mountQuestions,deliverAnswer} from './patient-questions.js';
+import {card,videoCaption} from './telegram-text.js';
 import {telegramMenu,botKeyboard} from './telegram-menu.js';
 import express from 'express';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
@@ -31,6 +33,7 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
   if(!row)fail(404,'Bemor topilmadi.');return row;
  }
  function mount(app){
+  mountQuestions(app,db,now);
   app.get('/api/patients/:id/media',async(req,res)=>{
    const p=await owned(req),link=await db.prepare('SELECT chat_id,username FROM patient_telegram WHERE patient_id=?').get(p.id);
    const videos=await db.prepare('SELECT id,title,size,state,created_at,error FROM patient_videos WHERE patient_id=? AND owner_id=? ORDER BY created_at DESC').all(p.id,req.ownerId);
@@ -94,23 +97,25 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
   if(!enabled||username)return;
   const me=await call('getMe',{}),hook=await call('getWebhookInfo',{});
   if(hook.url)throw new Error('Existing webhook must be reviewed');
-  await call('setMyCommands',{commands:[{command:'start',description:'Bosh menyu'},{command:'natijalar',description:'Natijalarim'},{command:'videolar',description:'Videolarim'},{command:'qabul',description:'Keyingi qabul'},{command:'mashqlar',description:'Uy mashqlarim'},{command:'help',description:'Yordam'},{command:'stop',description:'Ulanishni uzish'}]});
+  await call('setMyCommands',{commands:[{command:'start',description:'Bosh menyu'},{command:'natijalar',description:'Natijalarim'},{command:'videolar',description:'Videolarim'},{command:'qabul',description:'Keyingi qabul'},{command:'mashqlar',description:'Uy mashqlarim'},{command:'murojaat',description:'Logopedga savol yozish'},{command:'cancel',description:'Murojaatni bekor qilish'},{command:'help',description:'Yordam'},{command:'stop',description:'Ulanishni uzish'}]});
   username=me.username;
  }
  async function processUpdate(update){
   const callback=update.callback_query;
-  const m=callback?{chat:callback.message?.chat,from:callback.from,text:typeof callback.data==='string'&&callback.data.startsWith('video:')?'/video '+callback.data.slice(6):'/help'}:update.message;
+  const m=callback?{chat:callback.message?.chat,from:callback.from,text:typeof callback.data==='string'&&callback.data.startsWith('video:')?'/video '+callback.data.slice(6):typeof callback.data==='string'&&callback.data.startsWith('ask:')?'/ask '+callback.data.slice(4):'/help'}:update.message;
   if(!m||m.chat?.type!=='private'||m.from?.is_bot||m.chat.id!==m.from?.id||!Number.isSafeInteger(m.chat.id))return;
   const chat=String(m.chat.id);
-  if(/^\/stop(?:@\w+)?\s*$/.test(m.text||'')){await db.prepare('DELETE FROM patient_telegram WHERE chat_id=?').run(chat);return {chat_id:chat,text:'Bot bilan ulanish uzildi. Qayta ulash uchun logopedga murojaat qiling.',reply_markup:{remove_keyboard:true}};}
+  if(/^\/stop(?:@\w+)?\s*$/.test(m.text||'')){await db.prepare('DELETE FROM patient_telegram WHERE chat_id=?').run(chat);await db.prepare('DELETE FROM telegram_question_drafts WHERE chat_id=?').run(chat);return {chat_id:chat,text:card('🔕 Ulanish uzildi',['Botdan xabarlar kelishi to‘xtatildi.\nQayta ulash uchun logopeddan yangi havola oling.']),parse_mode:'HTML',reply_markup:{remove_keyboard:true}};}
   const match=(m.text||'').match(/^\/start(?:@\w+)? ([A-Za-z0-9_-]{32})\s*$/);if(!match)return telegramMenu(db,{chat,username:m.from.username,text:m.text||'',now:now()});
   const link=await db.prepare('SELECT t.patient_id,p.telegram FROM patient_telegram t JOIN patients p ON p.id=t.patient_id JOIN users u ON u.id=p.user_id WHERE t.token_hash=? AND t.expires>? AND u.disabled=0').get(hash(match[1]),now());
-  if(!link)return {chat_id:chat,text:'Havola eskirgan. Logopeddan yangi havola oling.'};
-  if(!m.from.username||m.from.username.toLowerCase()!==link.telegram.toLowerCase())return {chat_id:chat,text:'Bu Telegram akkaunti bemor kartasidagi username bilan mos emas. Logopedga murojaat qiling.'};
+  if(!link)return {chat_id:chat,text:card('🔗 Havola eskirgan',['Logopeddan yangi ulash havolasini oling.']),parse_mode:'HTML'};
+  if(!m.from.username||m.from.username.toLowerCase()!==link.telegram.toLowerCase())return {chat_id:chat,text:card('🔗 Akkaunt mos kelmadi',['Bu Telegram akkaunti bemor kartasidagi username bilan mos emas. Logoped bilan bog‘laning.']),parse_mode:'HTML'};
   await db.prepare('UPDATE patient_telegram SET chat_id=?,username=?,token_hash=NULL,expires=0 WHERE patient_id=?').run(chat,m.from.username,link.patient_id);
-  return {chat_id:chat,text:'Telegram ulandi. Natijalar, videolar, qabullar va mashqlarni quyidagi menyudan ko‘ring. Yangi videolar shu yerga keladi. To‘xtatish: /stop',reply_markup:botKeyboard};
+  await db.prepare('DELETE FROM telegram_question_drafts WHERE chat_id=?').run(chat);
+  return {chat_id:chat,text:card('✅ Kabinetingiz ulandi',['Natijalar, videolar va mashqlar endi shu yerda.\nSavolingiz bo‘lsa, <b>Logopedga murojaat</b> tugmasini bosing.'],'Kerakli bo‘limni pastdagi menyudan tanlang.'),parse_mode:'HTML',reply_markup:botKeyboard};
  }
  async function cleanFiles(){
+  await db.prepare('DELETE FROM telegram_question_drafts WHERE expires<?').run(now());
   // Remove orphaned files after patient/account deletion, allowing active uploads to finish.
   for(const name of await readdir(root).catch(()=>[])){
    if(!/^[a-f0-9-]{36}\.mp4$/.test(name))continue;
@@ -154,13 +159,14 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
     if(v)await db.prepare("UPDATE patient_videos SET state='sending',updated_at=? WHERE id=?").run(now(),v.id);return v;
    });
    if(video){
-    try{const sent=await call('sendVideo',{chat_id:video.chat_id,caption:video.title,protect_content:true,supports_streaming:true},filename(video.id));
+    try{const sent=await call('sendVideo',{chat_id:video.chat_id,caption:videoCaption(video.title),parse_mode:'HTML',protect_content:true,supports_streaming:true},filename(video.id));
      await db.prepare("UPDATE patient_videos SET state='sent',message_id=?,updated_at=?,error='' WHERE id=?").run(String(sent.message_id),now(),video.id);
     }catch(e){
      if(e.status===403)await db.prepare('DELETE FROM patient_telegram WHERE patient_id=? AND chat_id=?').run(video.patient_id,video.chat_id);
      await db.prepare("UPDATE patient_videos SET state='failed',updated_at=?,error=? WHERE id=?").run(now(),e.status===403?'Bemor botni bloklagan. Qayta ulash kerak.':'Yuborish tasdiqlanmadi. Telegramni tekshiring, zarur bo‘lsa qayta yuboring.',video.id);
     }
    }
+   await deliverAnswer(db,call,now());
    if(now()-cleanedAt>86400000){await cleanFiles();cleanedAt=now();}
   }finally{await db.prepare('UPDATE telegram_state SET lease_until=0 WHERE id=? AND lease_owner=?').run(botId,workerId);}
  }

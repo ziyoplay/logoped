@@ -17,3 +17,18 @@ CREATE TABLE IF NOT EXISTS telegram_state (
  id TEXT PRIMARY KEY, next_update BIGINT NOT NULL DEFAULT 0,
  lease_owner TEXT NOT NULL DEFAULT '', lease_until BIGINT NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS patient_questions (
+ id TEXT PRIMARY KEY,
+ patient_id TEXT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+ owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ chat_id TEXT NOT NULL, telegram TEXT NOT NULL,
+ body TEXT NOT NULL, answer TEXT NOT NULL DEFAULT '',
+ state TEXT NOT NULL DEFAULT 'new',
+ created_at BIGINT NOT NULL, updated_at BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS patient_questions_owner ON patient_questions(owner_id,state,created_at);
+CREATE TABLE IF NOT EXISTS telegram_question_drafts (
+ chat_id TEXT PRIMARY KEY,
+ patient_id TEXT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+ expires BIGINT NOT NULL
+);
