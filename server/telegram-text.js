@@ -6,4 +6,4 @@ export function card(title,sections=[],footer=''){
  for(const section of sections){if((text+section).replace(/<[^>]*>/g,'').replace(/&(?:amp|lt|gt|quot);/g,'x').length+footer.length+80>3800){text+='\n\n<i>Ro‘yxatning qolgan qismi sayt kabinetida.</i>';break;}text+='\n\n'+section;}
  return text+(footer?'\n\n<i>'+html(footer,220)+'</i>':'');
 }
-export const videoCaption=title=>card('🎬 Siz uchun video',[html(title,150)],'Mashq bo‘yicha savolingiz bo‘lsa, «Logopedga murojaat»ni bosing.');
+export const videoCaption=title=>card('🎬 Siz uchun video',[html(title,150)],'Logoped tayyorlagan video mashq.');

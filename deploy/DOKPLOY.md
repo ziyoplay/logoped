@@ -46,14 +46,6 @@ Ulash havolasi orqali Start bosgan bemor yoki ota-ona botda quyidagilarni ko‘r
 - Mashqlarim (`/mashqlar`): oxirgi 5 ta biriktirilgan mashq va ko‘rsatma.
 - Yordam (`/help`) va ulanishni uzish (`/stop`).
 
-Natija, qabul va mashqlar menyu bosilganda olinadi; ular uchun avtomatik bildirishnoma yo‘q. Yangi video uchun avvalgi avtomatik yuborish saqlanadi. «Logopedga murojaat» bosilgandan keyin yuborilgan matnli savol logopedning bosh kabinetidagi «Telegram murojaatlari» bo‘limiga tushadi. Logoped javobni shu yerdan yuboradi. Bir ota-onaga bir nechta bemor ulangan bo‘lsa, yozuvlar bemor ismi bilan ko‘rsatiladi. Bemor kartasi va qabulning ichki izohlari botga chiqmaydi.
+Natija, qabul va mashqlar menyu bosilganda olinadi; ular uchun avtomatik bildirishnoma yo‘q. Yangi video uchun avvalgi avtomatik yuborish saqlanadi. Botga yozilgan savollar logopedga uzatilmaydi. Bir ota-onaga bir nechta bemor ulangan bo‘lsa, yozuvlar bemor ismi bilan ko‘rsatiladi. Bemor kartasi va qabulning ichki izohlari botga chiqmaydi.
 
 Token faqat serverdagi `TELEGRAM_BOT_TOKEN` o‘zgaruvchisida bo‘lishi kerak. Deploy/restartdan keyin bot buyruqlar menyusini avtomatik ro‘yxatdan o‘tkazadi. Boshqa polling jarayoni yoki webhook shu bot tokenidan bir vaqtda foydalanmasin.
-
-### Bot murojaatlari
-
-Bot menyusidagi «Logopedga murojaat» yoki /murojaat savol yozishni boshlaydi. Bir nechta bemor ulangan bo‘lsa, avval bemor tanlanadi. 30 daqiqada 2000 belgigacha bitta matn yuboriladi; /cancel yoki boshqa menyu bo‘limi yozishni bekor qiladi. Bir chatdan soatiga 10 murojaat qabul qilinadi. Fayl va ovozli murojaatlar qo‘llanmaydi.
-
-Logoped kabinetidagi «Telegram murojaatlari» bo‘limi 15 soniyada yangilanadi; yangi savollar birinchi turadi (100 tagacha). Javob 2000 belgigacha bo‘lib, yuborish holati alohida ko‘rsatiladi. Noaniq xatoda avtomatik takrorlanmaydi: Telegramni tekshirgandan so‘ng «Javobni qayta yuborish» ishlatiladi. Telegram uzilgan yoki username o‘zgargan bo‘lsa javob yuborilmaydi.
-
-Murojaatlar zaxiraga kiradi. Tiklashda yakunlanmagan javoblar avtomatik yuborilmaydi; qayta ulash va tekshirish talab qilinadi.
