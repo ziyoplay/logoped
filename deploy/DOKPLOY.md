@@ -36,3 +36,16 @@ Environment bo‘limiga `TELEGRAM_BOT_TOKEN` qo‘shing. `VIDEO_DIRECTORY=/app/d
 Bemor kartasida Telegram username kiriting, «Telegram ulash havolasi»ni oling va bemorga yetkazing. Bemor o‘z akkauntida Start bosadi; username mosligi serverda tekshiriladi. MP4 video (45 MB gacha) yuklanganda faqat shu bemorning ulangan Telegramiga yuboriladi. Noaniq yuborishdan so‘ng avtomatik takrorlanmaydi: Telegramni tekshirib, «Qayta yuborish»ni tanlang. `/stop` ulanishni uzadi.
 
 Baza zaxirasi video fayllarini o‘z ichiga olmaydi: `/app/data/videos` katalogini ham alohida zaxiralang. Tiklashda Telegram ulanishlari xavfsizlik uchun qayta tasdiqlanadi.
+
+### Bemor uchun Telegram menyusi
+
+Ulash havolasi orqali Start bosgan bemor yoki ota-ona botda quyidagilarni ko‘radi:
+- Natijalarim (`/natijalar`): oxirgi 10 natija, baho va logopedning natija izohi.
+- Videolarim (`/videolar`): oxirgi 10 video; tugma tanlanganda video qayta yuboriladi.
+- Keyingi qabul (`/qabul`): Toshkent vaqti bilan yaqin 5 ta rejalashtirilgan qabul.
+- Mashqlarim (`/mashqlar`): oxirgi 5 ta biriktirilgan mashq va ko‘rsatma.
+- Yordam (`/help`) va ulanishni uzish (`/stop`).
+
+Natija, qabul va mashqlar menyu bosilganda olinadi; ular uchun avtomatik bildirishnoma yo‘q. Yangi video uchun avvalgi avtomatik yuborish saqlanadi. Botga yozilgan xabarlar logopedga uzatilmaydi. Bir ota-onaga bir nechta bemor ulangan bo‘lsa, yozuvlar bemor ismi bilan ko‘rsatiladi. Bemor kartasi va qabulning ichki izohlari botga chiqmaydi.
+
+Token faqat serverdagi `TELEGRAM_BOT_TOKEN` o‘zgaruvchisida bo‘lishi kerak. Deploy/restartdan keyin bot buyruqlar menyusini avtomatik ro‘yxatdan o‘tkazadi. Boshqa polling jarayoni yoki webhook shu bot tokenidan bir vaqtda foydalanmasin.
