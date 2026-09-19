@@ -39,6 +39,13 @@ test('Patient video authorization, private Telegram pairing, delivery, retry and
   updates=[message(4,'private','parent_test','/stop')];await app.locals.media.run();assert.equal((await req(url+'/media','GET',null,a.cookie)).body.connected,false);
   updates=[message(5,'private')];await app.locals.media.run();assert.equal((await req(url+'/media','GET',null,a.cookie)).body.connected,false,'Used link cannot be replayed');
   const newLink=await req(url+'/telegram-link','POST',{},a.cookie);clock+=25*3600000;updates=[message(6,'private','parent_test','/start '+new URL(newLink.body.url).searchParams.get('start'))];await app.locals.media.run();assert.equal((await req(url+'/media','GET',null,a.cookie)).body.connected,false,'Expired links cannot connect');
+  const before=(await req(url+'/media','GET',null,a.cookie)).body;
+  assert.equal((await req(url+'/telegram','PATCH',{telegram:'@new_parent'},b.cookie,{'If-Match':String(before.patientRevision)})).status,404);
+  assert.equal((await req(url+'/telegram','PATCH',{telegram:'bad'},a.cookie,{'If-Match':String(before.patientRevision)})).status,400);
+  assert.equal((await req(url+'/telegram','PATCH',{telegram:'@new_parent'},a.cookie,{'If-Match':'-1'})).status,409);
+  assert.equal((await req(url+'/telegram','PATCH',{telegram:'@new_parent'},a.cookie,{'If-Match':String(before.patientRevision)})).status,200);
+  const after=(await req(url+'/media','GET',null,a.cookie)).body;assert.equal(after.telegram,'new_parent');assert.equal(after.patientRevision,before.patientRevision+1);assert.equal(after.connected,false);
+  assert.equal(await db.prepare('SELECT patient_id FROM patient_telegram WHERE patient_id=?').get(p.body.id),undefined);
   assert.equal((await req(url+'/videos/'+video.body.id,'DELETE',null,b.cookie)).status,404);assert.equal((await req(url+'/videos/'+video.body.id,'DELETE',null,a.cookie)).status,200);assert.equal((await req(url+'/videos/'+video.body.id,'GET',null,a.cookie)).status,404);
  }finally{await app.locals.media.stop();await new Promise(r=>server.close(r));await db.close();await fixture.cleanup();await rm(directory,{recursive:true,force:true});}
 });

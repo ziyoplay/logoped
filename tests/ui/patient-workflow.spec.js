@@ -5,7 +5,7 @@ test('Patient profile keeps result ownership and schedule uses patient rows',asy
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:'artifacts/'+info.project.name+'-room-home.png',fullPage:true});
  const staff=await page.request.post('/api/auth/register',{headers:{'X-Requested-With':'Nutq'},data:{name:'Iroda Test',email:'feature-'+suffix+'@example.test',password:'FeaturePassword123'}});expect(staff.status()).toBe(200);
- const p=await page.request.post('/api/patients',{headers:{'X-Requested-With':'Nutq'},data:{name:'Ali Valiyev',birth_date:'2020-01-01',telegram:'@parent_test',focus:'R tovushi'}});const patient=await p.json();
+ const p=await page.request.post('/api/patients',{headers:{'X-Requested-With':'Nutq'},data:{name:'Ali Valiyev',birth_date:'2020-01-01',telegram:'',focus:'R tovushi'}});const patient=await p.json();
  const other=await page.request.post('/api/patients',{headers:{'X-Requested-With':'Nutq'},data:{name:'Malika Karimova',birth_date:'2019-01-01',telegram:'@other_parent',focus:'Lug‘at'}});expect(other.status()).toBe(201);
  await page.goto('/#kirish');await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Iroda.'})).toBeVisible();
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
@@ -17,9 +17,11 @@ test('Patient profile keeps result ownership and schedule uses patient rows',asy
  await page.getByLabel('Baho (0–100%)').fill('75');await page.getByRole('button',{name:'Saqlash',exact:true}).click();
  await expect(page.getByRole('dialog')).toHaveCount(0);
  const results=await (await page.request.get('/api/results')).json();expect(results[0].patient_id).toBe(patient.id);
+ await page.getByLabel('Bemor yoki ota-onaning Telegram username’i').fill('@parent_test');
+ await page.getByRole('button',{name:'Telegramni saqlash',exact:true}).click();await expect(page.getByText('@parent_test',{exact:true}).first()).toBeVisible();
  await page.getByRole('button',{name:'Telegram ulash havolasi',exact:true}).click();await expect(page.getByLabel('Bemor uchun Telegram ulash havolasi')).toHaveValue(/https:\/\/t.me\/nutq_test_bot\?start=/);
  await page.getByLabel('Video nomi').fill('Uyda talaffuz mashqi');await page.locator('input[type=file]').setInputFiles({name:'exercise.mp4',mimeType:'video/mp4',buffer:Buffer.from('000000186674797069736f6d0000000069736f6d6d703432','hex')});
- await page.getByRole('button',{name:'Videoni saqlash va Telegram’ga yuborish'}).click();await expect(page.getByText('Telegram ulanishini kutmoqda',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Videoni saqlash',exact:true}).click();await expect(page.getByText('Telegram ulanishini kutmoqda',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'artifacts/'+info.project.name+'-patient-video.png',fullPage:true});
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
  await page.locator('nav').getByRole('button',{name:'Qabul jadvali'}).click();

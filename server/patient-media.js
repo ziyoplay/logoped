@@ -33,7 +33,16 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
   app.get('/api/patients/:id/media',async(req,res)=>{
    const p=await owned(req),link=await db.prepare('SELECT chat_id,username FROM patient_telegram WHERE patient_id=?').get(p.id);
    const videos=await db.prepare('SELECT id,title,size,state,created_at,error FROM patient_videos WHERE patient_id=? AND owner_id=? ORDER BY created_at DESC').all(p.id,req.ownerId);
-   res.json({enabled,ready:Boolean(username),connected:Boolean(link?.chat_id&&link.username.toLowerCase()===p.telegram.toLowerCase()),videos});
+   res.json({telegram:p.telegram,patientRevision:p.revision,enabled,ready:Boolean(username),connected:Boolean(link?.chat_id&&link.username.toLowerCase()===p.telegram.toLowerCase()),videos});
+  });
+  app.patch('/api/patients/:id/telegram',async(req,res)=>{
+   const v=z.object({telegram:z.string().trim().max(80).transform(value=>value.replace(/^https:\/\/t\.me\//i,'').replace(/^@/,'')).refine(value=>/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(value),'Telegram username noto‘g‘ri')}).strict().parse(req.body);
+   await db.transaction(async()=>{
+    const p=await owned(req);
+    if(req.get('If-Match')!==String(p.revision))fail(409,'Bemor kartasi yangilangan. Holatni yangilab, qayta saqlang.');
+    await db.prepare('UPDATE patients SET telegram=?,revision=revision+1,updated_by=? WHERE id=? AND user_id=?').run(v.telegram,req.user.id,p.id,req.ownerId);
+    if(p.telegram.toLowerCase()!==v.telegram.toLowerCase())await db.prepare('DELETE FROM patient_telegram WHERE patient_id=?').run(p.id);
+   });res.json({ok:true});
   });
   app.post('/api/patients/:id/telegram-link',async(req,res)=>{
    const p=await owned(req);if(req.user.demo)fail(403,'Telegram uchun shaxsiy hisobingizga kiring.');
