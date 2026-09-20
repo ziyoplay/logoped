@@ -11,7 +11,7 @@
  .public-site .public-cta:focus-visible svg,.public-site .public-login:focus-visible svg,.public-site .public-text-link:focus-visible svg{transform:translateX(4px)}
  @media(hover:hover) and (pointer:fine){
   .public-site .public-cta:hover,.public-site .public-login:hover{transform:translateY(-2px);box-shadow:0 8px 20px #102c2314}
-  .public-site .public-service-grid article:hover{transform:translateY(-5px);box-shadow:0 12px 28px #102c2312;border-color:var(--pub-accent)}
+  .public-site .public-service-grid article:hover{border-color:var(--pub-accent)}
   .public-site .public-cta:hover svg,.public-site .public-login:hover svg,.public-site .public-text-link:hover svg,.public-contact-links>a:hover>svg:last-child{transform:translateX(4px)}
   .public-site .public-brand:hover .public-brand-icon{transform:rotate(-7deg)}
  }
