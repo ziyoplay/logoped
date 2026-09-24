@@ -46,7 +46,7 @@ test('Google OAuth, two-way schedule, conflicts, patient binding, Telegram queue
   assert.equal((await request('/google/callback?code=fake&state='+state)).location,'/?google=connected#kirish');
   assert.equal((await request('/google/callback?code=fake&state='+state)).status,400,'state is single-use');
   const stored=await db.prepare('SELECT credentials FROM calendar_connections WHERE owner_id=?').get(owner);assert.ok(!stored.credentials.includes('test-refresh'));
-  const p=(await request('/patients',{cookie,method:'POST',body:{name:'Calendar patient',birth_date:'2020-01-01',telegram:'parent_test'}})).data;
+  const p=(await request('/patients',{cookie,method:'POST',body:{name:'Calendar <patient>',birth_date:'2020-01-01',telegram:'parent_test'}})).data;
   const q=(await request('/patients',{cookie:other.cookie,method:'POST',body:{name:'Other patient',birth_date:'2020-01-01'}})).data;
   let a=(await request('/appointments',{cookie,method:'POST',body:{patient_id:p.id,date:'2099-10-01',time:'09:00',duration:45,title:'Session',notes:'Do not send clinical notes'}})).data;
   await app.locals.calendar.run();const id='nutq'+a.id.replaceAll('-','');assert.ok(events.has(id));assert.ok(!JSON.stringify(events.get(id)).includes('clinical'));
@@ -58,7 +58,7 @@ test('Google OAuth, two-way schedule, conflicts, patient binding, Telegram queue
   await db.prepare('INSERT INTO patient_telegram(patient_id,chat_id,username) VALUES(?,?,?)').run(p.id,'123','wrong_parent');
   await deliverAppointmentNotification(db,async(...args)=>messages.push(args));assert.equal(messages.length,0);
   await db.prepare('UPDATE patient_telegram SET username=? WHERE patient_id=?').run('parent_test',p.id);
-  await deliverAppointmentNotification(db,async(...args)=>{messages.push(args);return {message_id:1};});assert.equal(messages.length,1);assert.equal(messages[0][1].chat_id,'123');assert.match(messages[0][1].text,/10:00/);
+  await deliverAppointmentNotification(db,async(...args)=>{messages.push(args);return {message_id:1};});assert.equal(messages.length,1);assert.equal(messages[0][1].chat_id,'123');assert.match(messages[0][1].text,/10:00/);assert.match(messages[0][1].text,/Calendar &lt;patient&gt;/);
   await app.locals.calendar.run();await deliverAppointmentNotification(db,async(...args)=>messages.push(args));assert.equal(messages.length,1,'echo does not send duplicate');
   a=(await request('/appointments/'+a.id,{cookie,method:'PUT',revision:a.revision,body:{...a,time:'11:00'}})).data;events.set(id,remote(id,'12:00'));await app.locals.calendar.run();
   let s=(await request('/google/status',{cookie})).data;assert.equal(s.events.length,1);assert.match(s.events[0].error,/ikkala/);assert.equal((await request('/appointments',{cookie})).data[0].time,'11:00');assert.equal(events.get(id).start.dateTime.slice(11,16),'12:00');

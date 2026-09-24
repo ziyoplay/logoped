@@ -21,7 +21,7 @@ export async function appointmentChanged(db,before,after,now=Date.now()){
 export async function deliverAppointmentNotification(db,call,now=Date.now()){
  await db.prepare("UPDATE appointment_notifications SET state='failed',error='Yuborish yakuni noma’lum. Telegramni tekshiring.' WHERE state='sending' AND updated_at<?").run(now-600000);
  const item=await db.transaction(async()=>{
-  const row=await db.prepare(`SELECT n.*,t.chat_id FROM appointment_notifications n
+  const row=await db.prepare(`SELECT n.*,t.chat_id,p.name AS patient_name FROM appointment_notifications n
    JOIN patients p ON p.id=n.patient_id AND p.user_id=n.owner_id
    JOIN patient_telegram t ON t.patient_id=p.id JOIN users u ON u.id=n.owner_id
    WHERE n.state='pending' AND t.chat_id IS NOT NULL AND lower(t.username)=lower(p.telegram) AND u.disabled=0
@@ -38,7 +38,7 @@ export async function deliverAppointmentNotification(db,call,now=Date.now()){
  try{
   await call('sendMessage',{chat_id:item.chat_id,parse_mode:'HTML',protect_content:true,
    text:card(p.kind==='cancelled'?'📅 Qabul bekor qilindi':p.kind==='updated'?'📅 Qabul vaqti yangilandi':'📅 Qabul belgilandi',
-    [html(p.title),`🗓 ${html(p.date)}\n🕐 ${html(p.time)} · Toshkent vaqti\n⏱ ${p.duration} daqiqa`],p.kind==='cancelled'?'Yangi vaqtni logoped bilan kelishing.':'Qabul ma’lumotlarini /qabul orqali ham ko‘rishingiz mumkin.')});
+    [`👤 ${html(item.patient_name,100)}`,html(p.title),`🗓 ${html(p.date)}\n🕐 ${html(p.time)} · Toshkent vaqti\n⏱ ${p.duration} daqiqa`],p.kind==='cancelled'?'Yangi vaqtni logoped bilan kelishing.':'Qabul ma’lumotlarini /qabul orqali ham ko‘rishingiz mumkin.')});
   await db.prepare("UPDATE appointment_notifications SET state='sent',updated_at=?,error='' WHERE id=?").run(now,item.id);
  }catch(e){
   if(e.status===403)await db.prepare('DELETE FROM patient_telegram WHERE patient_id=? AND chat_id=?').run(item.patient_id,item.chat_id);
