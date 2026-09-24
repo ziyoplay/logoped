@@ -9,6 +9,9 @@ import { openDatabase } from './db.js';
 import { sqliteStorage } from './storage.js';
 import { mountClients } from './clients.js';
 import {patientMedia} from './patient-media.js';
+import {googleCalendar} from './google-calendar.js';
+import {appointmentChanged} from './appointment-notifications.js';
+import {mountExerciseCatalog} from './exercise-catalog.js';
 import { mountTeam, admin, audit, tokenHash } from './team.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const text = (max = 200) => z.string().trim().min(1).max(max);
@@ -33,10 +36,11 @@ const avatarSchema = z.string().max(150000).refine(value => {
 }, 'JPEG rasm tanlang');
 const profileSchema = z.object({ name: text(100).optional(), clinic: text(150).optional(), specialty: text(100).optional(), phone: z.string().trim().max(30).optional(), address: z.string().trim().max(200).optional(), bio: z.string().trim().max(1000).optional(), experience_years: z.number().int().min(0).max(80).nullable().optional(), accent: z.enum(['green', 'blue', 'plum', 'orange']).optional(), avatar: avatarSchema.optional() }).strict().refine(v => Object.keys(v).length > 0);
 function fail(status, message) { const e = new Error(message); e.status = status; throw e; }
-export function createApp({ filename = process.env.DATABASE_PATH || path.join(root, 'data', 'nutq.sqlite'), secure = process.env.COOKIE_SECURE === 'true', teamMode = false, database, mediaOptions } = {}) {
+export function createApp({ filename = process.env.DATABASE_PATH || path.join(root, 'data', 'nutq.sqlite'), secure = process.env.COOKIE_SECURE === 'true', teamMode = false, database, mediaOptions, calendarOptions } = {}) {
     const db = database || sqliteStorage(openDatabase(filename));
     const transaction = work => db.transaction(work);
     const app = express();
+    const calendar=googleCalendar(db,calendarOptions);app.locals.calendar=calendar;
     app.disable('x-powered-by');
     if (process.env.TRUST_PROXY === '1')
         app.set('trust proxy', 1);
@@ -111,6 +115,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
         await seedDemo(db, id);
         await session(req, res, await db.prepare('SELECT * FROM users WHERE id=?').get(id));
     });
+    calendar.mountPublic(app);
     app.use('/api', async (req, res, next) => {
         const raw = req.headers.cookie?.split(';').map(v => v.trim()).find(v => v.startsWith('nutq_session='))?.slice(13);
         const s = raw && await db.prepare('SELECT users.*,sessions.token FROM sessions JOIN users ON users.id=sessions.user_id WHERE sessions.token=? AND expires>? AND users.disabled=0').get(hashToken(raw), Date.now());
@@ -126,6 +131,8 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
     });
     mountClients(app,db,{passwordHash});
     const media=patientMedia(db,mediaOptions);media.mount(app);app.locals.media=media;
+    calendar.mount(app);
+    mountExerciseCatalog(app,db);
     if (teamMode)
         mountTeam(app, db);
     app.get('/api/backup-status', (req, res) => { admin(req); res.json(app.locals.backups?.status() || { lastSuccess: null, lastError: 'Avtomatik zaxira xizmati ishga tushmagan.', running: false }); });
@@ -190,21 +197,25 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
                 const keys = Object.keys(v);
                 await db.prepare('INSERT INTO ' + table + '(id,user_id,' + keys.join(',') + ',updated_by) VALUES(' + Array(keys.length + 3).fill('?').join(',') + ')').run(id, req.ownerId, ...Object.values(v), req.user.id);
                 await audit(db, req, 'create', table, id);
-                return await db.prepare('SELECT * FROM ' + table + ' WHERE id=?').get(id);
+                const saved=await db.prepare('SELECT * FROM ' + table + ' WHERE id=?').get(id);
+                if(table==='appointments')await appointmentChanged(db,null,saved);
+                return saved;
             });
             res.status(201).json(row);
         });
         app.put('/api/' + table + '/:id', async (req, res) => {
             const row = await transaction(async () => {
                 await owned(table, req.params.id, req.ownerId);
-                const current = await db.prepare('SELECT revision FROM ' + table + ' WHERE id=?').get(req.params.id);
+                const current = await db.prepare('SELECT * FROM ' + table + ' WHERE id=?').get(req.params.id);
                 if (req.get('If-Match') !== String(current.revision))
                     fail(409, 'Yozuv boshqa qurilmada yangilangan. Kiritgan matningizni nusxalab oling, oynani yoping va yangilab qayta oching.');
                 const v = schema.parse(req.body);
                 await validateRefs(table, v, req.ownerId, req.params.id, req);
                 await db.prepare('UPDATE ' + table + ' SET ' + Object.keys(v).map(k => k + '=?').join(',') + ',revision=revision+1,updated_by=? WHERE id=? AND user_id=?').run(...Object.values(v), req.user.id, req.params.id, req.ownerId);
                 await audit(db, req, 'update', table, req.params.id);
-                return await db.prepare('SELECT * FROM ' + table + ' WHERE id=?').get(req.params.id);
+                const saved=await db.prepare('SELECT * FROM ' + table + ' WHERE id=?').get(req.params.id);
+                if(table==='appointments')await appointmentChanged(db,current,saved);
+                return saved;
             });
             res.json(row);
         });
@@ -214,10 +225,11 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
                 admin(req);
                 if (table === 'patients' && (await db.prepare('SELECT 1 FROM appointments WHERE patient_id=? LIMIT 1').get(req.params.id) || await db.prepare('SELECT 1 FROM results WHERE patient_id=? LIMIT 1').get(req.params.id)))
                     fail(409, 'Bu bemorning tarixi bor. O‘chirish o‘rniga kartani tahrirlab, Holati → Arxivda ni tanlang.');
-                const current = await db.prepare('SELECT revision FROM ' + table + ' WHERE id=?').get(req.params.id);
+                const current = await db.prepare('SELECT * FROM ' + table + ' WHERE id=?').get(req.params.id);
                 if (req.get('If-Match') !== String(current.revision))
                     fail(409, 'Yozuv yangilangan. Sahifani yangilab qayta urinib ko‘ring.');
                 if(table==='patients')await db.prepare('DELETE FROM users WHERE id IN (SELECT user_id FROM client_accounts WHERE patient_id=? AND owner_id=?)').run(req.params.id,req.ownerId);
+                if(table==='appointments')await appointmentChanged(db,current,null);
                 await db.prepare('DELETE FROM ' + table + ' WHERE id=? AND user_id=?').run(req.params.id, req.ownerId);
                 await audit(db, req, 'delete', table, req.params.id);
             });

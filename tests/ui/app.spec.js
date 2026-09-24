@@ -42,6 +42,7 @@ test('Logoped can manage a patient, appointment, exercise and result',async({pag
   await page.getByRole('button',{name:'Saqlash',exact:true}).click();
   await expect(page.getByRole('heading',{name:'UI Test Mashq',exact:true})).toBeVisible();
   await nav('Qabul jadvali');
+  await page.getByLabel('Taqvim ko‘rinishi').selectOption('patients');
   await page.getByLabel('Qabul sanasi').fill('2026-10-20');
   await page.getByRole('button',{name:'UI Test Bemor, 15:00, Individual mashg‘ulot',exact:true}).click();
   await page.getByRole('combobox',{name:'Holati',exact:true}).selectOption('completed');

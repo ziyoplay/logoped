@@ -25,6 +25,7 @@ test('Patient profile keeps result ownership and schedule uses patient rows',asy
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'artifacts/'+info.project.name+'-patient-video.png',fullPage:true});
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
  await page.locator('nav').getByRole('button',{name:'Qabul jadvali'}).click();
+ await page.getByLabel('Taqvim ko‘rinishi').selectOption('patients');
  await expect(page.locator('.schedule-person').filter({hasText:'Ali Valiyev'})).toBeVisible();
  await page.getByRole('button',{name:'Ali Valiyev uchun 09:00 da qabul belgilash',exact:true}).click();
  await expect(page.getByRole('dialog').locator('.fixed-patient')).toContainText('Ali Valiyev');await expect(page.getByLabel('Vaqt (Toshkent)')).toHaveValue('09:00');

@@ -1,4 +1,5 @@
 import {card,videoCaption} from './telegram-text.js';
+import {deliverAppointmentNotification} from './appointment-notifications.js';
 import {telegramMenu,botKeyboard} from './telegram-menu.js';
 import express from 'express';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
@@ -163,6 +164,7 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
      await db.prepare("UPDATE patient_videos SET state='failed',updated_at=?,error=? WHERE id=?").run(now(),e.status===403?'Bemor botni bloklagan. Qayta ulash kerak.':'Yuborish tasdiqlanmadi. Telegramni tekshiring, zarur bo‘lsa qayta yuboring.',video.id);
     }
    }
+   await deliverAppointmentNotification(db,call,now());
    if(now()-cleanedAt>86400000){await cleanFiles();cleanedAt=now();}
   }finally{await db.prepare('UPDATE telegram_state SET lease_until=0 WHERE id=? AND lease_owner=?').run(botId,workerId);}
  }

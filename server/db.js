@@ -88,5 +88,6 @@ export function openDatabase(filename) {
   if(!patientColumns.has('telegram'))db.exec("ALTER TABLE patients ADD COLUMN telegram TEXT NOT NULL DEFAULT ''");
   db.exec(readFileSync(new URL('./client-schema.sql',import.meta.url),'utf8'));
   db.exec(readFileSync(new URL('./patient-media-schema.sql',import.meta.url),'utf8'));
+  db.exec(readFileSync(new URL('./calendar-schema.sql',import.meta.url),'utf8'));
   return db;
 }

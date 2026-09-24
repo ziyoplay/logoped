@@ -11,6 +11,6 @@ const {app}=createApp({database:db});
 const backups=(db.kind==='postgres'?postgresBackupManager:backupManager)(db,process.env.BACKUP_DIRECTORY||path.join(path.dirname(filename),'backups'));
 app.locals.backups=backups;
 const port=Number(process.env.PORT||3001);
-const server=app.listen(port,process.env.HOST||'0.0.0.0',()=>{console.log(`Nutq: http://localhost:${port}`);backups.start();app.locals.media.start();});
+const server=app.listen(port,process.env.HOST||'0.0.0.0',()=>{console.log(`Nutq: http://localhost:${port}`);backups.start();app.locals.media.start();app.locals.calendar.start();});
 server.on('error',async error=>{console.error(error.code==='EADDRINUSE'?'Bu port band. Nutq serveri allaqachon ishlayotgan bo‘lishi mumkin.':error.message);await db.close();process.exitCode=1;});
-for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(async()=>{await app.locals.media.stop();await backups.stop();await db.close();process.exit(0);}));
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(async()=>{await app.locals.calendar.stop();await app.locals.media.stop();await backups.stop();await db.close();process.exit(0);}));
