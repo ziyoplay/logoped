@@ -1,0 +1,86 @@
+/* Quiet surfaces for long sessions. Keep the existing layout and profile accent. */
+:root {
+  --page-soft: #eff3f1;
+  --panel-soft: #f9fbfa;
+  --raised-soft: #e8eeeb;
+  --ink: #30433e;
+  --muted: #61746c;
+  --line: #dce5df;
+  --focus-soft: #557e70;
+  --picker-bg: var(--panel-soft);
+  --picker-border: var(--line);
+  --picker-hover: var(--raised-soft);
+  --picker-text: var(--ink);
+  --picker-muted: var(--muted);
+}
+:root:not([data-theme="light"]) {
+  --page-soft: #1c2526;
+  --panel-soft: #243030;
+  --raised-soft: #2d3b3a;
+  --ink: #dce4e1;
+  --muted: #a6b6b2;
+  --line: #394847;
+  --focus-soft: #a0c4b7;
+  --accent: #9cbfb0;
+}
+html, html body { background: var(--page-soft); color: var(--ink); }
+html .app-shell { --surface: var(--panel-soft); --surface-raised: var(--raised-soft); --accent-bright: color-mix(in srgb, var(--accent) 24%, #b4c9c0); }
+html .app-shell .sidebar, html .app-shell .topbar { background: var(--panel-soft); border-color: var(--line); }
+html .app-shell :is(.panel,.stat,.stat:nth-child(n),.focus-card,.settings-card,.profile-preview,.clinic-summary) { background: var(--panel-soft); border-color: var(--line); box-shadow: none; }
+html .app-shell :is(.workspace-label,.tabs), html .dialog-footer { background: var(--raised-soft); border-color: var(--line); }
+html .app-shell .sidebar nav button.active, html .app-shell .settings-nav.active { background: var(--raised-soft); color: var(--ink); border-color: transparent; box-shadow: inset 3px 0 var(--focus-soft); }
+html :is(.button,.picker-trigger) { border-radius: 12px; }
+html .button { font-weight: 600; box-shadow: none; }
+html .secondary { background: var(--panel-soft); border-color: var(--line); color: var(--ink); }
+html .secondary:hover, html .app-shell .sidebar nav button:hover { background: var(--raised-soft); }
+html .app-shell .primary:hover { background: color-mix(in srgb,var(--accent-bright) 90%,var(--panel-soft)); }
+html[data-theme="light"] .app-shell .primary:hover { background: color-mix(in srgb,var(--accent) 88%,#243b32); color: #fff; }
+html .app-shell .page-heading h1 { font-size: clamp(25px,2.3vw,30px); font-weight: 600; letter-spacing: -.65px; }
+html .app-shell .section-heading h2, html .calendar-navigation strong { font-weight: 600; }
+html :is(input,select,textarea,.search,.dialog,.auth,.auth-form) { background: var(--panel-soft); border-color: var(--line); color: var(--ink); }
+html :is(input,select,textarea):focus { background: var(--panel-soft); border-color: var(--focus-soft); box-shadow: 0 0 0 3px color-mix(in srgb,var(--focus-soft) 12%,transparent); }
+html :is(input,textarea)::placeholder { color: var(--muted); }
+html .search input, html .picker-search input { background: transparent; }
+html :is(button,a):focus-visible { outline: 2px solid var(--focus-soft); outline-offset: 3px; }
+html .auth-story { background: var(--raised-soft); }
+html .auth :is(h1,h1 em,h2) { color: var(--ink); font-weight: 600; }
+html .auth :is(.auth-copy p,.auth-foot,.auth-panel>p,.auth-copyright), html .app-shell .muted { color: var(--muted); }
+html .auth .divider span { background: var(--panel-soft); color: var(--muted); }
+html .auth .primary { background: #a3c6b7; color: #203c31; }
+html[data-theme="light"] .auth .primary { background: #426e60; color: #fff; }
+html .auth .speech-art>span, html .auth .sound-bars i { animation: none; }
+html .public-site { --pub-bg: var(--page-soft); --pub-panel: var(--panel-soft); --pub-text: var(--ink); --pub-muted: var(--muted); --pub-line: var(--line); --pub-mint: #b7d1c4; --pub-purple: #d0cade; }
+html .public-site>.room-background { opacity: .09; filter: saturate(.35); }
+html .public-site .letter-bubble { animation: none; }
+html .public-site h1 { font-weight: 700; }
+html .public-site .public-cta { background: #bfd6cb; color: #203c31; }
+html .calendar-shell, html .google-panel { --surface: var(--panel-soft); }
+html .calendar-shell { --calendar-rule: color-mix(in srgb,var(--line) 55%,var(--surface)); border-radius: 18px; }
+html .calendar-toolbar { padding: 20px; gap: 16px; }
+html .calendar-navigation { gap: 10px; }
+html .calendar-day-heading { border-left-color: transparent; }
+html .calendar-day-heading button { font-size: 21px; font-weight: 600; }
+html .calendar-day-heading.is-today button { background: var(--raised-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--focus-soft); }
+html .calendar-day-heading.is-today>span { color: var(--ink); }
+html .calendar-column { border-left-color: var(--calendar-rule); background: repeating-linear-gradient(to bottom,transparent 0,transparent 71px,var(--calendar-rule) 71px,var(--calendar-rule) 72px); }
+html .calendar-slot:hover { background: color-mix(in srgb,var(--focus-soft) 8%,transparent); outline: none; }
+html .calendar-slot:focus-visible { background: var(--raised-soft); outline: 2px solid var(--focus-soft); outline-offset: -2px; }
+html .calendar-event, html .schedule-booking { background: #dce9e1; color: #304f42; border-color: #7c9b8b; border-radius: 8px; }
+html .calendar-event.completed, html .schedule-booking.completed { background: #e8e5ee; color: #575067; border-color: #9a91ab; }
+html .calendar-event.cancelled, html .schedule-booking.cancelled { background: #e6e9e7; color: #5f6a65; border-color: #929e97; opacity: 1; }
+html .calendar-event strong { font-weight: 700; }
+html:not([data-theme="light"]) :is(.calendar-event,.schedule-booking) { background: #354d44; color: #e0e9e3; }
+html:not([data-theme="light"]) :is(.calendar-event.completed,.schedule-booking.completed) { background: #464452; color: #e4e0ec; }
+html:not([data-theme="light"]) :is(.calendar-event.cancelled,.schedule-booking.cancelled) { background: #394340; color: #bac7c0; }
+html .calendar-now, html .calendar-now:before, html .schedule-now { background: #c38078; }
+html .calendar-now { height: 1px; }
+html .calendar-hours { font-size: 12px; }
+html .google-panel { border-radius: 14px; }
+html .google-calendar-mark { background: var(--raised-soft); color: var(--focus-soft); }
+html:not([data-theme="light"]) :is(.schedule-head,.schedule-person,.schedule-track) { background: var(--panel-soft); }
+@media(max-width:700px) {
+  html .calendar-toolbar { padding: 14px; gap: 14px; }
+  html .calendar-navigation { gap: 4px; }
+  html .calendar-navigation strong { font-size: 14px; }
+  html .calendar-controls input, html .calendar-controls select { font-size: 16px; }
+}
