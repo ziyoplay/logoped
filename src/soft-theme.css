@@ -26,6 +26,17 @@
 html, html body { background: var(--page-soft); color: var(--ink); }
 html .app-shell { --surface: var(--panel-soft); --surface-raised: var(--raised-soft); --accent-bright: color-mix(in srgb, var(--accent) 24%, #b4c9c0); }
 html .app-shell .sidebar, html .app-shell .topbar { background: var(--panel-soft); border-color: var(--line); }
+/* Fixed sidebar owns its scroll, including on short screens and zoomed pages. */
+html .app-shell .sidebar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--focus-soft) transparent;
+  scroll-padding-block: 18px;
+}
+html .app-shell .sidebar > * { flex-shrink: 0; }
+html .app-shell .sidebar:focus-visible { outline: 2px solid var(--focus-soft); outline-offset: -3px; }
 html .app-shell :is(.panel,.stat,.stat:nth-child(n),.focus-card,.settings-card,.profile-preview,.clinic-summary) { background: var(--panel-soft); border-color: var(--line); box-shadow: none; }
 html .app-shell :is(.workspace-label,.tabs), html .dialog-footer { background: var(--raised-soft); border-color: var(--line); }
 html .app-shell .sidebar nav button.active, html .app-shell .settings-nav.active { background: var(--raised-soft); color: var(--ink); border-color: transparent; box-shadow: inset 3px 0 var(--focus-soft); }
@@ -83,4 +94,27 @@ html:not([data-theme="light"]) :is(.schedule-head,.schedule-person,.schedule-tra
   html .calendar-navigation { gap: 4px; }
   html .calendar-navigation strong { font-size: 14px; }
   html .calendar-controls input, html .calendar-controls select { font-size: 16px; }
+}
+/* Brief feedback on navigation; no continuous movement while reading. */
+@media(prefers-reduced-motion:no-preference) {
+  .workspace-page { animation: workspace-arrive 240ms cubic-bezier(.2,.7,.2,1); }
+  .app-shell .sidebar { transition: transform 240ms cubic-bezier(.2,.7,.2,1); }
+  .app-shell .sidebar-backdrop { animation: workspace-fade 180ms ease-out; }
+  .app-shell :is(.sidebar nav button,.settings-nav,.button,.icon-button,.quick-action,.calendar-event) {
+    transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease, translate 160ms ease;
+  }
+  .app-shell .button:active:not(:disabled) { translate: 0 1px; }
+  .app-shell .dialog[open] { animation: workspace-arrive 200ms ease-out; }
+  @media(hover:hover) and (pointer:fine) {
+    .app-shell :is(.sidebar nav button,.settings-nav):hover { translate: 2px 0; }
+    .app-shell .quick-action:hover > svg:last-child { translate: 2px 0; }
+  }
+}
+@keyframes workspace-arrive {
+  from { opacity: .35; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes workspace-fade { from { opacity: 0; } to { opacity: 1; } }
+@media(prefers-reduced-motion:reduce) {
+  .app-shell .sidebar, .app-shell .workspace-page, .app-shell .dialog[open], .app-shell .sidebar-backdrop { animation: none; transition: none; }
 }
