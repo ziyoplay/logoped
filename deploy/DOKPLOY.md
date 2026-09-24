@@ -46,6 +46,8 @@ Ulash havolasi orqali Start bosgan bemor yoki ota-ona botda quyidagilarni ko‘r
 - Mashqlarim (`/mashqlar`): oxirgi 5 ta biriktirilgan mashq va ko‘rsatma.
 - Yordam (`/help`) va ulanishni uzish (`/stop`).
 
-Natija, qabul va mashqlar menyu bosilganda olinadi; ular uchun avtomatik bildirishnoma yo‘q. Yangi video uchun avvalgi avtomatik yuborish saqlanadi. Botga yozilgan savollar logopedga uzatilmaydi. Bir ota-onaga bir nechta bemor ulangan bo‘lsa, yozuvlar bemor ismi bilan ko‘rsatiladi. Bemor kartasi va qabulning ichki izohlari botga chiqmaydi.
+Natija va mashqlar menyu bosilganda olinadi. Qabul yaratilganda, o‘zgarganda yoki bekor qilinganda ulangan bemorga Telegram xabari navbat orqali yuboriladi. Yangi video uchun avtomatik yuborish saqlanadi. Botga yozilgan savollar logopedga uzatilmaydi. Bir ota-onaga bir nechta bemor ulangan bo‘lsa, menyu yozuvlari bemor ismi bilan ko‘rsatiladi. Bemor kartasi va qabulning ichki izohlari botga chiqmaydi.
+
+Google Calendar ikki tomonlama ulanishi va OAuth sozlamalari: [Google Calendar yo‘riqnomasi](google-calendar.md).
 
 Token faqat serverdagi `TELEGRAM_BOT_TOKEN` o‘zgaruvchisida bo‘lishi kerak. Deploy/restartdan keyin bot buyruqlar menyusini avtomatik ro‘yxatdan o‘tkazadi. Boshqa polling jarayoni yoki webhook shu bot tokenidan bir vaqtda foydalanmasin.
