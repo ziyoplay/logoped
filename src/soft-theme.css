@@ -1,11 +1,11 @@
 /* Quiet surfaces for long sessions. Keep the existing layout and profile accent. */
 :root {
-  --page-soft: #eff3f1;
-  --panel-soft: #f9fbfa;
-  --raised-soft: #e8eeeb;
+  --page-soft: #e1e8e3;
+  --panel-soft: #edf1ee;
+  --raised-soft: #d7e1db;
   --ink: #30433e;
   --muted: #61746c;
-  --line: #dce5df;
+  --line: #c7d3cb;
   --focus-soft: #557e70;
   --picker-bg: var(--panel-soft);
   --picker-border: var(--line);

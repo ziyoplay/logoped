@@ -3,10 +3,18 @@ test('Public home introduces services and client account opens a private portal'
  await page.goto('/');
  await expect(page.getByRole('heading',{name:'Kichik tovushlar. Katta suhbatlar.'})).toBeVisible();
  await expect(page.getByRole('textbox',{name:'Email manzil'})).toHaveCount(0);
- await expect(page.getByRole('link',{name:'Qabul haqida yozish'})).toHaveAttribute('href','https://t.me/Defektolog_Iroda');
+ const inquiry=page.getByRole('link',{name:'Qabul haqida yozish'});
+ await expect(inquiry).toHaveAttribute('href','https://t.me/iroda_logped');
+ const inquiryContrast=()=>inquiry.evaluate(el=>{
+  const luminance=color=>{const rgb=color.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;};
+  const style=getComputedStyle(el),a=luminance(style.color),b=luminance(style.backgroundColor);
+  return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+ });
+ expect(await inquiryContrast()).toBeGreaterThanOrEqual(4.5);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:`artifacts/${testInfo.project.name}-public-home.png`,fullPage:true});
  await page.getByRole('button',{name:'Och mavzuga o‘tish'}).click();
+ expect(await inquiryContrast()).toBeGreaterThanOrEqual(4.5);
  await page.screenshot({path:`artifacts/${testInfo.project.name}-public-home-light.png`,fullPage:true});
  await page.getByRole('link',{name:'Kabinetga kirish',exact:true}).click();
  const suffix=Date.now()+'-'+testInfo.project.name;
