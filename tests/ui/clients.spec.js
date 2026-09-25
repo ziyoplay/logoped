@@ -3,6 +3,14 @@ test('Public home introduces services and client account opens a private portal'
  await page.goto('/');
  await expect(page.getByRole('heading',{name:'Kichik tovushlar. Katta suhbatlar.'})).toBeVisible();
  await expect(page.getByRole('textbox',{name:'Email manzil'})).toHaveCount(0);
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ const letters=page.locator('.letter-bubble');
+ await expect(page.locator('.public-site')).toHaveAttribute('data-floating','true');
+ for(const letter of await letters.all()){
+  await expect(letter).toHaveCSS('animation-play-state','running');
+  const position=await letter.evaluate(el=>getComputedStyle(el).transform);
+  await expect.poll(()=>letter.evaluate(el=>getComputedStyle(el).transform)).not.toBe(position);
+ }
  const inquiry=page.getByRole('link',{name:'Qabul haqida yozish'});
  await expect(inquiry).toHaveAttribute('href','https://t.me/iroda_logped');
  const inquiryContrast=()=>inquiry.evaluate(el=>{
@@ -16,6 +24,9 @@ test('Public home introduces services and client account opens a private portal'
  await page.getByRole('button',{name:'Och mavzuga o‘tish'}).click();
  expect(await inquiryContrast()).toBeGreaterThanOrEqual(4.5);
  await page.screenshot({path:`artifacts/${testInfo.project.name}-public-home-light.png`,fullPage:true});
+ for(const letter of await letters.all())await expect(letter).toHaveCSS('animation-play-state','running');
+ await page.emulateMedia({reducedMotion:'reduce'});
+ for(const letter of await letters.all())await expect(letter).toHaveCSS('animation-name','none');
  await page.getByRole('link',{name:'Kabinetga kirish',exact:true}).click();
  const suffix=Date.now()+'-'+testInfo.project.name;
  // Each test owns a new staff account in the disposable test database.

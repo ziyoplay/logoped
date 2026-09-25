@@ -62,7 +62,6 @@ html[data-theme="light"] .auth .primary { background: #426e60; color: #fff; }
 html .auth .speech-art>span, html .auth .sound-bars i { animation: none; }
 html .public-site { --pub-bg: var(--page-soft); --pub-panel: var(--panel-soft); --pub-text: var(--ink); --pub-muted: var(--muted); --pub-line: var(--line); --pub-mint: #b7d1c4; --pub-purple: #d0cade; }
 html .public-site>.room-background { opacity: .09; filter: saturate(.35); }
-html .public-site .letter-bubble { animation: none; }
 html .public-site h1 { font-weight: 700; }
 html .public-site .public-cta { background: #bfd6cb; color: #203c31; }
 html .calendar-shell, html .google-panel { --surface: var(--panel-soft); }
