@@ -12,7 +12,7 @@ test('Public home introduces services and client account opens a private portal'
   await expect.poll(()=>letter.evaluate(el=>getComputedStyle(el).transform)).not.toBe(position);
  }
  const inquiry=page.getByRole('link',{name:'Qabul haqida yozish'});
- await expect(inquiry).toHaveAttribute('href','https://t.me/iroda_logped');
+ await expect(inquiry).toHaveAttribute('href','https://t.me/iroda_logoped');
  const inquiryContrast=()=>inquiry.evaluate(el=>{
   const luminance=color=>{const rgb=color.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;};
   const style=getComputedStyle(el),a=luminance(style.color),b=luminance(style.backgroundColor);
@@ -27,7 +27,8 @@ test('Public home introduces services and client account opens a private portal'
  for(const letter of await letters.all())await expect(letter).toHaveCSS('animation-play-state','running');
  await page.emulateMedia({reducedMotion:'reduce'});
  for(const letter of await letters.all())await expect(letter).toHaveCSS('animation-name','none');
- await page.getByRole('link',{name:'Kabinetga kirish',exact:true}).click();
+ if(testInfo.project.name==='mobile'){await expect(page.getByRole('link',{name:'Farzandim kabineti'})).toBeInViewport();await page.getByRole('link',{name:'Farzandim kabineti'}).click();}
+ else await page.getByRole('link',{name:'Kabinetga kirish',exact:true}).click();
  const suffix=Date.now()+'-'+testInfo.project.name;
  // Each test owns a new staff account in the disposable test database.
  const staff=await page.request.post('/api/auth/register',{headers:{'X-Requested-With':'Nutq'},data:{name:'Portal Logoped',email:`staff-${suffix}@example.test`,password:'PortalStaff12345'}});expect(staff.status()).toBe(200);
@@ -46,6 +47,7 @@ test('Public home introduces services and client account opens a private portal'
  await expect(clientPage.getByRole('heading',{name:'Mening mashqlarim'})).toBeVisible();await expect(clientPage.getByText('Portal Mashq',{exact:true})).toBeVisible();await expect(clientPage.getByText('Logoped yozgan ko‘rsatma')).toBeVisible();await expect(clientPage.getByText('PRIVATE UI note')).toHaveCount(0);await expect(clientPage.getByRole('button',{name:'Bemor qo‘shish'})).toHaveCount(0);
  expect((await clientPage.request.get('/api/patients')).status()).toBe(403);
  await clientPage.reload();await expect(clientPage.getByText('Portal Mashq',{exact:true})).toBeVisible();expect(await clientPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await expect(clientPage.locator('.parent-next')).toContainText('Qabul hali belgilanmagan');await expect(clientPage.getByLabel('Amaldagi parol')).not.toBeVisible();await clientPage.getByRole('button',{name:'Natijalar',exact:true}).click();await expect(clientPage.getByRole('heading',{name:'Mening natijalarim'})).toBeInViewport();
  await clientPage.screenshot({path:`artifacts/${testInfo.project.name}-client-portal.png`,fullPage:true});
  await page.getByRole('button',{name:'Kirishni yopish',exact:true}).click();await expect(page.getByText('Kirish yopilgan',{exact:true})).toBeVisible();await clientPage.reload();await expect(clientPage.getByRole('button',{name:'Hisobga kirish',exact:true})).toBeVisible();
  }finally{await ctx.close();}

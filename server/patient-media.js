@@ -1,6 +1,7 @@
 import {card,videoCaption} from './telegram-text.js';
 import {deliverAppointmentNotification} from './appointment-notifications.js';
 import {telegramMenu,botKeyboard} from './telegram-menu.js';
+import {normalizePhone,telegramAccess} from './telegram-access.js';
 import express from 'express';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
 import {mkdir,writeFile,unlink,readdir,stat} from 'node:fs/promises';
@@ -34,9 +35,9 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
  }
  function mount(app){
   app.get('/api/patients/:id/media',async(req,res)=>{
-   const p=await owned(req),link=await db.prepare('SELECT chat_id,username FROM patient_telegram WHERE patient_id=?').get(p.id);
+   const p=await owned(req),link=await db.prepare('SELECT t.chat_id FROM patient_telegram t JOIN patients p ON p.id=t.patient_id WHERE t.patient_id=? AND '+telegramAccess).get(p.id);
    const videos=await db.prepare('SELECT id,title,size,state,created_at,error FROM patient_videos WHERE patient_id=? AND owner_id=? ORDER BY created_at DESC').all(p.id,req.ownerId);
-   res.json({telegram:p.telegram,patientRevision:p.revision,enabled,ready:Boolean(username),connected:Boolean(link?.chat_id&&link.username.toLowerCase()===p.telegram.toLowerCase()),videos});
+   res.json({telegram:p.telegram,phone:p.phone,patientRevision:p.revision,enabled,ready:Boolean(username),connected:Boolean(link?.chat_id),videos});
   });
   app.patch('/api/patients/:id/telegram',async(req,res)=>{
    const v=z.object({telegram:z.string().trim().max(80).transform(value=>value.replace(/^https:\/\/t\.me\//i,'').replace(/^@/,'')).refine(value=>/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(value),'Telegram username noto‘g‘ri')}).strict().parse(req.body);
@@ -50,7 +51,7 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
   app.post('/api/patients/:id/telegram-link',async(req,res)=>{
    const p=await owned(req);if(req.user.demo)fail(403,'Telegram uchun shaxsiy hisobingizga kiring.');
    if(!enabled||!username)fail(503,'Telegram bot tayyor emas. Server sozlamalarini tekshiring.');
-   if(!p.telegram)fail(400,'Avval bemor kartasiga Telegram username kiriting.');
+   if(!normalizePhone(p.phone)&&!p.telegram)fail(400,'Avval bemor kartasiga ota-onaning telefon raqamini kiriting.');
    const secret=randomBytes(24).toString('base64url');
    await db.prepare('INSERT INTO patient_telegram(patient_id,token_hash,expires) VALUES(?,?,?) ON CONFLICT(patient_id) DO UPDATE SET token_hash=excluded.token_hash,expires=excluded.expires').run(p.id,hash(secret),now()+24*3600000);
    res.json({url:'https://t.me/'+username+'?start='+secret});
@@ -104,16 +105,36 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
   const m=callback?{chat:callback.message?.chat,from:callback.from,text:typeof callback.data==='string'&&callback.data.startsWith('video:')?'/video '+callback.data.slice(6):'/help'}:update.message;
   if(!m||m.chat?.type!=='private'||m.from?.is_bot||m.chat.id!==m.from?.id||!Number.isSafeInteger(m.chat.id))return;
   const chat=String(m.chat.id);
-  if(/^\/stop(?:@\w+)?\s*$/.test(m.text||'')){await db.prepare('DELETE FROM patient_telegram WHERE chat_id=?').run(chat);return {chat_id:chat,text:card('🔕 Ulanish uzildi',['Botdan xabarlar kelishi to‘xtatildi.\nQayta ulash uchun logopeddan yangi havola oling.']),parse_mode:'HTML',reply_markup:{remove_keyboard:true}};}
+  if(/^\/stop(?:@\w+)?\s*$/.test(m.text||'')){await db.prepare('DELETE FROM patient_telegram WHERE chat_id=?').run(chat);await db.prepare('DELETE FROM telegram_contact_pending WHERE chat_id=?').run(chat);return {chat_id:chat,text:card('🔕 Ulanish uzildi',['Botdan xabarlar kelishi to‘xtatildi.\nQayta ulash uchun logopeddan yangi havola oling.']),parse_mode:'HTML',reply_markup:{remove_keyboard:true}};}
+  const connected=()=>({chat_id:chat,text:card('✅ Kabinetingiz ulandi',['Natijalar, videolar va mashqlar endi shu yerda.'],'Kerakli bo‘limni pastdagi menyudan tanlang.'),parse_mode:'HTML',reply_markup:botKeyboard});
+  const contactKeyboard={keyboard:[[{text:'📱 Telefon raqamni ulashish',request_contact:true}]],resize_keyboard:true,one_time_keyboard:true};
+  if(m.contact){
+   const link=await db.prepare(`SELECT t.patient_id,p.phone FROM telegram_contact_pending c
+    JOIN patient_telegram t ON t.patient_id=c.patient_id AND t.token_hash=c.token_hash
+    JOIN patients p ON p.id=t.patient_id JOIN users u ON u.id=p.user_id
+    WHERE c.chat_id=? AND c.expires>? AND t.expires>? AND u.disabled=0`).get(chat,now(),now());
+   if(!link)return {chat_id:chat,text:card('🔗 Havola kerak',['Logopeddan shaxsiy ulash havolasini oling va Start bosing.']),parse_mode:'HTML',reply_markup:{remove_keyboard:true}};
+   const phone=normalizePhone(m.contact.phone_number);
+   if(m.contact.user_id!==m.from.id||!phone||phone!==normalizePhone(link.phone))return {chat_id:chat,text:card('📱 Telefon mos kelmadi',['Pastdagi tugma orqali o‘z raqamingizni ulashing. U bemor kartasidagi raqam bilan bir xil bo‘lishi kerak. Raqam o‘zgargan bo‘lsa, logopedga ayting.']),parse_mode:'HTML',reply_markup:contactKeyboard};
+   await db.prepare('UPDATE patients SET phone=? WHERE id=?').run(phone,link.patient_id);
+   await db.prepare('UPDATE patient_telegram SET chat_id=?,username=?,verified_phone=?,token_hash=NULL,expires=0 WHERE patient_id=?').run(chat,m.from.username||'',phone,link.patient_id);
+   await db.prepare('DELETE FROM telegram_contact_pending WHERE patient_id=?').run(link.patient_id);
+   return connected();
+  }
   const match=(m.text||'').match(/^\/start(?:@\w+)? ([A-Za-z0-9_-]{32})\s*$/);if(!match)return telegramMenu(db,{chat,username:m.from.username,text:m.text||'',now:now()});
-  const link=await db.prepare('SELECT t.patient_id,p.telegram FROM patient_telegram t JOIN patients p ON p.id=t.patient_id JOIN users u ON u.id=p.user_id WHERE t.token_hash=? AND t.expires>? AND u.disabled=0').get(hash(match[1]),now());
+  const link=await db.prepare('SELECT t.patient_id,t.expires,p.telegram,p.phone FROM patient_telegram t JOIN patients p ON p.id=t.patient_id JOIN users u ON u.id=p.user_id WHERE t.token_hash=? AND t.expires>? AND u.disabled=0').get(hash(match[1]),now());
   if(!link)return {chat_id:chat,text:card('🔗 Havola eskirgan',['Logopeddan yangi ulash havolasini oling.']),parse_mode:'HTML'};
+  if(normalizePhone(link.phone)){
+   await db.prepare('INSERT INTO telegram_contact_pending(chat_id,patient_id,token_hash,expires) VALUES(?,?,?,?) ON CONFLICT(chat_id) DO UPDATE SET patient_id=excluded.patient_id,token_hash=excluded.token_hash,expires=excluded.expires').run(chat,link.patient_id,hash(match[1]),Math.min(Number(link.expires),now()+15*60000));
+   return {chat_id:chat,text:card('📱 Telefoningizni tasdiqlang',['Kabinetni ulash uchun pastdagi <b>Telefon raqamni ulashish</b> tugmasini bosing. Faqat o‘z Telegram raqamingizni ulashing.'],'Tasdiqlash uchun 15 daqiqa. Bekor qilish: /stop'),parse_mode:'HTML',reply_markup:contactKeyboard};
+  }
   if(!m.from.username||m.from.username.toLowerCase()!==link.telegram.toLowerCase())return {chat_id:chat,text:card('🔗 Akkaunt mos kelmadi',['Bu Telegram akkaunti bemor kartasidagi username bilan mos emas. Logoped bilan bog‘laning.']),parse_mode:'HTML'};
   await db.prepare('UPDATE patient_telegram SET chat_id=?,username=?,token_hash=NULL,expires=0 WHERE patient_id=?').run(chat,m.from.username,link.patient_id);
   await db.prepare('DELETE FROM telegram_question_drafts WHERE chat_id=?').run(chat);
   return {chat_id:chat,text:card('✅ Kabinetingiz ulandi',['Natijalar, videolar va mashqlar endi shu yerda.'],'Kerakli bo‘limni pastdagi menyudan tanlang.'),parse_mode:'HTML',reply_markup:botKeyboard};
  }
  async function cleanFiles(){
+  await db.prepare('DELETE FROM telegram_contact_pending WHERE expires<?').run(now());
   // Remove orphaned files after patient/account deletion, allowing active uploads to finish.
   for(const name of await readdir(root).catch(()=>[])){
    if(!/^[a-f0-9-]{36}\.mp4$/.test(name))continue;
@@ -153,7 +174,7 @@ export function patientMedia(db,{token=process.env.TELEGRAM_BOT_TOKEN||'',direct
    const video=await db.transaction(async()=>{
     const v=await db.prepare(`SELECT v.*,t.chat_id FROM patient_videos v JOIN patient_telegram t ON t.patient_id=v.patient_id
      JOIN patients p ON p.id=v.patient_id AND p.user_id=v.owner_id JOIN users u ON u.id=v.owner_id
-     WHERE v.state='pending' AND t.chat_id IS NOT NULL AND lower(t.username)=lower(p.telegram) AND u.disabled=0 ORDER BY v.created_at LIMIT 1`).get();
+     WHERE v.state='pending' AND t.chat_id IS NOT NULL AND ${telegramAccess} AND u.disabled=0 ORDER BY v.created_at LIMIT 1`).get();
     if(v)await db.prepare("UPDATE patient_videos SET state='sending',updated_at=? WHERE id=?").run(now(),v.id);return v;
    });
    if(video){

@@ -8,7 +8,7 @@ test('Logoped can manage a patient, appointment, exercise and result',async({pag
   await page.screenshot({path:`artifacts/${testInfo.project.name}-dashboard.png`,fullPage:true});
   await page.getByRole('button',{name:'Bemor qo‘shish Yangi bemor kartasini oching'}).click();
   await page.getByLabel('Bemorning ism va familiyasi').fill('UI Test Bemor');
-  await page.getByLabel('Tug‘ilgan sana').fill('2020-05-12');await page.getByLabel('Telegram username').fill('@parent_test');
+  await page.getByLabel('Tug‘ilgan sana').fill('2020-05-12');await page.getByLabel('Telefon raqami').fill('+998901234567');
   await page.getByLabel('Ota-ona / vasiy').fill('UI Test Vasiy');
   await page.getByLabel('Telefon raqami').fill('+998901112233');
   await page.getByLabel('Ishlash yo‘nalishi').fill('R tovushi');

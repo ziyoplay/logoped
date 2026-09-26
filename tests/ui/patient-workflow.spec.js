@@ -17,9 +17,14 @@ test('Patient profile keeps result ownership and schedule uses patient rows',asy
  await page.getByLabel('Baho (0–100%)').fill('75');await page.getByRole('button',{name:'Saqlash',exact:true}).click();
  await expect(page.getByRole('dialog')).toHaveCount(0);
  const results=await (await page.request.get('/api/results')).json();expect(results[0].patient_id).toBe(patient.id);
- await page.getByLabel('Bemor yoki ota-onaning Telegram username’i').fill('@parent_test');
- await page.getByRole('button',{name:'Telegramni saqlash',exact:true}).click();await expect(page.getByText('@parent_test',{exact:true}).first()).toBeVisible();
- await page.getByRole('button',{name:'Telegram ulash havolasi',exact:true}).click();await expect(page.getByLabel('Bemor uchun Telegram ulash havolasi')).toHaveValue(/https:\/\/t.me\/nutq_test_bot\?start=/);
+ await expect(page.getByRole('button',{name:'Telegram ulash havolasi',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'Kartani tahrirlash'}).click();
+ await expect(page.getByRole('dialog').getByLabel(/Telegram username/)).toHaveCount(0);
+ await page.getByLabel('Telefon raqami').fill('+998 90 123 45 67');
+ await page.getByRole('dialog').getByRole('button',{name:'Saqlash',exact:true}).click();
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(page.locator('.telegram-connection')).toContainText('+998901234567',{timeout:10000});
+ await page.getByRole('button',{name:'Telegram ulash havolasi',exact:true}).click();await expect(page.getByLabel('Bemor uchun Telegram ulash havolasi')).toHaveValue(/https:\/\/t.me\/nutq_test_bot\?start=/);await expect(page.locator('.telegram-link')).toContainText('Telefon raqamni ulashish');
  await page.getByLabel('Video nomi').fill('Uyda talaffuz mashqi');await page.locator('input[type=file]').setInputFiles({name:'exercise.mp4',mimeType:'video/mp4',buffer:Buffer.from('000000186674797069736f6d0000000069736f6d6d703432','hex')});
  await page.getByRole('button',{name:'Videoni saqlash',exact:true}).click();await expect(page.getByText('Telegram ulanishini kutmoqda',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'artifacts/'+info.project.name+'-patient-video.png',fullPage:true});

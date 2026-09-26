@@ -1,0 +1,36 @@
+.parent-cabinet-link{display:none}
+.client-portal .parent-next{display:flex;align-items:center;justify-content:space-between;gap:20px;border-color:var(--accent);margin-bottom:18px}
+.parent-next h2{margin:10px 0}
+.parent-next p{margin:0;color:var(--muted)}
+.parent-next .button{flex-shrink:0;text-decoration:none}
+.parent-sections{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.client-portal section[id]{scroll-margin-top:20px}
+.client-portal .client-password{padding:20px 25px;margin-bottom:24px}
+.client-password summary{cursor:pointer;min-height:32px;align-content:center;font-weight:700}
+.client-password[open] summary{margin-bottom:16px}
+@media(max-width:720px){
+ .public-site .public-header{padding-bottom:12px}
+ .public-site .public-header nav{display:none}
+ .public-site .public-hero{padding-top:28px;gap:16px}
+ .public-site .public-hero-copy>p{font-size:16px;line-height:1.6}
+ .public-site .public-hero .public-cta-row{gap:10px;margin-top:20px}
+ .public-site .parent-cabinet-link{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;padding:12px 18px;border:1px solid var(--pub-line);border-radius:14px;color:var(--pub-text);text-decoration:none;font-weight:700}
+ .public-site .public-speech{min-height:138px;max-width:260px;padding:0 10px;gap:14px}
+ .public-site .public-speech .bubble-mint{height:100px;width:108px;border-radius:30px 30px 8px 30px}
+ .public-site .public-speech .bubble-purple{height:95px;width:115px;border-radius:30px 30px 30px 8px;margin-top:12px}
+ .public-site .public-speech .bubble-mint>span{font-size:54px}
+ .public-site .public-speech .bubble-purple>span{font-size:46px}
+ .public-site .public-speech .speech-caption{display:none}
+ .public-site .public-services{padding-top:22px}
+ .public-site .service-symbol{margin-bottom:10px}
+ .public-site .public-service-grid article{padding:18px 0}
+ .public-site .public-service-grid p{font-size:15px;line-height:1.6}
+ .client-portal .portal-heading{padding:18px 0}
+ .client-portal .parent-next{display:block;padding:20px}
+ .parent-next .button{display:flex;margin-top:16px;min-height:48px}
+ .parent-next h2{font-size:23px}
+ .parent-sections{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .parent-sections .button{min-height:48px;padding:10px 8px;font-size:14px}
+ .client-portal .portal-item p{font-size:16px;line-height:1.65}
+ .client-portal .client-password{padding:18px 20px}
+}

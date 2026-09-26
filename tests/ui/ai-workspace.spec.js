@@ -5,7 +5,7 @@ test('Separate AI page chats, reviews patient and appointment drafts before savi
  await page.route('**/api/ai/chat',route=>{
   calls++;const input=route.request().postDataJSON();expect(Object.keys(input).sort()).toEqual(['messages','mode','scheduleDate']);
   if(failNext){failNext=false;return route.fulfill({status:503,json:{error:'Vaqtinchalik sinov xatosi'}});}
-  const draft=input.mode==='patient'?{table:'patients',values:{name:'AI Sinov Bemor',birth_date:'2020-05-15',guardian:'Sinov',phone:'',telegram:'sinov_parent',focus:'R',notes:''}}:input.mode==='appointment'?{table:'appointments',values:{date:'2099-01-02',time:'16:00',duration:45,title:'AI Sinov Qabul',notes:''}}:null;
+  const draft=input.mode==='patient'?{table:'patients',values:{name:'AI Sinov Bemor',birth_date:'2020-05-15',guardian:'Sinov',phone:'+998901234567',focus:'R',notes:''}}:input.mode==='appointment'?{table:'appointments',values:{date:'2099-01-02',time:'16:00',duration:45,title:'AI Sinov Qabul',notes:''}}:null;
   return route.fulfill({json:{reply:input.mode==='chat'?'Salom! Kunlik rejangizni birga tuzamiz.':'Loyihani tekshirib saqlang.',draft}});
  });
  await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();

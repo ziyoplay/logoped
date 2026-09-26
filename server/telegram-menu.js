@@ -1,13 +1,14 @@
+import {telegramAccess} from './telegram-access.js';
 import {card,html,videoCaption} from './telegram-text.js';
 export const botKeyboard={keyboard:[[{text:'📊 Natijalarim'},{text:'🎬 Videolarim'}],[{text:'📅 Keyingi qabul'},{text:'📝 Mashqlarim'}],[{text:'ℹ️ Yordam'}]],resize_keyboard:true};
 const clip=(value,length=180)=>String(value||'').slice(0,length);
 const access=`JOIN patients p ON p.id=t.patient_id JOIN users u ON u.id=p.user_id
- WHERE t.chat_id=? AND lower(t.username)=lower(?) AND lower(p.telegram)=lower(t.username) AND u.disabled=0`;
+ WHERE t.chat_id=? AND (t.verified_phone<>'' OR lower(t.username)=lower(?)) AND ${telegramAccess} AND u.disabled=0`;
 export async function telegramMenu(db,{chat,username,text,now}){
  const params=[chat,username||''];
  const reply=(text,extra={})=>({chat_id:chat,text,parse_mode:'HTML',protect_content:true,reply_markup:botKeyboard,...extra});
  const linked=await db.prepare('SELECT p.id FROM patient_telegram t '+access+' LIMIT 1').get(...params);
- if(!linked)return reply(card('🌿 Nutq · Shaxsiy kabinetingiz',['Assalomu alaykum! Natija va videolaringizni ko‘rish uchun logopeddan shaxsiy ulash havolasini oling va shu havolada <b>Start</b> bosing.']),{reply_markup:{remove_keyboard:true}});
+ if(!linked)return reply(card('🌿 Nutq · Shaxsiy kabinetingiz',['Assalomu alaykum! Natija va videolaringizni ko‘rish uchun logopeddan shaxsiy ulash havolasini oling va shu havolada <b>Start</b> bosing. Keyin o‘z telefon raqamingizni tugma orqali ulashing.']),{reply_markup:{remove_keyboard:true}});
  const command=text.replace(/^\/(\w+)@\w+/, '/$1').trim();
  if(command==='/natijalar'||command==='📊 Natijalarim'){
   const rows=await db.prepare(`SELECT p.name,r.date,r.score,r.notes,e.title FROM patient_telegram t

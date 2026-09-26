@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createApp} from '../server/app.js';
 
-const patient={name:'Test Bola',birth_date:'2020-01-01',guardian:'Test Parent',phone:'+998901234567',telegram:'test_parent',focus:'R',notes:'Private clinical note'};
+const patient={name:'Test Bola',birth_date:'2020-01-01',guardian:'Test Parent',phone:'+998901234567',focus:'R',notes:'Private clinical note'};
 const draft={date:'2099-01-02',time:'10:00',duration:45,title:'Individual mashg‘ulot',notes:''};
 async function fixture(){
  let output={reply:'Salom! Sizga qanday yordam beray?',draft:null};const calls=[];

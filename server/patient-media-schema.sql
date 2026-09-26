@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS patient_telegram (
  patient_id TEXT PRIMARY KEY REFERENCES patients(id) ON DELETE CASCADE,
  chat_id TEXT, token_hash TEXT UNIQUE, expires BIGINT NOT NULL DEFAULT 0,
- username TEXT NOT NULL DEFAULT ''
+ username TEXT NOT NULL DEFAULT '', verified_phone TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS patient_videos (
  id TEXT PRIMARY KEY,
@@ -31,4 +31,10 @@ CREATE TABLE IF NOT EXISTS telegram_question_drafts (
  chat_id TEXT PRIMARY KEY,
  patient_id TEXT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
  expires BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS telegram_contact_pending (
+ chat_id TEXT PRIMARY KEY,
+ patient_id TEXT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+ token_hash TEXT NOT NULL, expires BIGINT NOT NULL
 );

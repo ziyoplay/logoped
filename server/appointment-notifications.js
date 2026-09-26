@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {telegramAccess} from './telegram-access.js';
 import {html,card} from './telegram-text.js';
 
 const fields=['patient_id','date','time','duration','title','status'];
@@ -24,7 +25,7 @@ export async function deliverAppointmentNotification(db,call,now=Date.now()){
   const row=await db.prepare(`SELECT n.*,t.chat_id,p.name AS patient_name FROM appointment_notifications n
    JOIN patients p ON p.id=n.patient_id AND p.user_id=n.owner_id
    JOIN patient_telegram t ON t.patient_id=p.id JOIN users u ON u.id=n.owner_id
-   WHERE n.state='pending' AND t.chat_id IS NOT NULL AND lower(t.username)=lower(p.telegram) AND u.disabled=0
+   WHERE n.state='pending' AND t.chat_id IS NOT NULL AND ${telegramAccess} AND u.disabled=0
    ORDER BY n.updated_at LIMIT 1`).get();
   if(row)await db.prepare("UPDATE appointment_notifications SET state='sending',updated_at=? WHERE id=?").run(now,row.id);
   return row;
