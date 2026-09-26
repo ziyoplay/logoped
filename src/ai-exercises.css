@@ -1,0 +1,11 @@
+.ai-exercises{padding:24px;margin-bottom:24px}
+.ai-exercises .section-heading{margin-bottom:0;gap:16px;flex-wrap:wrap}
+.ai-exercises h2{display:flex;align-items:center;gap:8px}
+.ai-exercises #ai-exercise-content{margin-top:20px}
+.ai-exercises p{line-height:1.65}
+.ai-parameters{border:0;padding:0;margin:20px 0 0;min-width:0}
+.ai-draft{border-top:1px solid var(--line);margin-top:24px;padding-top:20px}
+.ai-review{display:flex;align-items:flex-start;gap:10px;line-height:1.5;margin:16px 0}
+.ai-review input{width:18px;height:18px;flex-shrink:0;margin-top:3px}
+.ai-actions{display:flex;flex-wrap:wrap;gap:12px}
+@media(max-width:700px){.ai-exercises{padding:18px}.ai-exercises .section-heading>.button,.ai-actions>.button{width:100%;justify-content:center}.ai-exercises input,.ai-exercises select,.ai-exercises textarea{font-size:16px}.ai-exercises .form-grid{grid-template-columns:1fr}}

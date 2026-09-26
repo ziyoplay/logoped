@@ -2,8 +2,8 @@ export class ApiError extends Error {
   status:number;
   constructor(message:string,status=0){super(message);this.name='ApiError';this.status=status;}
 }
-export async function api<T=unknown>(url:string,options:RequestInit={}):Promise<T>{
-  let res:Response,body:string;const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),20000);
+export async function api<T=unknown>(url:string,options:RequestInit={},timeoutMs=20000):Promise<T>{
+  let res:Response,body:string;const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeoutMs);
   try{
     // A previous static deployment may have cached HTML under an API URL.
     // Always read session and application data from the current server.

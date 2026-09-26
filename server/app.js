@@ -12,6 +12,7 @@ import {patientMedia} from './patient-media.js';
 import {googleCalendar} from './google-calendar.js';
 import {appointmentChanged} from './appointment-notifications.js';
 import {mountExerciseCatalog} from './exercise-catalog.js';
+import {mountAiExercises} from './ai-exercises.js';
 import { mountTeam, admin, audit, tokenHash } from './team.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const text = (max = 200) => z.string().trim().min(1).max(max);
@@ -36,7 +37,7 @@ const avatarSchema = z.string().max(150000).refine(value => {
 }, 'JPEG rasm tanlang');
 const profileSchema = z.object({ name: text(100).optional(), clinic: text(150).optional(), specialty: text(100).optional(), phone: z.string().trim().max(30).optional(), address: z.string().trim().max(200).optional(), bio: z.string().trim().max(1000).optional(), experience_years: z.number().int().min(0).max(80).nullable().optional(), accent: z.enum(['green', 'blue', 'plum', 'orange']).optional(), avatar: avatarSchema.optional() }).strict().refine(v => Object.keys(v).length > 0);
 function fail(status, message) { const e = new Error(message); e.status = status; throw e; }
-export function createApp({ filename = process.env.DATABASE_PATH || path.join(root, 'data', 'nutq.sqlite'), secure = process.env.COOKIE_SECURE === 'true', teamMode = false, database, mediaOptions, calendarOptions } = {}) {
+export function createApp({ filename = process.env.DATABASE_PATH || path.join(root, 'data', 'nutq.sqlite'), secure = process.env.COOKIE_SECURE === 'true', teamMode = false, database, mediaOptions, calendarOptions, aiOptions } = {}) {
     const db = database || sqliteStorage(openDatabase(filename));
     const transaction = work => db.transaction(work);
     const app = express();
@@ -133,6 +134,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
     const media=patientMedia(db,mediaOptions);media.mount(app);app.locals.media=media;
     calendar.mount(app);
     mountExerciseCatalog(app,db);
+    mountAiExercises(app,aiOptions);
     if (teamMode)
         mountTeam(app, db);
     app.get('/api/backup-status', (req, res) => { admin(req); res.json(app.locals.backups?.status() || { lastSuccess: null, lastError: 'Avtomatik zaxira xizmati ishga tushmagan.', running: false }); });
