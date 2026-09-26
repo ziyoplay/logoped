@@ -25,6 +25,7 @@ test('AI only sends validated generic fields and returns an unsaved, editable dr
   const r=await f.request('/ai/exercise-draft',{cookie,method:'POST',body:input});assert.equal(r.status,200);
   assert.deepEqual(await r.json(),{draft:{...draft,category:'Talaffuz',duration:5}});
   assert.deepEqual(JSON.parse(JSON.parse(calls[0].options.body).contents[0].parts[0].text),input);
+  assert.equal(JSON.parse(calls[0].options.body).generationConfig.responseFormat.text.mimeType,'APPLICATION_JSON','REST requires the protobuf MIME enum, not the SDK MIME string');
   assert.equal(calls[0].options.headers['x-goog-api-key'],'private-test-key');assert.ok(!calls[0].url.includes('private-test-key'));
   assert.deepEqual(await (await f.request('/exercises',{cookie})).json(),[]);
   const user=await f.db.prepare('SELECT id FROM users WHERE email=?').get('ai@example.test');

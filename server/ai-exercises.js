@@ -29,7 +29,8 @@ export function mountAiExercises(app,{key=process.env.GEMINI_API_KEY||'',model=p
     body:JSON.stringify({
      systemInstruction:{parts:[{text:'Siz o‘zbek tilida (lotin yozuvida) logoped uchun qisqa mashq LOYIHASINI tayyorlaysiz. Logoped tekshirishi va moslashtirishi shart. Tashxis, davolash kafolati, dori, og‘izga buyum solish, mexanik manipulyatsiya, nafasni ushlab turish yoki yutish mashqlarini taklif qilmang. Faqat yoshga mos, kattalar kuzatuvidagi oddiy nutq, tinglash va so‘zli o‘yinlar. Tovushni avtomatik qo‘yishga urinmang. Tovush mavjud deb olinadigan mustahkamlash bosqichini logoped baholaydi. So‘z misollari tanlangan tovushni o‘z ichiga olsin. Mashq ko‘rsatmasida maqsad, kerakli jihozlar, 3–5 aniq qadam, mos so‘z misollari va kuzatuv mezoni bo‘lsin. Noqulaylik bo‘lsa mashqni to‘xtatish va logoped bilan moslashtirishni eslating. Manba, tadqiqot va natijalarni uydirmang.'}]},
      contents:[{role:'user',parts:[{text:JSON.stringify(input)}]}],
-     generationConfig:{maxOutputTokens:3072,responseFormat:{text:{mimeType:'application/json',schema:{type:'object',properties:{title:{type:'string'},instructions:{type:'string'}},required:['title','instructions'],additionalProperties:false}}}},
+     // REST uses the protobuf enum; the SDK's MIME string is rejected here.
+     generationConfig:{maxOutputTokens:3072,responseFormat:{text:{mimeType:'APPLICATION_JSON',schema:{type:'object',properties:{title:{type:'string'},instructions:{type:'string'}},required:['title','instructions'],additionalProperties:false}}}},
     }),
    });
   }catch{fail(503,'Gemini vaqtida javob bermadi. Birozdan keyin qayta urinib ko‘ring.');}
