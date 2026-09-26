@@ -56,11 +56,11 @@ export function mountClients(app,db,{passwordHash}) {
  });
  app.get('/api/client/overview',async(req,res)=>{
   if(req.user.role!=='client')fail(403,'Bu bo‘lim klientlar uchun.');
-  const link=await db.prepare('SELECT c.patient_id,c.owner_id,p.name FROM client_accounts c JOIN patients p ON p.id=c.patient_id AND p.user_id=c.owner_id JOIN users owner ON owner.id=c.owner_id WHERE c.user_id=? AND owner.disabled=0').get(req.user.id);
+  const link=await db.prepare('SELECT c.patient_id,c.owner_id,p.name,p.status FROM client_accounts c JOIN patients p ON p.id=c.patient_id AND p.user_id=c.owner_id JOIN users owner ON owner.id=c.owner_id WHERE c.user_id=? AND owner.disabled=0').get(req.user.id);
   if(!link)fail(403,'Kabinetga kirish yopilgan. Logoped bilan bog‘laning.');
   // Explicit columns exclude the logoped's private patient and appointment notes.
   const appointments=await db.prepare('SELECT id,date,time,duration,title,status FROM appointments WHERE patient_id=? AND user_id=? ORDER BY date DESC,time DESC').all(link.patient_id,link.owner_id);
   const results=await db.prepare('SELECT r.id,r.date,r.score,r.notes,e.title AS exercise_title FROM results r LEFT JOIN exercises e ON e.id=r.exercise_id WHERE r.patient_id=? AND r.user_id=? ORDER BY r.date DESC,r.rowid DESC').all(link.patient_id,link.owner_id);
-  res.json({patient:{name:link.name},appointments,results,exercises:await assignments(link.patient_id,link.owner_id)});
+  res.json({patient:{name:link.name,status:link.status},appointments,results,exercises:await assignments(link.patient_id,link.owner_id)});
  });
 }

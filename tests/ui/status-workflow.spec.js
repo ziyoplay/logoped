@@ -1,0 +1,28 @@
+import {test,expect} from '@playwright/test';
+test('Logoped finishes a session in one click and independently completes or reopens a patient course',async({page},info)=>{
+ await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+ await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tashkent'}).format(new Date());
+ const all=await (await page.request.get('/api/appointments')).json();const row=all.find(a=>a.date===today&&a.status==='scheduled');expect(row).toBeTruthy();
+ const patients=await (await page.request.get('/api/patients')).json();const patient=patients.find(p=>p.id===row.patient_id);
+ const finish=page.getByRole('button',{name:patient.name+' qabulini yakunlash',exact:true});await expect(finish).toContainText('Seansni yakunlash');await finish.click();
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:patient.name+' seansini rejaga qaytarish',exact:true})).toBeVisible();
+ expect((await (await page.request.get('/api/patients')).json()).find(p=>p.id===patient.id).status).toBe('active');
+ await page.screenshot({path:'artifacts/'+info.project.name+'-simple-workspace.png',fullPage:true});
+ await page.getByRole('button',{name:patient.name+' seansini rejaga qaytarish',exact:true}).click();await expect(finish).toBeVisible();
+ await finish.click();
+ await page.locator('.agenda').getByRole('button',{name:patient.name,exact:true}).click();
+ await page.getByRole('button',{name:'Davolashni yakunlash',exact:true}).click();
+ await expect(page.locator('.patient-course')).toContainText('Davolash yakunlangan');
+ const done=(await (await page.request.get('/api/patients')).json()).find(p=>p.id===patient.id);expect(done.status).toBe('completed');
+ await page.getByRole('button',{name:'Bemorlar ro‘yxati',exact:true}).click();
+ await expect(page.locator('tbody').getByText(patient.name,{exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Yakunlangan',exact:true}).click();
+ await page.locator('tbody').getByRole('button',{name:patient.name,exact:false}).first().click();
+ await expect(page.getByRole('button',{name:'Faol holatga qaytarish',exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'artifacts/'+info.project.name+'-completed-course.png',fullPage:true});
+ await page.getByRole('button',{name:'Faol holatga qaytarish',exact:true}).click();await expect(page.getByRole('button',{name:'Davolashni yakunlash',exact:true})).toBeVisible();
+ expect((await (await page.request.get('/api/appointments')).json()).find(a=>a.id===row.id).status).toBe('completed');
+});

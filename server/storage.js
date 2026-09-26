@@ -32,6 +32,13 @@ async function poolSchema(db,schema){
  await db.exec('CREATE SCHEMA IF NOT EXISTS "'+schema+'"');
  const sql=await readFile(new URL('./postgres.sql',import.meta.url),'utf8');await db.exec(sql);
  await db.exec("ALTER TABLE patients ADD COLUMN IF NOT EXISTS telegram TEXT NOT NULL DEFAULT ''");
+ const statusMigration=await db.prepare('SELECT version FROM schema_migrations WHERE version=6').get();
+ if(!statusMigration){
+  await db.exec("ALTER TABLE patients DROP CONSTRAINT IF EXISTS patients_status_check");
+  await db.exec("ALTER TABLE patients ADD CONSTRAINT patients_status_check CHECK(status IN ('active','completed','archived'))");
+  await db.prepare('INSERT INTO schema_migrations(version) VALUES(6) ON CONFLICT DO NOTHING').run();
+ }
+
  await db.exec(await readFile(new URL('./client-schema.sql',import.meta.url),'utf8'));
  await db.exec(await readFile(new URL('./patient-media-schema.sql',import.meta.url),'utf8'));
  await db.exec("ALTER TABLE patient_telegram ADD COLUMN IF NOT EXISTS verified_phone TEXT NOT NULL DEFAULT ''");

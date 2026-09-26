@@ -19,7 +19,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const text = (max = 200) => z.string().trim().min(1).max(max);
 const optionalText = (max = 2000) => z.string().trim().max(max).default('');
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => !isNaN(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v, 'Sana noto‘g‘ri');
-const patientSchema = z.object({ name: text(100), telegram: z.string().trim().max(80).default('').transform(v=>v.replace(/^https:\/\/t\.me\//i,'').replace(/^@/,'')).refine(v=>v===''||/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(v),'Telegram username noto‘g‘ri'), birth_date: date.refine(v => v <= new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tashkent' }).format(new Date()) && v >= '1900-01-01'), guardian: optionalText(100), phone: optionalText(30).refine(v=>!v||Boolean(normalizePhone(v)),'Telefon raqamini mamlakat kodi bilan kiriting').transform(v=>normalizePhone(v)), focus: optionalText(150), notes: optionalText(5000), status: z.enum(['active', 'archived']).default('active') });
+const patientSchema = z.object({ name: text(100), telegram: z.string().trim().max(80).default('').transform(v=>v.replace(/^https:\/\/t\.me\//i,'').replace(/^@/,'')).refine(v=>v===''||/^[A-Za-z][A-Za-z0-9_]{4,31}$/.test(v),'Telegram username noto‘g‘ri'), birth_date: date.refine(v => v <= new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tashkent' }).format(new Date()) && v >= '1900-01-01'), guardian: optionalText(100), phone: optionalText(30).refine(v=>!v||Boolean(normalizePhone(v)),'Telefon raqamini mamlakat kodi bilan kiriting').transform(v=>normalizePhone(v)), focus: optionalText(150), notes: optionalText(5000), status: z.enum(['active', 'completed', 'archived']).default('active') });
 const exerciseSchema = z.object({ title: text(150), category: z.enum(['Talaffuz', 'Artikulyatsiya', 'Nafas', 'Lug‘at', 'Boshqa']), duration: z.number().int().min(1).max(120), instructions: text(5000) });
 const appointmentSchema = z.object({ therapist_id: z.uuid().optional(), patient_id: z.uuid(), date, time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/), duration: z.number().int().min(5).max(240), title: text(150), status: z.enum(['scheduled', 'completed', 'cancelled']).default('scheduled'), notes: optionalText(5000) }).refine(v => minutes(v.time) + v.duration <= 1440, 'Qabul bir kun ichida tugashi kerak');
 const resultSchema = z.object({ patient_id: z.uuid(), exercise_id: z.uuid().nullable().default(null), date, score: z.number().int().min(0).max(100), notes: optionalText(5000) });
@@ -191,6 +191,22 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
         }
     }
     for (const [table, schema] of Object.entries(tables)) {
+        if(table==='patients'||table==='appointments')app.patch('/api/'+table+'/:id/status',async(req,res)=>{
+            const allowed=table==='patients'?['active','completed','archived']:['scheduled','completed','cancelled'];
+            const v=z.object({status:z.enum(allowed)}).strict().parse(req.body);
+            const row=await transaction(async()=>{
+                await owned(table,req.params.id,req.ownerId);
+                const current=await db.prepare('SELECT * FROM '+table+' WHERE id=?').get(req.params.id);
+                if(req.get('If-Match')!==String(current.revision))fail(409,'Holat boshqa qurilmada yangilangan. Ro‘yxatni yangilab qayta urinib ko‘ring.');
+                if(table==='appointments'&&v.status==='scheduled')await validateRefs(table,{...current,status:v.status},req.ownerId,current.id,req);
+                if(current.status===v.status)return current;
+                await db.prepare('UPDATE '+table+' SET status=?,revision=revision+1,updated_by=? WHERE id=? AND user_id=?').run(v.status,req.user.id,current.id,req.ownerId);
+                await audit(db,req,'update_status',table,current.id);
+                const saved=await db.prepare('SELECT * FROM '+table+' WHERE id=?').get(current.id);
+                if(table==='appointments')await appointmentChanged(db,current,saved);
+                return saved;
+            });res.json(row);
+        });
         app.get('/api/' + table, async (req, res) => res.json(await db.prepare('SELECT * FROM ' + table + ' WHERE user_id=? ORDER BY rowid DESC').all(req.ownerId)));
         app.post('/api/' + table, async (req, res) => {
             const row = await transaction(async () => {

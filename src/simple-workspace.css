@@ -1,0 +1,50 @@
+/* Lead with the day's work, with the same calm palette as the rest of the clinic. */
+.daily-workspace{display:flex;flex-direction:column;gap:24px}
+.daily-workspace>.page-heading{order:0;margin-bottom:0}
+.daily-heading-actions{display:flex;gap:10px;flex-wrap:wrap}
+.daily-heading-actions .button{min-height:46px}
+.daily-workspace>.dashboard-grid{order:1;margin:0}
+.daily-workspace>.stats{order:2;grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
+.daily-workspace>.progress-panel{order:3;margin:0}
+.daily-workspace .dashboard-side{align-self:start}
+.daily-workspace .compact-panel{margin:0}
+.appointment .row-actions{flex-wrap:wrap;justify-content:flex-end;max-width:245px}
+.appointment .finish-session{min-height:44px;padding:10px 13px;font-size:13px;white-space:nowrap}
+.daily-agenda{margin-bottom:24px}
+.patient-course{padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:20px}
+.patient-course>strong{display:block;color:var(--accent)}
+.patient-course p{font-size:14px;line-height:1.6;margin:10px 0 16px;color:var(--muted)}
+.patient-course .button{width:100%;min-height:48px}
+.simple-parent .portal-grid{display:block}
+.simple-parent .portal-grid>div{display:contents}
+.simple-parent section[hidden]{display:none}
+.simple-parent .parent-sections .button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.simple-parent .parent-sections .button{min-height:48px}
+.parent-course-done{padding:18px 20px;background:var(--panel-soft);border-left:3px solid var(--accent);border-radius:8px;margin:0 0 20px}
+.parent-course-done strong,.parent-course-done span{display:block}
+.parent-course-done span{margin-top:6px;font-size:14px;color:var(--muted)}
+@media(max-width:720px){
+ .daily-workspace{gap:18px}
+ .daily-heading-actions{width:100%}
+ .daily-heading-actions .button{flex:1;padding:12px;font-size:13px}
+ .daily-workspace .page-heading{flex-direction:column}
+ .daily-workspace .dashboard-grid{display:flex;flex-direction:column;gap:18px}
+ .daily-workspace .dashboard-side{width:100%}
+ .daily-workspace .stats{gap:10px}
+ .daily-workspace .stat{padding:16px}
+ .daily-workspace .stat strong{font-size:28px}
+ .daily-workspace .stat small{font-size:12px}
+ .agenda .appointment{display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;padding:16px}
+ .agenda .appointment .row-actions{flex-direction:row;grid-column:2;max-width:none;justify-content:flex-start;gap:10px}
+ .agenda .appointment .row-actions .text-button{min-height:44px}
+ .agenda .appointment .appointment-head{align-items:flex-start;flex-wrap:wrap;gap:8px}
+ .agenda .appointment .appointment-main{min-width:0}
+ .agenda .appointment .name-link{overflow-wrap:anywhere;text-align:left}
+ .toolbar>.tabs{flex-wrap:wrap;gap:4px;max-width:100%}
+ .toolbar>.tabs button{flex:1;min-height:44px;padding:9px 12px}
+ .simple-parent .portal-heading h1{font-size:28px;line-height:1.25;overflow-wrap:anywhere}
+ .simple-parent .parent-sections{position:sticky;top:0;z-index:2;background:var(--page-soft);padding:10px 0;margin-bottom:12px}
+ .simple-parent .parent-sections .button{border-radius:12px}
+ .simple-parent .client-refresh{justify-content:space-between;gap:10px}
+ .simple-parent .client-refresh .text-button{min-height:44px}
+}

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS sessions(token text PRIMARY KEY,user_id text NOT NULL
 CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires);
 CREATE TABLE IF NOT EXISTS patients(
  id text PRIMARY KEY,user_id text NOT NULL REFERENCES users(id) ON DELETE CASCADE,
- name text NOT NULL,birth_date text NOT NULL,guardian text NOT NULL DEFAULT '',phone text NOT NULL DEFAULT '',focus text NOT NULL DEFAULT '',notes text NOT NULL DEFAULT '',status text NOT NULL DEFAULT 'active' CHECK(status IN ('active','archived')),
+ name text NOT NULL,birth_date text NOT NULL,guardian text NOT NULL DEFAULT '',phone text NOT NULL DEFAULT '',focus text NOT NULL DEFAULT '',notes text NOT NULL DEFAULT '',status text NOT NULL DEFAULT 'active' CONSTRAINT patients_status_check CHECK(status IN ('active','completed','archived')),
  created_at text NOT NULL DEFAULT to_char(CURRENT_TIMESTAMP AT TIME ZONE 'UTC','YYYY-MM-DD HH24:MI:SS'),
  revision integer NOT NULL DEFAULT 0,updated_by text,created_order bigint GENERATED ALWAYS AS IDENTITY, UNIQUE(id,user_id)
 );
