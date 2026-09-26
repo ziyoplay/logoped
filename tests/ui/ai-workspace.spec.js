@@ -1,0 +1,41 @@
+import {test,expect} from '@playwright/test';
+test('Separate AI page chats, reviews patient and appointment drafts before saving',async({page},testInfo)=>{
+ let calls=0;let failNext=false;
+ await page.route('**/api/ai/status',route=>route.fulfill({json:{available:true,configured:true,demo:false}}));
+ await page.route('**/api/ai/chat',route=>{
+  calls++;const input=route.request().postDataJSON();expect(Object.keys(input).sort()).toEqual(['messages','mode','scheduleDate']);
+  if(failNext){failNext=false;return route.fulfill({status:503,json:{error:'Vaqtinchalik sinov xatosi'}});}
+  const draft=input.mode==='patient'?{table:'patients',values:{name:'AI Sinov Bemor',birth_date:'2020-05-15',guardian:'Sinov',phone:'',telegram:'sinov_parent',focus:'R',notes:''}}:input.mode==='appointment'?{table:'appointments',values:{date:'2099-01-02',time:'16:00',duration:45,title:'AI Sinov Qabul',notes:''}}:null;
+  return route.fulfill({json:{reply:input.mode==='chat'?'Salom! Kunlik rejangizni birga tuzamiz.':'Loyihani tekshirib saqlang.',draft}});
+ });
+ await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+ if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
+ await page.locator('nav').getByRole('button',{name:'Mashqlar kutubxonasi'}).click();
+ await expect(page.getByRole('button',{name:'AI bilan mashq tayyorlash'})).toHaveCount(0);
+ if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
+ await page.locator('nav').getByRole('button',{name:'AI',exact:true}).click();
+ await page.getByRole('textbox',{name:'AI’ga xabar',exact:true}).fill('Salom');await page.getByRole('button',{name:'Xabarni yuborish'}).click();
+ await expect(page.getByText('Salom! Kunlik rejangizni birga tuzamiz.',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Bemor qo‘shish',exact:true}).click();
+ await page.getByRole('textbox',{name:'AI’ga xabar',exact:true}).fill('Sinov bemor kartasini tayyorla');await page.getByRole('button',{name:'Xabarni yuborish'}).click();
+ await page.getByRole('button',{name:'Tekshirish va saqlash'}).click();
+ const dialog=page.getByRole('dialog');await expect(dialog.getByLabel('Bemorning ism va familiyasi *')).toHaveValue('AI Sinov Bemor');
+ expect((await (await page.request.get('/api/patients')).json()).some(p=>p.name==='AI Sinov Bemor')).toBe(false);
+ await dialog.getByLabel('Bemorning ism va familiyasi *').fill('Tekshirilgan AI Bemor');await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();await expect(dialog).not.toBeVisible();
+ await expect(page.getByRole('button',{name:'Saqlandi',exact:true})).toBeDisabled();
+ expect((await (await page.request.get('/api/patients')).json()).some(p=>p.name==='Tekshirilgan AI Bemor')).toBe(true);
+ await page.getByRole('button',{name:'Qabul rejalashtirish',exact:true}).click();
+ await page.getByLabel('Jadval sanasi',{exact:true}).fill('2099-01-02');
+ await page.getByRole('textbox',{name:'AI’ga xabar',exact:true}).fill('16:00 ga 45 daqiqa qabul');await page.getByRole('button',{name:'Xabarni yuborish'}).click();
+ await page.getByRole('button',{name:'Tekshirish va saqlash'}).click();
+ await expect(dialog.getByLabel('Sana *',{exact:true})).toHaveValue('2099-01-02');
+ await expect(dialog.getByLabel('Vaqt (Toshkent) *')).toHaveValue('16:00');
+ await dialog.getByRole('button',{name:'Bemor *',exact:true}).click();await dialog.getByRole('option').filter({hasText:'Tekshirilgan AI Bemor'}).click();
+ await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();await expect(dialog).not.toBeVisible();
+ expect((await (await page.request.get('/api/appointments')).json()).filter(a=>a.title==='AI Sinov Qabul')).toHaveLength(1);
+ await page.getByRole('button',{name:'Suhbat',exact:true}).click();await expect(page.getByText('Salom! Kunlik rejangizni birga tuzamiz.',{exact:true})).toBeVisible();
+ failNext=true;await page.getByRole('textbox',{name:'AI’ga xabar',exact:true}).fill('Qayta urinish');await page.getByRole('button',{name:'Xabarni yuborish'}).click();await expect(page.getByRole('alert')).toContainText('Vaqtinchalik sinov xatosi');
+ await expect(page.getByRole('textbox',{name:'AI’ga xabar',exact:true})).toHaveValue('Qayta urinish');expect(calls).toBe(4);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:`artifacts/${testInfo.project.name}-ai-workspace.png`});
+});

@@ -47,7 +47,7 @@ test('AI has useful missing-key, quota, provider and invalid-output failures wit
    [()=>Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:'{"title":"only"}'}]}}]}),502],
   ]){response=factory;const r=await f.request('/ai/exercise-draft',{cookie,method:'POST',body:input});assert.equal(r.status,status);assert.ok(!(await r.text()).includes('secret-fixture'));}
   response=ok;
-  for(let i=0;i<5;i++)assert.equal((await f.request('/ai/exercise-draft',{cookie,method:'POST',body:input})).status,200);
+  for(let i=0;i<25;i++)assert.equal((await f.request('/ai/exercise-draft',{cookie,method:'POST',body:input})).status,200);
   assert.equal((await f.request('/ai/exercise-draft',{cookie,method:'POST',body:input})).status,429);
  }finally{await f.close();}
  const missing=await fixture({key:''});try{const cookie=await missing.login();assert.equal((await (await missing.request('/ai/status',{cookie})).json()).available,false);assert.equal((await missing.request('/ai/exercise-draft',{cookie,method:'POST',body:input})).status,503);}finally{await missing.close();}

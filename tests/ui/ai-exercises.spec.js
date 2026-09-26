@@ -5,7 +5,8 @@ test('AI draft stays editable and unsaved until logoped review',async({page},tes
  await page.route('**/api/ai/exercise-draft',route=>{generates++;expect(route.request().postDataJSON()).toEqual({age:5,sound:'r',goal:'Tovushni eshitib farqlash',duration:5});return route.fulfill({json:{draft:{title:'AI sinov mashqi',category:'Talaffuz',duration:5,instructions:'Logoped tekshiradigan sinov ko‘rsatmasi. Bu haqiqiy Gemini javobi emas.'}}});});
  await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
- await page.locator('nav').getByRole('button',{name:'Mashqlar kutubxonasi'}).click();
+ await page.locator('nav').getByRole('button',{name:'AI',exact:true}).click();
+ await page.getByRole('button',{name:'Mashq tayyorlash',exact:true}).click();
  await page.getByRole('button',{name:'AI bilan mashq tayyorlash'}).click();
  await page.getByRole('button',{name:'Mashq loyihasini tayyorlash'}).click();
  const editor=page.getByRole('form',{name:'AI mashq loyihasi'});await expect(editor).toBeVisible();
@@ -16,11 +17,12 @@ test('AI draft stays editable and unsaved until logoped review',async({page},tes
  await page.screenshot({path:`artifacts/${testInfo.project.name}-ai-draft.png`,fullPage:true});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await editor.getByRole('checkbox').check();await save.click();await expect(page.getByText('Mashq kutubxonaga saqlandi.',{exact:true})).toBeVisible();
- await expect(page.getByRole('heading',{name:'Tekshirilgan mashq',exact:true})).toBeVisible();expect(generates).toBe(1);
+ expect((await (await page.request.get('/api/exercises')).json()).some(e=>e.title==='Tekshirilgan mashq')).toBe(true);expect(generates).toBe(1);
  await page.unroute('**/api/ai/status');
  await page.reload();
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
- await page.locator('nav').getByRole('button',{name:'Mashqlar kutubxonasi'}).click();
+ await page.locator('nav').getByRole('button',{name:'AI',exact:true}).click();
+ await page.getByRole('button',{name:'Mashq tayyorlash',exact:true}).click();
  await page.getByRole('button',{name:'AI bilan mashq tayyorlash'}).click();
  await expect(page.getByText('AI yordamchi shaxsiy logoped hisobida ishlaydi.',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Mashq loyihasini tayyorlash'})).toHaveCount(0);

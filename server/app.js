@@ -134,7 +134,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
     const media=patientMedia(db,mediaOptions);media.mount(app);app.locals.media=media;
     calendar.mount(app);
     mountExerciseCatalog(app,db);
-    mountAiExercises(app,aiOptions);
+    mountAiExercises(app,aiOptions,db);
     if (teamMode)
         mountTeam(app, db);
     app.get('/api/backup-status', (req, res) => { admin(req); res.json(app.locals.backups?.status() || { lastSuccess: null, lastError: 'Avtomatik zaxira xizmati ishga tushmagan.', running: false }); });
