@@ -8,7 +8,7 @@
 .daily-workspace>.progress-panel{order:3;margin:0}
 .daily-workspace .dashboard-side{align-self:start}
 .daily-workspace .compact-panel{margin:0}
-.appointment .row-actions{flex-wrap:wrap;justify-content:flex-end;max-width:245px}
+.appointment .row-actions{gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:245px}
 .appointment .finish-session{min-height:44px;padding:10px 13px;font-size:13px;white-space:nowrap}
 .daily-agenda{margin-bottom:24px}
 .patient-course{padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:20px}
