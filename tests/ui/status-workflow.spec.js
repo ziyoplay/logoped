@@ -1,18 +1,18 @@
 import {test,expect} from '@playwright/test';
 test('Logoped finishes a session in one click and independently completes or reopens a patient course',async({page},info)=>{
  await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
- await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tashkent'}).format(new Date());
  const all=await (await page.request.get('/api/appointments')).json();const row=all.find(a=>a.date===today&&a.status==='scheduled');expect(row).toBeTruthy();
  const patients=await (await page.request.get('/api/patients')).json();const patient=patients.find(p=>p.id===row.patient_id);
- const finish=page.getByRole('button',{name:patient.name+' qabulini yakunlash',exact:true});await expect(finish).toContainText('Seansni yakunlash');await finish.click();
+ const finish=page.getByRole('button',{name:patient.name+' qabulini yakunlash',exact:true});await expect(finish).toContainText('Seans tugadi');await finish.click();
  await expect(page.getByRole('dialog')).toHaveCount(0);
  await expect(page.getByRole('button',{name:patient.name+' seansini rejaga qaytarish',exact:true})).toBeVisible();
  expect((await (await page.request.get('/api/patients')).json()).find(p=>p.id===patient.id).status).toBe('active');
  await page.screenshot({path:'artifacts/'+info.project.name+'-simple-workspace.png',fullPage:true});
  await page.getByRole('button',{name:patient.name+' seansini rejaga qaytarish',exact:true}).click();await expect(finish).toBeVisible();
  await finish.click();
- await page.locator('.agenda').getByRole('button',{name:patient.name,exact:true}).click();
+ await page.locator('.session-confirmation').getByRole('button',{name:patient.name,exact:true}).click();
  await page.getByRole('button',{name:'Davolashni yakunlash',exact:true}).click();
  await expect(page.locator('.patient-course')).toContainText('Davolash yakunlangan');
  const done=(await (await page.request.get('/api/patients')).json()).find(p=>p.id===patient.id);expect(done.status).toBe('completed');
@@ -25,4 +25,30 @@ test('Logoped finishes a session in one click and independently completes or reo
  await page.screenshot({path:'artifacts/'+info.project.name+'-completed-course.png',fullPage:true});
  await page.getByRole('button',{name:'Faol holatga qaytarish',exact:true}).click();await expect(page.getByRole('button',{name:'Davolashni yakunlash',exact:true})).toBeVisible();
  expect((await (await page.request.get('/api/appointments')).json()).find(a=>a.id===row.id).status).toBe('completed');
+});
+
+test('Daily workspace keeps failed sessions pending and remembers completion after refresh',async({page},info)=>{
+ await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+ await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
+ const card=page.locator('.simple-session').first();
+ const patientName=await card.locator('.name-link').innerText();
+ const finish=card.getByRole('button',{name:patientName+' qabulini yakunlash',exact:true});
+ await page.route('**/api/appointments/*/status',route=>route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({error:'Yozuv yangilangan. Ro‘yxatni yangilang.'})}));
+ await finish.click();await expect(page.getByRole('alert')).toContainText('Yozuv yangilangan');
+ await expect(finish).toBeEnabled();await expect(page.locator('.session-confirmation')).toHaveCount(0);
+ await page.unroute('**/api/appointments/*/status');await finish.click();
+ await expect(page.locator('.session-confirmation')).toContainText(patientName);
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await page.locator('.session-confirmation').getByRole('button',{name:'Natija qo‘shish',exact:true}).click();
+ await expect(page.getByRole('dialog')).toBeVisible();
+ await expect(page.getByRole('dialog').getByRole('combobox',{name:'Bemor'})).toHaveCount(0);
+ await page.reload();await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
+ await expect(page.locator('.simple-session').getByRole('button',{name:patientName,exact:true})).toHaveCount(0);
+ const history=page.locator('.day-history').filter({hasText:'Yakunlangan seanslar'});
+ await history.locator('summary').click();await expect(history.getByRole('button',{name:patientName,exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Keyingi kun',exact:true}).click();await expect(page.getByRole('button',{name:'Bugun',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Bugun',exact:true}).click();await expect(page.getByRole('button',{name:'Bugun',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'Och mavzuga o‘tish'}).click();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'artifacts/'+info.project.name+'-daily-workspace-light.png',fullPage:true});
 });

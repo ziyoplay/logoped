@@ -34,7 +34,7 @@ test('Public home introduces services and client account opens a private portal'
  const staff=await page.request.post('/api/auth/register',{headers:{'X-Requested-With':'Nutq'},data:{name:'Portal Logoped',email:`staff-${suffix}@example.test`,password:'PortalStaff12345'}});expect(staff.status()).toBe(200);
  const patient=await page.request.post('/api/patients',{headers:{'X-Requested-With':'Nutq'},data:{name:'Portal Bemor',birth_date:'2020-01-01',guardian:'Portal Otaona',notes:'PRIVATE UI note'}});expect(patient.status()).toBe(201);
  const exercise=await page.request.post('/api/exercises',{headers:{'X-Requested-With':'Nutq'},data:{title:'Portal Mashq',category:'Talaffuz',duration:10,instructions:'Klient uchun tartib'}});expect(exercise.status()).toBe(201);
- await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Portal.'})).toBeVisible();
+ await page.reload();await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
  await page.locator('nav').getByRole('button',{name:/Bemorlar/}).click();await page.getByRole('button',{name:/Portal Bemor/}).first().click();
  await page.getByLabel('Klient emaili',{exact:true}).fill(`client-${suffix}@example.test`);

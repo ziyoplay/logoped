@@ -7,7 +7,7 @@ test('Patient profile keeps result ownership and schedule uses patient rows',asy
  const staff=await page.request.post('/api/auth/register',{headers:{'X-Requested-With':'Nutq'},data:{name:'Iroda Test',email:'feature-'+suffix+'@example.test',password:'FeaturePassword123'}});expect(staff.status()).toBe(200);
  const p=await page.request.post('/api/patients',{headers:{'X-Requested-With':'Nutq'},data:{name:'Ali Valiyev',birth_date:'2020-01-01',telegram:'',focus:'R tovushi'}});const patient=await p.json();
  const other=await page.request.post('/api/patients',{headers:{'X-Requested-With':'Nutq'},data:{name:'Malika Karimova',birth_date:'2019-01-01',telegram:'@other_parent',focus:'Lug‘at'}});expect(other.status()).toBe(201);
- await page.goto('/#kirish');await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Iroda.'})).toBeVisible();
+ await page.goto('/#kirish');await page.reload();await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
  if(info.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
  await page.locator('nav').getByRole('button',{name:/Bemorlar/}).click();await page.getByRole('button',{name:/Ali Valiyev/}).first().click();
  await expect(page.getByRole('heading',{name:'Bemor videolari'})).toBeVisible();

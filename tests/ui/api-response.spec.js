@@ -22,7 +22,7 @@ test('Bad API responses show a readable error, preserve public home and allow re
 });
 test('HTML returned by a save endpoint is not reported as a successful save',async({page})=>{
  await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
- await page.getByRole('button',{name:'Bemor qo‘shish Yangi bemor kartasini oching'}).click();
+ await page.getByRole('button',{name:'Bemor qo‘shish'}).click();
  await page.getByLabel('Bemorning ism va familiyasi').fill('HTML response test');
  await page.getByLabel('Tug‘ilgan sana').fill('2020-01-01');await page.getByLabel('Telefon raqami').fill('+998901234567');
  await page.route('**/api/patients',route=>route.request().method()==='POST'?route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html>Wrong route</html>'}):route.continue());

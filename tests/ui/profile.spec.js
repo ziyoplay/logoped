@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 test('Profile preview, photo, color and details save across reloads',async({page},testInfo)=>{
   await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
-  await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
   async function settings(){if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();await page.getByRole('button',{name:'Sozlamalar',exact:true}).click();}
   await settings();
   await page.getByLabel('Ism va familiya *',{exact:true}).fill('Malika Salimova');
@@ -17,7 +17,7 @@ test('Profile preview, photo, color and details save across reloads',async({page
   await expect(page.getByAltText('Tanlangan profil rasmi')).toBeVisible();
   await page.getByRole('button',{name:'Profilni saqlash',exact:true}).click();
   await expect(page.getByText('Barcha o‘zgarishlar saqlangan')).toBeVisible();
-  await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Malika.'})).toBeVisible();await settings();
+  await page.reload();await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();await settings();
   await expect(page.getByLabel('Mutaxassislik *',{exact:true})).toHaveValue('Logoped-defektolog');
   await expect(page.getByAltText('Tanlangan profil rasmi')).toHaveAttribute('src',/^data:image\/jpeg;base64,/);
   await expect(page.getByRole('button',{name:'Ko‘k',exact:true})).toHaveAttribute('aria-pressed','true');
@@ -27,6 +27,6 @@ test('Profile preview, photo, color and details save across reloads',async({page
   await page.screenshot({path:`artifacts/${testInfo.project.name}-profile.png`,fullPage:true});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.getByRole('button',{name:'Profil rasmini olib tashlash'}).click();await page.getByRole('button',{name:'Profilni saqlash',exact:true}).click();await expect(page.getByText('Barcha o‘zgarishlar saqlangan')).toBeVisible();
-  await page.reload();await expect(page.getByRole('heading',{name:'Assalomu alaykum, Malika.'})).toBeVisible();await settings();
+  await page.reload();await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();await settings();
   await expect(page.getByAltText('Tanlangan profil rasmi')).toHaveCount(0);
 });

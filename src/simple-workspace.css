@@ -1,4 +1,58 @@
 /* Lead with the day's work, with the same calm palette as the rest of the clinic. */
+.simple-day{max-width:1120px;margin:0 auto}
+.simple-day .page-heading h1{font-size:32px}
+.day-sessions{overflow:hidden;margin:0}
+.day-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px;border-bottom:1px solid var(--line)}
+.day-toolbar h2{font-size:21px;margin:0 0 7px}
+.day-toolbar p{margin:0;color:var(--muted);font-size:14px}
+.day-navigation{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.day-navigation button{min-width:44px;min-height:44px}
+.simple-session{display:grid;grid-template-columns:86px minmax(0,1fr) auto 40px;align-items:center;gap:18px;padding:24px 28px;border-bottom:1px solid var(--line)}
+.simple-session-time strong{display:block;font-size:23px;letter-spacing:-.5px}
+.simple-session-time span{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+.simple-session-person{min-width:0}
+.simple-session-person .name-link{font-size:19px;font-weight:800;text-align:left;overflow-wrap:anywhere;min-height:40px}
+.simple-session-person p{margin:5px 0 0;font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.simple-session .session-done{min-width:167px;min-height:54px;gap:9px;font-size:15px}
+.simple-session .session-edit{min-height:44px;min-width:40px;color:var(--muted)}
+.session-confirmation{margin:20px 24px;padding:20px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:14px;background:var(--tint)}
+.session-confirmation:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.session-confirmation-title{display:flex;align-items:center;gap:12px}
+.session-confirmation-title>svg{color:var(--accent);flex-shrink:0}
+.session-confirmation-title .name-link{font-size:18px;font-weight:800;text-align:left}
+.session-confirmation-title p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+.session-followups{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;margin-top:16px}
+.session-followups button{min-height:44px}
+.session-followups>button:last-child{margin-left:auto}
+.day-empty{text-align:center;padding:36px 24px;color:var(--muted)}
+.day-empty>svg{color:var(--accent)}
+.day-empty h3{color:var(--ink);margin:12px 0 8px;font-size:20px}
+.day-empty p{margin:0;font-size:14px}
+.day-history{border-bottom:1px solid var(--line)}
+.day-history summary{cursor:pointer;min-height:56px;padding:19px 28px;color:var(--muted);font-weight:700;font-size:14px}
+.day-history summary span{margin-left:8px}
+.day-history-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px 18px;padding:14px 28px;border-top:1px solid var(--line);font-size:14px}
+.day-history-row>.name-link{flex:1;min-width:120px;text-align:left}
+.day-history-row .text-button{min-height:44px}
+.day-calendar-link{display:flex;align-items:center;gap:10px;min-height:58px;padding:16px 28px;width:100%;justify-content:center}
+:root:not([data-theme="light"]) .session-confirmation{background:var(--panel-soft)}
+@media(max-width:720px){
+ .simple-day .page-heading h1{font-size:27px}
+ .day-toolbar{align-items:flex-start;flex-direction:column;gap:12px;padding:20px}
+ .day-toolbar h2{font-size:20px}
+ .day-navigation{width:100%;justify-content:space-between}
+ .simple-session{grid-template-columns:68px minmax(0,1fr) 38px;gap:10px 12px;padding:20px}
+ .simple-session-time strong{font-size:21px}
+ .simple-session-person .name-link{font-size:17px}
+ .simple-session .session-done{grid-column:1/-1;grid-row:2;width:100%;min-height:54px}
+ .simple-session .session-edit{grid-column:3;grid-row:1}
+ .session-confirmation{margin:16px;padding:16px}
+ .session-followups{gap:8px 16px}
+ .session-followups .button{width:100%}
+ .session-followups>button:last-child{margin-left:auto}
+ .day-history-row{padding:12px 20px;gap:8px 12px}
+ .day-history summary{padding-left:20px;padding-right:20px}
+}
 .daily-workspace{display:flex;flex-direction:column;gap:24px}
 .daily-workspace>.page-heading{order:0;margin-bottom:0}
 .daily-heading-actions{display:flex;gap:10px;flex-wrap:wrap}

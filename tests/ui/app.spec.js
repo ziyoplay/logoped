@@ -4,9 +4,9 @@ test('Logoped can manage a patient, appointment, exercise and result',async({pag
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/#kirish');
   await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
-  await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
   await page.screenshot({path:`artifacts/${testInfo.project.name}-dashboard.png`,fullPage:true});
-  await page.getByRole('button',{name:'Bemor qo‘shish Yangi bemor kartasini oching'}).click();
+  await page.getByRole('button',{name:'Bemor qo‘shish'}).click();
   await page.getByLabel('Bemorning ism va familiyasi').fill('UI Test Bemor');
   await page.getByLabel('Tug‘ilgan sana').fill('2020-05-12');await page.getByLabel('Telefon raqami').fill('+998901234567');
   await page.getByLabel('Ota-ona / vasiy').fill('UI Test Vasiy');
@@ -49,7 +49,7 @@ test('Logoped can manage a patient, appointment, exercise and result',async({pag
   await page.getByRole('button',{name:'Saqlash',exact:true}).click();
   await expect(page.locator('.schedule-booking.completed')).toContainText('15:00');
   await page.reload();
-  await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
   await nav('Bemorlar');await page.getByRole('textbox',{name:'Bemor qidirish'}).fill('UI Test Bemor');
   await expect(page.getByRole('button',{name:'UI Test Bemor',exact:false}).first()).toBeVisible();
   await expect(page.locator('tbody .score-pill')).toHaveText('90%');

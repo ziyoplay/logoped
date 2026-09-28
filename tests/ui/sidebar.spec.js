@@ -5,7 +5,7 @@ test('Short viewport sidebar scrolls to profile and keeps navigation usable',asy
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.goto('/#kirish');
   await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
-  await expect(page.getByRole('heading',{name:'Assalomu alaykum, Aziza.'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
   const sidebar=page.getByRole('complementary',{name:'Ish maydoni menyusi'});
   async function openMenu(){if(info.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();}
   for(const theme of ['dark','light']){
@@ -28,6 +28,6 @@ test('Short viewport sidebar scrolls to profile and keeps navigation usable',asy
     await expect(page.getByRole('heading',{name:'Bemorlar',exact:true})).toBeVisible();
   }
   await page.emulateMedia({reducedMotion:'reduce'});
-  await openMenu();await sidebar.getByRole('button',{name:'Umumiy ko‘rinish',exact:true}).click();
+  await openMenu();await sidebar.getByRole('button',{name:'Bugungi ishlar',exact:true}).click();
   await expect(page.locator('.workspace-page')).toHaveCSS('animation-name','none');
 });
