@@ -1,4 +1,11 @@
 /* Lead with the day's work, with the same calm palette as the rest of the clinic. */
+.appointment-repeat{margin:0 0 20px;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--panel-soft)}
+.appointment-repeat>.field:last-child{margin-bottom:0}
+.repeat-preview{font-size:13px;line-height:1.65;color:var(--ink)}
+.repeat-preview strong{display:block;font-size:14px}
+.repeat-preview p{margin:8px 0;color:var(--muted)}
+.repeat-preview summary{cursor:pointer;min-height:36px;padding:6px 0;color:var(--accent)}
+.repeat-preview ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 25px;padding-left:25px;max-height:180px;overflow-y:auto}
 .simple-day{max-width:1120px;margin:0 auto}
 .simple-day .page-heading h1{font-size:32px}
 .day-sessions{overflow:hidden;margin:0}

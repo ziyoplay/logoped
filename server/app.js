@@ -12,6 +12,7 @@ import { mountClients } from './clients.js';
 import {patientMedia} from './patient-media.js';
 import {googleCalendar} from './google-calendar.js';
 import {appointmentChanged} from './appointment-notifications.js';
+import {mountAppointmentSeries} from './appointment-series.js';
 import {mountExerciseCatalog} from './exercise-catalog.js';
 import {mountAiExercises} from './ai-exercises.js';
 import { mountTeam, admin, audit, tokenHash } from './team.js';
@@ -190,6 +191,7 @@ export function createApp({ filename = process.env.DATABASE_PATH || path.join(ro
                 fail(409, 'Tanlangan logopedning bu vaqti band. Boshqa vaqtni tanlang.');
         }
     }
+    mountAppointmentSeries(app,db,appointmentSchema,validateRefs);
     for (const [table, schema] of Object.entries(tables)) {
         if(table==='patients'||table==='appointments')app.patch('/api/'+table+'/:id/status',async(req,res)=>{
             const allowed=table==='patients'?['active','completed','archived']:['scheduled','completed','cancelled'];

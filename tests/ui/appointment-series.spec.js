@@ -1,0 +1,32 @@
+import {test,expect} from '@playwright/test';
+
+test('Logoped previews and books ten alternate-day sessions from a patient card',async({page},info)=>{
+ await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+ await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
+ await page.locator('.simple-session').first().locator('.name-link').click();
+ await page.getByRole('button',{name:'Qabul belgilash',exact:true}).click();
+ const dialog=page.getByRole('dialog');
+ await expect(dialog.locator('.fixed-patient')).toBeVisible();
+ await dialog.getByLabel('Sana *',{exact:true}).fill('2028-02-28');
+ await dialog.getByLabel('Vaqt (Toshkent)').fill('09:00');
+ await dialog.getByLabel('Qabul rejimi').selectOption('2');
+ await expect(dialog.getByLabel('Jami seanslar soni')).toHaveValue('10');
+ await expect(dialog.locator('.repeat-preview')).toContainText('10 ta qabul · 28.02.2028 — 17.03.2028');
+ await dialog.getByLabel('Reja muddati').selectOption('days');
+ await expect(dialog.locator('.repeat-preview')).toContainText('5 ta qabul · 28.02.2028 — 07.03.2028');
+ await dialog.getByLabel('Reja muddati').selectOption('sessions');
+ await dialog.getByText('Sanalarni ko‘rish',{exact:true}).click();
+ await expect(dialog.locator('.repeat-preview li')).toHaveCount(10);
+ expect(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
+ await page.screenshot({path:'artifacts/'+info.project.name+'-appointment-series.png',fullPage:true});
+ await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();await expect(dialog).toHaveCount(0);
+ const rows=await (await page.request.get('/api/appointments')).json();
+ const series=rows.filter(a=>a.date>='2028-02-28'&&a.date<='2028-03-17');expect(series).toHaveLength(10);
+ expect(series.every(a=>a.time==='09:00'&&a.status==='scheduled')).toBe(true);
+ await expect(page.locator('.patient-appointments .history-appointment').filter({hasText:'09:00'})).toHaveCount(10);
+ await page.getByRole('button',{name:'Qabul belgilash',exact:true}).click();
+ await dialog.getByLabel('Sana *',{exact:true}).fill('2028-02-28');await dialog.getByLabel('Vaqt (Toshkent)').fill('09:00');
+ await dialog.getByLabel('Qabul rejimi').selectOption('2');await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
+ await expect(dialog.getByRole('alert')).toContainText('Reja saqlanmadi');await expect(dialog).toBeVisible();
+ expect((await (await page.request.get('/api/appointments')).json()).filter(a=>a.date>='2028-02-28'&&a.date<='2028-03-17')).toHaveLength(10);
+});
