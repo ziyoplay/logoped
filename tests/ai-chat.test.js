@@ -6,7 +6,7 @@ const patient={name:'Test Bola',birth_date:'2020-01-01',guardian:'Test Parent',p
 const draft={date:'2099-01-02',time:'10:00',duration:45,title:'Individual mashg‘ulot',notes:''};
 async function fixture(){
  let output={reply:'Salom! Sizga qanday yordam beray?',draft:null};const calls=[];
- const {app,db}=createApp({filename:':memory:',aiOptions:{key:'private-test-key',transport:async(url,options)=>{calls.push(JSON.parse(options.body));return Response.json({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(output)}]}}]});}}});
+ const {app,db}=createApp({filename:':memory:',aiOptions:{key:'private-test-key',transport:async(url,options)=>{calls.push(JSON.parse(options.body));return Response.json({choices:[{finish_reason:'stop',message:{content:JSON.stringify(output)}}]});}}});
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
  const base='http://127.0.0.1:'+server.address().port;
  const request=(path,cookie='',body,csrf=true)=>fetch(base+'/api'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Cookie:cookie,...(csrf?{'X-Requested-With':'Nutq'}:{})},body:body?JSON.stringify(body):undefined});
@@ -45,7 +45,7 @@ test('Planning uses only owned busy times and rejects conflicts; existing save s
   assert.equal((await f.request('/appointments',other,{...draft,time:'11:00',patient_id:p2.id})).status,201);
   f.output({reply:'Taklif',draft:{...draft,time:'10:15'}});
   let r=await f.request('/ai/chat',cookie,input('appointment'));assert.equal((await r.json()).draft,null);
-  const system=f.calls.at(-1).systemInstruction.parts[0].text;
+  const system=f.calls.at(-1).messages[0].content;
   assert.ok(system.includes('10:00'));assert.ok(!system.includes('11:00'));assert.ok(!system.includes(patient.name));assert.ok(!system.includes('Private'));assert.ok(!system.includes(p.id));
   f.output({reply:'Taklif',draft:{...draft,time:'11:00'}});
   r=await f.request('/ai/chat',cookie,input('appointment'));assert.equal((await r.json()).draft.values.time,'11:00');
