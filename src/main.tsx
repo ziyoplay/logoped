@@ -152,8 +152,8 @@ function Editor({modal,data,day,close,save,remove,canDelete}:{canDelete:boolean;
   async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setError('');try{if(isConfirm)await modal.confirm();else{const values:Record<string,unknown>=Object.fromEntries(new FormData(e.currentTarget));if(patientId&&(table==='results'||table==='appointments'))values.patient_id=patientId;if('duration'in values)values.duration=Number(values.duration);if('score'in values)values.score=Number(values.score);if('exercise_id'in values&&!values.exercise_id)values.exercise_id=null;
       if(table==='appointments'&&!record){
         const interval=Number(values._repeat_interval||0),amount=Number(values._repeat_amount||1);
-        const count=values._repeat_unit==='days'?Math.ceil(amount/interval):amount;
-        delete values._repeat_interval;delete values._repeat_amount;delete values._repeat_unit;
+        const count=values._repeat_unit==='days'?Math.ceil(amount/interval):values._repeat_unit==='until'?Math.floor((Date.parse(String(values._repeat_end)+'T00:00:00Z')-Date.parse(String(values.date)+'T00:00:00Z'))/(interval*86400000))+1:amount;
+        delete values._repeat_interval;delete values._repeat_amount;delete values._repeat_unit;delete values._repeat_end;
         if(interval>0){values.status='scheduled';if(count>1)values.recurrence={interval_days:interval,count};}
       }
       await save(modal.table,values,record?.id,record?.revision);modal.onSaved?.();}close();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}

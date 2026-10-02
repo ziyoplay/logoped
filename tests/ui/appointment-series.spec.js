@@ -10,6 +10,18 @@ test('Logoped previews and books ten alternate-day sessions from a patient card'
  await dialog.getByLabel('Sana *',{exact:true}).fill('2028-02-28');
  await dialog.getByLabel('Vaqt (Toshkent)').fill('09:00');
  await dialog.getByLabel('Qabul rejimi').selectOption('2');
+ const until=dialog.getByLabel('Qachongacha keladi? *');
+ await expect(until).toHaveAttribute('min','2028-02-28');
+ await expect(until).toHaveAttribute('max','2028-06-25');
+ await until.fill('2028-03-17');
+ await expect(dialog.locator('.repeat-preview')).toContainText('10 ta qabul · 28.02.2028 — 17.03.2028');
+ // Chegaradan oshgan muddat server xatosiga emas, tushunarli izohga olib kelishi kerak.
+ await until.fill('2029-03-17');
+ await expect(dialog.locator('.repeat-preview')).toHaveCount(0);
+ await expect(dialog.getByText('eng ko‘pi 60 ta qabul sig‘adi')).toBeVisible();
+ await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
+ await expect(dialog.getByRole('alert')).toHaveCount(0);
+ await dialog.getByLabel('Reja muddati').selectOption('sessions');
  await expect(dialog.getByLabel('Jami seanslar soni')).toHaveValue('10');
  await expect(dialog.locator('.repeat-preview')).toContainText('10 ta qabul · 28.02.2028 — 17.03.2028');
  await dialog.getByLabel('Reja muddati').selectOption('days');
@@ -26,7 +38,7 @@ test('Logoped previews and books ten alternate-day sessions from a patient card'
  await expect(page.locator('.patient-appointments .history-appointment').filter({hasText:'09:00'})).toHaveCount(10);
  await page.getByRole('button',{name:'Qabul belgilash',exact:true}).click();
  await dialog.getByLabel('Sana *',{exact:true}).fill('2028-02-28');await dialog.getByLabel('Vaqt (Toshkent)').fill('09:00');
- await dialog.getByLabel('Qabul rejimi').selectOption('2');await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
+ await dialog.getByLabel('Qabul rejimi').selectOption('2');await dialog.getByLabel('Reja muddati').selectOption('sessions');await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
  await expect(dialog.getByRole('alert')).toContainText('Reja saqlanmadi');await expect(dialog).toBeVisible();
  expect((await (await page.request.get('/api/appointments')).json()).filter(a=>a.date>='2028-02-28'&&a.date<='2028-03-17')).toHaveLength(10);
 });
