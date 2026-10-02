@@ -1,0 +1,43 @@
+/* Logoped paneli: harakat faqat logoped biror amal qilganda yoki yopiq ro‘yxat
+   ochilganda. Logoped kun bo‘yi shu ekranda ishlaydi, shuning uchun uzluksiz
+   aylanadigan va har sahifa yuklanishida takrorlanadigan animatsiya yo‘q.
+   Reduced-motion styles.css dagi global qoida bilan to‘xtatiladi; bu fayldagi
+   hamma narsa no-preference ichida turadi. */
+@media(prefers-reduced-motion:no-preference){
+ /* Kunning asosiy qaytarma signali: “Seans tugadi” bosilgach tasdiq paneli
+    ro‘yxat ustida paydo bo‘ladi, belgi esa bir marta “cho‘kadi”. */
+ .app-shell .session-confirmation{animation:session-confirm 300ms cubic-bezier(.2,.7,.2,1) both}
+ .app-shell .session-confirmation-title>svg{animation:session-check 420ms ease-out 60ms both}
+
+ /* Kun tugagani yoki qabul yo‘qligi — xuddi shu harakat, bir xil o‘qilishi uchun. */
+ .app-shell .day-empty{animation:session-confirm 320ms cubic-bezier(.2,.7,.2,1) both}
+ .app-shell .day-empty>svg{animation:session-check 440ms ease-out 80ms both}
+
+ /* Yopiq ro‘yxatlar ochilganda qatorlar ketma-ket chiqadi. Kaskad 90ms da
+    tugaydi: summary birinchi farzand, shuning uchun qatorlar nth-child(2) dan. */
+ .app-shell .day-history[open]>.day-history-row{animation:session-rise 240ms ease-out both}
+ .app-shell .day-history[open]>.day-history-row:nth-child(3){animation-delay:30ms}
+ .app-shell .day-history[open]>.day-history-row:nth-child(4){animation-delay:60ms}
+ .app-shell .day-history[open]>.day-history-row:nth-child(n+5){animation-delay:90ms}
+
+ /* Qabul rejasi: ko‘rib chiqish paneli reja yaroqli bo‘lganda chiqadi, chegara
+    izohi esa sana juda uzoq tanlanganda. Ikkisi ham bir marta — sanalar
+    o‘zgarganda element joyida qolib, matn jimgina yangilanadi. */
+ .app-shell .repeat-preview,.app-shell .appointment-repeat .hint{animation:session-rise 240ms cubic-bezier(.2,.7,.2,1) both}
+
+ /* Kun ro‘yxatini ko‘z bilan kuzatishga yordam beradigan mayda holatlar. */
+ .app-shell .simple-session{transition:background-color 160ms ease}
+ .app-shell .day-history summary{transition:background-color 160ms ease,color 160ms ease}
+ .app-shell .day-history-row .text-button,.app-shell .session-followups .text-button{transition:color 160ms ease}
+ .app-shell .day-calendar-link>svg:last-child{transition:translate 200ms cubic-bezier(.2,.7,.2,1)}
+ @media(hover:hover) and (pointer:fine){
+  .app-shell .simple-session:hover,.app-shell .day-history summary:hover{background:color-mix(in srgb,var(--focus-soft) 6%,transparent)}
+  .app-shell .simple-session .session-done:hover:not(:disabled){translate:0 -1px}
+  .app-shell .day-calendar-link:hover>svg:last-child{translate:3px 0}
+ }
+}
+/* Boshlang‘ich opacity hech qachon 0 emas — workspace-arrive dagi kabi. Animatsiya
+   to‘xtab qolsa ham (fon tab, throttling) matn o‘qilishicha qoladi, yo‘qolib ketmaydi. */
+@keyframes session-confirm{from{opacity:.35;translate:0 -6px;scale:.985}to{opacity:1;translate:0 0;scale:1}}
+@keyframes session-check{0%{opacity:.35;scale:.5}60%{opacity:1;scale:1.14}100%{opacity:1;scale:1}}
+@keyframes session-rise{from{opacity:.35;translate:0 5px}to{opacity:1;translate:0 0}}

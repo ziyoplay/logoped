@@ -31,6 +31,7 @@ import { ProfileEditor, palettes, type User } from './profile';
 import './soft-theme.css';
 import './parent-mobile.css';
 import './simple-workspace.css';
+import './workspace-motion.css';
 type Patient={id:string;revision:number;name:string;birth_date:string;guardian:string;phone:string;telegram:string;focus:string;notes:string;status:string};
 type Exercise={id:string;revision:number;title:string;category:string;duration:number;instructions:string};
 type Appointment={id:string;revision:number;therapist_id:string;patient_id:string;date:string;time:string;duration:number;title:string;status:string;notes:string};

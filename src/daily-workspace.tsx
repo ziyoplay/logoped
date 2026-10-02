@@ -30,7 +30,9 @@ export function DailyWorkspace(p:Props){
       <div className="day-toolbar"><div><h2>{p.day===p.today?'Bugungi qabullar':p.dateLabel}</h2><p>{p.day===p.today?p.dateLabel+' · ':''}{pending.length} ta qoldi · {finished.length} ta yakunlandi</p></div>
         <div className="day-navigation"><button className="icon-button" aria-label="Oldingi kun" onClick={()=>p.onDay(-1)}><IconChevronLeft size={20}/></button><button className="text-button" onClick={p.onToday} disabled={p.day===p.today}>Bugun</button><button className="icon-button" aria-label="Keyingi kun" onClick={()=>p.onDay(1)}><IconChevronRight size={20}/></button></div>
       </div>
-      {recent&&<div className="session-confirmation" ref={confirmation} tabIndex={-1}>
+      {/* key — har bir yakunlangan seans uchun yangi element: aks holda React panelni
+          qayta ishlatadi va kirish animatsiyasi faqat birinchi martagina o‘ynaydi. */}
+      {recent&&<div className="session-confirmation" key={recent.id} ref={confirmation} tabIndex={-1}>
         <div className="session-confirmation-title"><IconCheck size={24}/><div><button className="name-link" onClick={()=>p.onPatient(recent.patient_id)}>{name(recent.patient_id)}</button><p>Seans yakunlandi · {recent.time}</p></div></div>
         <div className="session-followups"><button className="button secondary" onClick={()=>p.onResult(recent.patient_id)}>Natija qo‘shish</button><button className="text-button" onClick={()=>p.onAddAppointment(recent.patient_id)}>Keyingi qabul</button><button className="text-button" disabled={!!p.busy} aria-label={`${name(recent.patient_id)} seansini rejaga qaytarish`} onClick={()=>void undo(recent)}>Qaytarish</button></div>
       </div>}
