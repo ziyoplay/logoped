@@ -10,6 +10,10 @@ android/.gradle/
 android/**/build/
 android/local.properties
 .tools/
+.claude/
+.agents/
+.ori/
+graphify-out/
 *.keystore
 *.jks
 
