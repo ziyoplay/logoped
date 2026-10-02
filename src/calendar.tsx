@@ -1,3 +1,4 @@
+import type {CSSProperties} from 'react';
 import {useEffect,useRef,useState} from 'react';
 import {IconChevronLeft,IconChevronRight,IconRefresh,IconCalendar,IconExternalLink} from '@tabler/icons-react';
 import {PatientSchedule} from './schedule';
@@ -9,6 +10,9 @@ type Appointment={id:string;patient_id:string;date:string;time:string;duration:n
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tashkent'}).format(new Date());
 const shift=(day:string,n:number)=>new Date(Date.parse(day+'T12:00:00Z')+n*86400000).toISOString().slice(0,10);
 const mins=(t:string)=>Number(t.slice(0,2))*60+Number(t.slice(3));
+// Bir daqiqaga to‘g‘ri keladigan balandlik. calendar.css dagi katak va soat chiziqlari
+// --hour dan hisoblanadi, shuning uchun ikkala joyda alohida son saqlanmaydi.
+const scale=1.4;
 const hour=(m:number)=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 const weekdays=['Yak','Du','Se','Chor','Pay','Ju','Sha'];
 const months=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
@@ -22,11 +26,14 @@ export function Calendar<T extends Appointment>({patients,appointments,day,onDay
  const weekday=new Date(day+'T12:00:00Z').getUTCDay(),start=shift(day,-((weekday+6)%7));
  const days=view==='week'?Array.from({length:7},(_,i)=>shift(start,i)):[day];
  const visible=appointments.filter(a=>days.includes(a.date));
- const begin=Math.min(8*60,...visible.map(a=>Math.floor(mins(a.time)/60)*60));
- const end=Math.max(20*60,...visible.map(a=>Math.ceil((mins(a.time)+a.duration)/60)*60));
+ // To‘r ko‘rinib turgan qabullarning soatlariga moslashadi. Doimiy 08:00—20:00 oynasida
+ // to‘rtta qabul 12 soatlik bo‘shliqqa tarqalib ketadi va haftani bir ko‘rishda o‘qib
+ // bo‘lmaydi. Qabul bo‘lmagan haftada 09:00—15:00 qoladi.
+ const begin=Math.min(9*60,...visible.map(a=>Math.floor(mins(a.time)/60)*60));
+ const end=Math.max(15*60,...visible.map(a=>Math.ceil((mins(a.time)+a.duration)/60)*60));
  const slots=Array.from({length:(end-begin)/30},(_,i)=>begin+i*30);
  const currentTime=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tashkent',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(clock);
- useEffect(()=>{if(scroll.current)scroll.current.scrollTop=Math.max(0,((days.includes(today())?mins(currentTime):9*60)-begin)*1.2-70);},[day,view,begin]);
+ useEffect(()=>{if(scroll.current)scroll.current.scrollTop=Math.max(0,((days.includes(today())?mins(currentTime):9*60)-begin)*scale-70);},[day,view,begin]);
  return <>
   <GoogleCalendarPanel patients={patients} onReload={onReload}/>
   <section className="calendar-shell" aria-label="Qabul taqvimi">
@@ -40,22 +47,27 @@ export function Calendar<T extends Appointment>({patients,appointments,day,onDay
    </div></div>
    {view==='patients'?<PatientSchedule patients={patients} appointments={appointments.filter(a=>a.date===day)} day={day} onOpen={onOpen} onCreate={(id,t)=>onCreate(day,t,id)}/>:
     <div className="calendar-scroll" ref={scroll} tabIndex={0} aria-label="Soatlar jadvali, aylantirish mumkin">
-     <div className={'calendar-grid '+(view==='week'?'calendar-week':'calendar-day')} style={{gridTemplateColumns:`54px repeat(${days.length},minmax(0,1fr))`}}>
-      <div className="calendar-zone">GMT+5</div>{days.map(d=><div key={d} className={'calendar-day-heading '+(d===today()?'is-today':'')}><span>{weekdays[new Date(d+'T12:00:00Z').getUTCDay()]}</span><button aria-label={caption(d)+' kunini ochish'} onClick={()=>{onDay(d);setView('day');}}>{Number(d.slice(8))}</button></div>)}
-      <div className="calendar-hours" style={{height:(end-begin)*1.2}}>{slots.filter(m=>m%60===0).map(m=><span key={m} style={{top:(m-begin)*1.2}}>{hour(m)}</span>)}</div>
+     <div className={'calendar-grid '+(view==='week'?'calendar-week':'calendar-day')} style={{gridTemplateColumns:`54px repeat(${days.length},minmax(0,1fr))`,'--hour':60*scale+'px'} as CSSProperties}>
+      <div className="calendar-zone">GMT+5</div>{days.map(d=>{
+       const booked=visible.filter(a=>a.date===d&&a.status!=='cancelled').length;
+       return <div key={d} className={'calendar-day-heading '+(d===today()?'is-today':'')}><span>{weekdays[new Date(d+'T12:00:00Z').getUTCDay()]}</span><button aria-label={caption(d)+' kunini ochish'} onClick={()=>{onDay(d);setView('day');}}>{Number(d.slice(8))}</button><small>{booked?booked+' qabul':'bo‘sh'}</small></div>;
+      })}
+      <div className="calendar-hours" style={{height:(end-begin)*scale}}>{slots.filter(m=>m%60===0).map(m=><span key={m} style={{top:(m-begin)*scale}}>{hour(m)}</span>)}</div>
       {days.map(d=>{
        const rows=visible.filter(a=>a.date===d).sort((a,b)=>mins(a.time)-mins(b.time)||a.id.localeCompare(b.id));
        const laneEnds:number[]=[];const placed=rows.map(a=>{let lane=laneEnds.findIndex(v=>v<=mins(a.time));if(lane<0)lane=laneEnds.length;laneEnds[lane]=mins(a.time)+Math.max(20,a.duration);return {a,lane};});
        const lanes=Math.max(1,laneEnds.length);
-       return <div key={d} className="calendar-column" style={{height:(end-begin)*1.2}}>
-        {slots.map(m=><button key={m} className="calendar-slot" style={{top:(m-begin)*1.2}} aria-label={`${caption(d)} ${hour(m)} qabul belgilash`} onClick={()=>onCreate(d,hour(m))}/>) }
-        {placed.map(({a,lane})=><button key={a.id} className={'calendar-event '+a.status} style={{top:(mins(a.time)-begin)*1.2,height:Math.max(24,a.duration*1.2-2),left:`calc(${lane/lanes*100}% + 3px)`,width:`calc(${100/lanes}% - 6px)`}} onClick={()=>onOpen(a)} title={`${patients.find(p=>p.id===a.patient_id)?.name} · ${a.time} · ${a.title} · ${states[a.status]}`} aria-label={`${patients.find(p=>p.id===a.patient_id)?.name}, ${caption(d)} ${a.time}, ${states[a.status]}, tahrirlash`}><strong>{patients.find(p=>p.id===a.patient_id)?.name||'Bemor'}</strong><span>{a.time} · {a.duration} daqiqa</span>{a.duration>=45&&<small>{a.title}</small>}</button>)}
-        {d===today()&&mins(currentTime)>=begin&&mins(currentTime)<end&&<div className="calendar-now" style={{top:(mins(currentTime)-begin)*1.2}} aria-label={'Hozir '+currentTime}/>}
+       return <div key={d} className={'calendar-column '+(d===today()?'is-today':'')} style={{height:(end-begin)*scale}}>
+        {slots.map(m=><button key={m} className="calendar-slot" style={{top:(m-begin)*scale}} aria-label={`${caption(d)} ${hour(m)} qabul belgilash`} onClick={()=>onCreate(d,hour(m))}/>) }
+        {/* Hafta ko‘rinishida ustun tor: davomiyligi blok balandligidan ko‘rinadi,
+            shuning uchun matnda faqat soat qoladi va ism ikki qatorga sig‘adi. */}
+        {placed.map(({a,lane})=><button key={a.id} className={'calendar-event '+a.status} style={{top:(mins(a.time)-begin)*scale,height:Math.max(24,a.duration*scale-2),left:`calc(${lane/lanes*100}% + 3px)`,width:`calc(${100/lanes}% - 6px)`}} onClick={()=>onOpen(a)} title={`${patients.find(p=>p.id===a.patient_id)?.name} · ${a.time} · ${a.title} · ${states[a.status]}`} aria-label={`${patients.find(p=>p.id===a.patient_id)?.name}, ${caption(d)} ${a.time}, ${states[a.status]}, tahrirlash`}><strong>{patients.find(p=>p.id===a.patient_id)?.name||'Bemor'}</strong><span>{a.time}{view==='day'?` · ${a.duration} daqiqa`:''}</span>{a.duration>=60&&<small>{a.title}</small>}</button>)}
+        {d===today()&&mins(currentTime)>=begin&&mins(currentTime)<end&&<div className="calendar-now" style={{top:(mins(currentTime)-begin)*scale}} aria-label={'Hozir '+currentTime}/>}
        </div>;
       })}
      </div>
     </div>}
-   <footer className="calendar-legend"><span><i/>Rejada</span><span><i className="completed"/>Yakunlangan</span><span><i className="cancelled"/>Bekor qilingan</span><small>Bo‘sh vaqtni bosib qabul belgilang · Toshkent vaqti</small></footer>
+   <footer className="calendar-legend"><span><i/>Rejada</span><span><i className="completed"/>Yakunlangan</span><span><i className="cancelled"/>Bekor qilingan</span><small>Jadval ish soatlarini ko‘rsatadi · Bo‘sh vaqtni bosib qabul belgilang · Toshkent vaqti</small></footer>
   </section>
  </>;
 }
