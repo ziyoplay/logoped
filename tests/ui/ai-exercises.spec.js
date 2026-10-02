@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 test('AI draft stays editable and unsaved until logoped review',async({page},testInfo)=>{
  let generates=0;
  await page.route('**/api/ai/status',route=>route.fulfill({json:{configured:true,available:true,demo:false}}));
- await page.route('**/api/ai/exercise-draft',route=>{generates++;expect(route.request().postDataJSON()).toEqual({age:5,sound:'r',goal:'Tovushni eshitib farqlash',duration:5});return route.fulfill({json:{draft:{title:'AI sinov mashqi',category:'Talaffuz',duration:5,instructions:'Logoped tekshiradigan sinov ko‘rsatmasi. Bu haqiqiy Gemini javobi emas.'}}});});
+ await page.route('**/api/ai/exercise-draft',route=>{generates++;expect(route.request().postDataJSON()).toEqual({age:5,sound:'r',goal:'Tovushni eshitib farqlash',duration:5});return route.fulfill({json:{draft:{title:'AI sinov mashqi',category:'Talaffuz',duration:5,instructions:'Logoped tekshiradigan sinov ko‘rsatmasi. Bu haqiqiy AI javobi emas.'}}});});
  await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
  if(testInfo.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
  await page.locator('nav').getByRole('button',{name:'AI',exact:true}).click();

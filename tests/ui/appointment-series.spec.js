@@ -10,6 +10,18 @@ test('Logoped previews and books ten alternate-day sessions from a patient card'
  await dialog.getByLabel('Sana *',{exact:true}).fill('2028-02-28');
  await dialog.getByLabel('Vaqt (Toshkent)').fill('09:00');
  await dialog.getByLabel('Qabul rejimi').selectOption('2');
+ const until=dialog.getByLabel('Qachongacha keladi? *');
+ await expect(until).toHaveAttribute('min','2028-02-28');
+ await expect(until).toHaveAttribute('max','2028-06-25');
+ await until.fill('2028-03-17');
+ await expect(dialog.locator('.repeat-preview')).toContainText('10 ta qabul · 28.02.2028 — 17.03.2028');
+ // Chegaradan oshgan muddat server xatosiga emas, tushunarli izohga olib kelishi kerak.
+ await until.fill('2029-03-17');
+ await expect(dialog.locator('.repeat-preview')).toHaveCount(0);
+ await expect(dialog.getByText('eng ko‘pi 60 ta qabul sig‘adi')).toBeVisible();
+ await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
+ await expect(dialog.getByRole('alert')).toHaveCount(0);
+ await dialog.getByLabel('Reja muddati').selectOption('sessions');
  await expect(dialog.getByLabel('Jami seanslar soni')).toHaveValue('10');
  await expect(dialog.locator('.repeat-preview')).toContainText('10 ta qabul · 28.02.2028 — 17.03.2028');
  await dialog.getByLabel('Reja muddati').selectOption('days');
@@ -26,7 +38,41 @@ test('Logoped previews and books ten alternate-day sessions from a patient card'
  await expect(page.locator('.patient-appointments .history-appointment').filter({hasText:'09:00'})).toHaveCount(10);
  await page.getByRole('button',{name:'Qabul belgilash',exact:true}).click();
  await dialog.getByLabel('Sana *',{exact:true}).fill('2028-02-28');await dialog.getByLabel('Vaqt (Toshkent)').fill('09:00');
- await dialog.getByLabel('Qabul rejimi').selectOption('2');await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
+ await dialog.getByLabel('Qabul rejimi').selectOption('2');await dialog.getByLabel('Reja muddati').selectOption('sessions');await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();
  await expect(dialog.getByRole('alert')).toContainText('Reja saqlanmadi');await expect(dialog).toBeVisible();
  expect((await (await page.request.get('/api/appointments')).json()).filter(a=>a.date>='2028-02-28'&&a.date<='2028-03-17')).toHaveLength(10);
+});
+
+test('A patient who does not turn up slides the rest of the plan without losing a session',async({page},info)=>{
+ await page.goto('/#kirish');await page.getByRole('button',{name:'Namuna bilan ko‘rish'}).click();
+ await expect(page.getByRole('heading',{name:'Bugungi ishlar'})).toBeVisible();
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tashkent'}).format(new Date());
+ const day=n=>new Date(Date.parse(today+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
+ await page.locator('.simple-session').first().locator('.name-link').click();
+ await page.getByRole('button',{name:'Qabul belgilash',exact:true}).click();
+ const dialog=page.getByRole('dialog');
+ await dialog.getByLabel('Sana *',{exact:true}).fill(today);
+ await dialog.getByLabel('Vaqt (Toshkent)').fill('16:00');
+ await dialog.getByLabel('Qabul rejimi').selectOption('2');
+ await dialog.getByLabel('Qachongacha keladi? *').fill(day(4));
+ await expect(dialog.locator('.repeat-preview')).toContainText('3 ta qabul');
+ await dialog.getByRole('button',{name:'Saqlash',exact:true}).click();await expect(dialog).toHaveCount(0);
+ if(info.project.name==='mobile')await page.getByRole('button',{name:'Menyuni ochish'}).click();
+ await page.locator('nav').getByRole('button',{name:'Bugungi ishlar',exact:true}).click();
+ const card=page.locator('.simple-session').filter({hasText:'16:00'});
+ await card.getByRole('button',{name:/kelmadi — rejani surish$/}).click();
+ // Faqat shu seansdan keyingi qabullar suriladi: o‘sha kundagi ertaroq seans joyida qoladi.
+ await expect(dialog).toContainText('undan keyingi 2 ta qabul ham bittaga suriladi');
+ await dialog.getByRole('button',{name:'Rejani surish',exact:true}).click();
+ await expect(dialog).toHaveCount(0);
+ await expect(page.locator('.toast')).toContainText('surildi');
+ const plan=(await (await page.request.get('/api/appointments')).json()).filter(a=>a.time==='16:00');
+ expect(plan.filter(a=>a.status==='scheduled').map(a=>a.date).sort()).toEqual([day(2),day(4),day(6)]);
+ const missed=plan.filter(a=>a.status==='cancelled');
+ expect(missed).toHaveLength(1);expect(missed[0].date).toBe(today);expect(missed[0].notes).toBe('Bemor kelmadi.');
+ await expect(card).toHaveCount(0);
+ const history=page.locator('.day-history').filter({hasText:'Bekor qilingan'});
+ await history.locator('summary').click();await expect(history.locator('.day-history-row')).toContainText('16:00');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'artifacts/'+info.project.name+'-missed-session.png',fullPage:true});
 });

@@ -11,6 +11,10 @@ test('Calendar slots, mobile layout and sourced exercise import',async({page},in
  await page.getByRole('button',{name:'Bemor *',exact:true}).click();await page.getByRole('option',{name:/Ali Valiyev/}).click();
  await page.getByRole('button',{name:'Saqlash',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
  await expect(page.locator('.calendar-event')).toContainText('Ali Valiyev');
+ // To‘r ish soatlariga moslashadi (doimiy 08:00—20:00 emas) va har kun ustida qabul soni turadi.
+ await expect(page.locator('.calendar-hours span').first()).toHaveText('09:00');
+ await expect(page.locator('.calendar-hours span').last()).toHaveText('14:00');
+ await expect(page.locator('.calendar-day-heading').filter({hasText:'1 qabul'})).toHaveCount(1);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:'artifacts/'+info.project.name+'-calendar-dark.png',fullPage:true});
  await page.getByRole('button',{name:'Och mavzuga o‘tish'}).click();await page.screenshot({path:'artifacts/'+info.project.name+'-calendar-light.png',fullPage:true});

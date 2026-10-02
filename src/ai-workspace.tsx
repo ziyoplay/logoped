@@ -48,7 +48,7 @@ export function AiWorkspace({onDraft,onSaved}:{onDraft:(draft:AiDraft,onSaved:()
    </div>
    {error&&<p className="error" role="alert">{error}</p>}
    {status?.available?<form className="ai-composer" onSubmit={submit}><label htmlFor="ai-message-input" className="ai-composer-label">AI’ga xabar</label><textarea id="ai-message-input" ref={composer} rows={3} maxLength={2000} disabled={busy} value={inputs[mode]} placeholder="Xabaringizni yozing…" onChange={e=>setInputs(s=>({...s,[mode]:e.target.value}))} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.currentTarget.form?.requestSubmit();}}}/><div className="ai-composer-footer"><small>Enter — yuborish · Shift + Enter — yangi qator</small><button className="button primary" disabled={busy||!inputs[mode].trim()||!scheduleDate} aria-label="Xabarni yuborish"><IconArrowUp size={20}/>{busy?'Kutilmoqda…':'Yuborish'}</button></div></form>:<div className="ai-unavailable"><p role="status">{!status?'Ulanish tekshirilmoqda…':status.demo?'AI shaxsiy logoped hisobida ishlaydi.':'AI ulanishi hali sozlanmagan.'}</p><button className="text-button" onClick={()=>void check()}>Ulanishni qayta tekshirish</button></div>}
-   <p className="ai-privacy">Yozgan xabaringiz va shu sahifadagi so‘nggi suhbat Gemini’ga yuboriladi. Rejalashtirishda faqat band sana va vaqtlar qo‘shiladi. Suhbat sahifadan chiqishda tozalanadi. Yozuvlar faqat formani tasdiqlaganingizda saqlanadi.</p>
+   <p className="ai-privacy">Yozgan xabaringiz va shu sahifadagi so‘nggi suhbat OpenRouter’ga yuboriladi. Rejalashtirishda faqat band sana va vaqtlar qo‘shiladi. Suhbat sahifadan chiqishda tozalanadi. Yozuvlar faqat formani tasdiqlaganingizda saqlanadi.</p>
   </section>}
  </div>;
 }

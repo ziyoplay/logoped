@@ -25,15 +25,15 @@ export function AiExercises({onSaved}:{onSaved:()=>Promise<void>}){
  return <section className="panel ai-exercises" aria-label="AI mashq yordamchisi">
   <div className="section-heading"><div><h2><IconSparkles size={21}/> AI yordamchi</h2><p>Yosh va tovushga mos mashq loyihasini tayyorlang.</p></div><button type="button" className="button secondary" aria-expanded={open} aria-controls="ai-exercise-content" onClick={()=>setOpen(!open)}>{open?'Yopish':'AI bilan mashq tayyorlash'}</button></div>
   {open&&<div id="ai-exercise-content">
-   {!status?(!error&&<p role="status">Ulanish tekshirilmoqda…</p>):!status.available?<p className="muted" role="status">{status.demo?'AI yordamchi shaxsiy logoped hisobida ishlaydi.':'AI yordamchi hali ulanmagan. Gemini ulanishi sozlangach mashq tayyorlash ochiladi.'}</p>:<>
-    <p className="muted">Gemini’ga faqat tanlangan yosh, tovush, maqsad va davomiylik yuboriladi. Natijani bemorga moslab tekshiring.</p>
+   {!status?(!error&&<p role="status">Ulanish tekshirilmoqda…</p>):!status.available?<p className="muted" role="status">{status.demo?'AI yordamchi shaxsiy logoped hisobida ishlaydi.':'AI yordamchi hali ulanmagan. OpenRouter ulanishi sozlangach mashq tayyorlash ochiladi.'}</p>:<>
+    <p className="muted">OpenRouter’ga faqat tanlangan yosh, tovush, maqsad va davomiylik yuboriladi. Natijani bemorga moslab tekshiring.</p>
     <form onSubmit={generate} aria-label="AI mashq parametrlari"><fieldset disabled={busy||saving} className="ai-parameters"><div className="form-grid">
      <label className="field">Yosh (yil)<input name="age" type="number" min={3} max={18} defaultValue={5} required/></label>
      <label className="field">Tovush<select name="sound" defaultValue="r">{['r','l','s','sh','z','ch','j','t','d','k','g'].map(v=><option key={v}>{v}</option>)}</select></label>
      <label className="field">Mashq maqsadi<select name="goal">{['Tovushni eshitib farqlash','Bo‘g‘inlarda mustahkamlash','So‘zlarda mustahkamlash','Gaplarda mustahkamlash'].map(v=><option key={v}>{v}</option>)}</select></label>
      <label className="field">Davomiyligi (daqiqa)<input name="duration" type="number" min={3} max={15} defaultValue={5} required/></label>
     </div><button className="button primary" disabled={busy||saving||!!draft}><IconSparkles size={18}/>{busy?'Tayyorlanmoqda…':'Mashq loyihasini tayyorlash'}</button></fieldset></form>
-    {busy&&<p role="status">Gemini mashq tayyorlamoqda. Bu bir oz vaqt olishi mumkin.</p>}
+    {busy&&<p role="status">AI mashq tayyorlamoqda. Bu bir oz vaqt olishi mumkin.</p>}
     {draft&&<form className="ai-draft" aria-label="AI mashq loyihasi" onSubmit={save}><h3>Mashq loyihasi</h3><p className="muted">Tahrirlang va tekshirgandan so‘ng saqlang. Mijozga avtomatik yuborilmaydi.</p><fieldset disabled={saving} className="ai-parameters">
      <label className="field">Mashq nomi<input ref={titleInput} required maxLength={150} value={draft.title} onChange={e=>edit({title:e.target.value})}/></label>
      <div className="form-grid"><label className="field">Yo‘nalish<select value={draft.category} onChange={e=>edit({category:e.target.value})}>{['Talaffuz','Artikulyatsiya','Nafas','Lug‘at','Boshqa'].map(v=><option key={v}>{v}</option>)}</select></label><label className="field">Mashq davomiyligi<input type="number" min={1} max={120} required value={draft.duration} onChange={e=>edit({duration:Number(e.target.value)})}/></label></div>

@@ -72,7 +72,10 @@ html .calendar-day-heading { border-left-color: transparent; }
 html .calendar-day-heading button { font-size: 21px; font-weight: 600; }
 html .calendar-day-heading.is-today button { background: var(--raised-soft); color: var(--ink); box-shadow: inset 0 0 0 1px var(--focus-soft); }
 html .calendar-day-heading.is-today>span { color: var(--ink); }
-html .calendar-column { border-left-color: var(--calendar-rule); background: repeating-linear-gradient(to bottom,transparent 0,transparent 71px,var(--calendar-rule) 71px,var(--calendar-rule) 72px); }
+/* Soat chizig‘i to‘liq, yarim soat chizig‘i xira — qaysi chiziq soat ekani sanalmasdan
+   ko‘rinadi. Ikkala chiziq ham --hour dan hisoblanadi: katak balandligi calendar.tsx
+   dagi `scale` bilan belgilanadi, bu yerda piksel qo‘lda yozilsa ular ajralib ketadi. */
+html .calendar-column { border-left-color: var(--calendar-rule); background-image: repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hour) - 1px),var(--calendar-rule) calc(var(--hour) - 1px),var(--calendar-rule) var(--hour)),repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hour)/2 - 1px),color-mix(in srgb,var(--calendar-rule) 50%,transparent) calc(var(--hour)/2 - 1px),color-mix(in srgb,var(--calendar-rule) 50%,transparent) calc(var(--hour)/2),transparent calc(var(--hour)/2),transparent var(--hour)); }
 html .calendar-slot:hover { background: color-mix(in srgb,var(--focus-soft) 8%,transparent); outline: none; }
 html .calendar-slot:focus-visible { background: var(--raised-soft); outline: 2px solid var(--focus-soft); outline-offset: -2px; }
 html .calendar-event, html .schedule-booking { background: #dce9e1; color: #304f42; border-color: #7c9b8b; border-radius: 8px; }
