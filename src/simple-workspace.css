@@ -14,13 +14,14 @@
 .day-toolbar p{margin:0;color:var(--muted);font-size:14px}
 .day-navigation{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .day-navigation button{min-width:44px;min-height:44px}
-.simple-session{display:grid;grid-template-columns:86px minmax(0,1fr) auto 40px;align-items:center;gap:18px;padding:24px 28px;border-bottom:1px solid var(--line)}
+.simple-session{display:grid;grid-template-columns:86px minmax(0,1fr) auto auto 40px;align-items:center;gap:18px;padding:24px 28px;border-bottom:1px solid var(--line)}
 .simple-session-time strong{display:block;font-size:23px;letter-spacing:-.5px}
 .simple-session-time span{display:block;color:var(--muted);font-size:12px;margin-top:6px}
 .simple-session-person{min-width:0}
 .simple-session-person .name-link{font-size:19px;font-weight:800;text-align:left;overflow-wrap:anywhere;min-height:40px}
 .simple-session-person p{margin:5px 0 0;font-size:14px;color:var(--muted);overflow-wrap:anywhere}
 .simple-session .session-done{min-width:167px;min-height:54px;gap:9px;font-size:15px}
+.simple-session .session-missed{min-height:44px;white-space:nowrap;color:var(--muted)}
 .simple-session .session-edit{min-height:44px;min-width:40px;color:var(--muted)}
 .session-confirmation{margin:20px 24px;padding:20px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:14px;background:var(--tint)}
 .session-confirmation:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -52,6 +53,7 @@
  .simple-session-time strong{font-size:21px}
  .simple-session-person .name-link{font-size:17px}
  .simple-session .session-done{grid-column:1/-1;grid-row:2;width:100%;min-height:54px}
+ .simple-session .session-missed{grid-column:1/-1;grid-row:3;width:100%;justify-content:center}
  .simple-session .session-edit{grid-column:3;grid-row:1}
  .session-confirmation{margin:16px;padding:16px}
  .session-followups{gap:8px 16px}

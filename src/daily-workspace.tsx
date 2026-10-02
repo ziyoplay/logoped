@@ -6,7 +6,7 @@ type Props={
   appointments:SessionAppointment[];patients:{id:string;name:string}[];day:string;today:string;dateLabel:string;busy:string;
   onDay:(offset:number)=>void;onToday:()=>void;onCalendar:()=>void;onPatient:(id:string)=>void;
   onAddPatient:()=>void;onAddAppointment:(patientId?:string)=>void;onResult:(patientId:string)=>void;
-  onEdit:(a:SessionAppointment)=>void;onStatus:(a:SessionAppointment,status:string)=>Promise<boolean>;
+  onEdit:(a:SessionAppointment)=>void;onStatus:(a:SessionAppointment,status:string)=>Promise<boolean>;onMissed:(a:SessionAppointment)=>void;
 };
 
 export function DailyWorkspace(p:Props){
@@ -40,6 +40,7 @@ export function DailyWorkspace(p:Props){
         <div className="simple-session-time"><strong>{a.time}</strong><span>{a.duration} daqiqa</span></div>
         <div className="simple-session-person"><button className="name-link" onClick={()=>p.onPatient(a.patient_id)}>{name(a.patient_id)}</button><p>{a.title}</p></div>
         <button className="button primary session-done" disabled={!!p.busy} aria-label={`${name(a.patient_id)} qabulini yakunlash`} onClick={()=>void finish(a)}><IconCheck size={21}/>{p.busy===a.id?'Saqlanmoqda…':'Seans tugadi'}</button>
+        <button className="text-button session-missed" disabled={!!p.busy} aria-label={`${name(a.patient_id)} kelmadi — rejani surish`} onClick={()=>p.onMissed(a)}>Bemor kelmadi</button>
         <button className="icon-button session-edit" aria-label={`${name(a.patient_id)} qabulini tahrirlash`} onClick={()=>p.onEdit(a)}><IconEdit size={18}/></button>
       </article>)}</div>
       {!pending.length&&<div className="day-empty"><IconCheck size={32}/><h3>{finished.length?'Bu kungi seanslar tugadi':'Bu kunga qabul yo‘q'}</h3><p>{finished.length?'Natijani hozir yoki keyinroq qo‘shishingiz mumkin.':'Yangi qabul belgilang yoki boshqa kunni ko‘ring.'}</p></div>}

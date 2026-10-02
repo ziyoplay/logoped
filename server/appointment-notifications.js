@@ -6,10 +6,13 @@ const fields=['patient_id','date','time','duration','title','status'];
 export const appointmentSnapshot=a=>JSON.stringify(fields.map(k=>a?.[k]??null));
 
 // Called inside the appointment transaction: a failed save cannot send a message.
-export async function appointmentChanged(db,before,after,now=Date.now()){
+// notify:false — yozuv o‘zgardi, lekin bu o‘zgarish uchun xabar yuborilmaydi. Navbatda
+// turgan eski sanali xabar baribir o‘chiriladi, aks holda ota-ona noto‘g‘ri kunni oladi.
+export async function appointmentChanged(db,before,after,now=Date.now(),{notify=true}={}){
  if(appointmentSnapshot(before)===appointmentSnapshot(after))return;
  const a=after||before;
  await db.prepare("DELETE FROM appointment_notifications WHERE appointment_id=? AND patient_id IN (?,?) AND state IN ('pending','failed')").run(a.id,before?.patient_id||a.patient_id,after?.patient_id||a.patient_id);
+ if(!notify)return;
  if(before&&after&&before.patient_id!==after.patient_id)await enqueue(before,'cancelled');
  if(!after||after.status==='cancelled')await enqueue(a,'cancelled');
  else if(after.status==='scheduled')await enqueue(after,before?'updated':'created');
